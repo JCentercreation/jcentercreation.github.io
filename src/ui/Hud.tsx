@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
-import { LOCALES } from '@/content';
+import { useEffect, useState } from 'react';
+import { LOCALES, type ShotId } from '@/content';
 import { useExperience } from '@/app/store';
 import { useContent } from '@/app/useContent';
+import { Tooltip } from './Tooltip';
 import styles from './Hud.module.css';
 
-/** Persistent, discreet chrome: language selector + return-to-garage. */
+const PLACES: ShotId[] = ['overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaLaptop'];
+
+/** Persistent, discreet chrome: language selector, return-to-garage, skip intro, keyboard places. */
 export function Hud() {
   const { ui } = useContent();
   const locale = useExperience((s) => s.locale);
@@ -12,17 +15,36 @@ export function Hud() {
   const phase = useExperience((s) => s.phase);
   const shot = useExperience((s) => s.shot);
   const backToOverview = useExperience((s) => s.backToOverview);
+  const [hintVisible, setHintVisible] = useState(false);
 
   const canGoBack = phase === 'exploring' && shot !== 'overview';
 
   // Escape always returns to the overview — the visitor should never feel lost.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && useExperience.getState().shot !== 'overview') backToOverview();
+      const s = useExperience.getState();
+      if (e.key === 'Escape' && s.phase === 'exploring' && s.shot !== 'overview') backToOverview();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [backToOverview]);
+
+  // Show the "what to click" hint the first time the overview is reached.
+  useEffect(() => {
+    if (phase !== 'exploring') return;
+    setHintVisible(true);
+    const t = window.setTimeout(() => setHintVisible(false), 6500);
+    return () => window.clearTimeout(t);
+  }, [phase]);
+  useEffect(() => {
+    if (shot !== 'overview') setHintVisible(false);
+  }, [shot]);
+
+  const visit = (id: ShotId) => {
+    const s = useExperience.getState();
+    if (id === 'teslaLaptop') s.openTeslaDoor();
+    else s.goTo(id);
+  };
 
   return (
     <div className={`${styles.hud} ${phase === 'loading' ? styles.hidden : ''}`}>
@@ -52,6 +74,32 @@ export function Hud() {
           {ui.backToGarage}
         </button>
       </div>
+
+      <div className={styles.bottomRight}>
+        <button
+          type="button"
+          className={styles.back}
+          hidden={phase !== 'intro'}
+          onClick={() => useExperience.getState().requestSkipIntro()}
+        >
+          {ui.skipIntro}
+        </button>
+      </div>
+
+      <p className={styles.hint} data-visible={hintVisible && shot === 'overview'} aria-live="polite">
+        {ui.exploreHint}
+      </p>
+
+      {/* Keyboard / screen-reader navigation: invisible until focused. */}
+      <nav className={styles.places} aria-label={ui.placesLabel}>
+        {PLACES.map((id) => (
+          <button key={id} type="button" disabled={phase !== 'exploring'} aria-current={shot === id} onClick={() => visit(id)}>
+            {ui.shots[id]}
+          </button>
+        ))}
+      </nav>
+
+      <Tooltip />
     </div>
   );
 }

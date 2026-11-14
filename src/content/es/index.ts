@@ -14,6 +14,8 @@ const es: LocaleContent = {
     present: 'Actualidad',
     pendingContent: 'Detalles próximamente.',
     reducedMotionNotice: 'Movimiento reducido activado: los movimientos de cámara se acortan.',
+    exploreHint: 'Haz clic en el MacBook, el iPad, la puerta del coche o la estantería para explorar.',
+    placesLabel: 'Lugares del garaje',
     fallback: {
       title: 'El Garaje del Ingeniero',
       reason: 'Tu navegador o dispositivo no puede ejecutar el garaje en 3D, así que aquí tienes el contenido esencial.',
@@ -22,6 +24,8 @@ const es: LocaleContent = {
     objects: {
       macbook: 'MacBook Pro — leer la nota de bienvenida',
       ipad: 'iPad Pro — portfolio de plataformas Apple',
+      desk: 'Escritorio',
+      tesla: 'Taller — Tesla Model 3',
       bookshelf: 'Estantería — biblioteca personal',
       teslaDoor: 'Puerta del conductor del Tesla Model 3 — portfolio de automoción',
     },
@@ -29,6 +33,7 @@ const es: LocaleContent = {
       macbookIntro: 'Bienvenida',
       overview: 'Vista del garaje',
       desk: 'Escritorio',
+      macbook: 'MacBook',
       ipad: 'iPad',
       bookshelf: 'Estantería',
       tesla: 'Taller',
@@ -38,7 +43,7 @@ const es: LocaleContent = {
   welcome: {
     title: 'Hola 👋',
     body: [
-      'Hola, bienvenido a mi espacio.',
+      'Hola, te doy la bienvenida a mi espacio.',
       `Soy ${owner.name}, ingeniero de software apasionado por la tecnología, la ingeniería de automoción y el ecosistema Apple.`,
       'Este es mi espacio personal, donde puedes descubrir mi trayectoria profesional, mis proyectos, mis intereses y algunas cosas que me definen.',
       'Echa un vistazo. Estás en tu casa.',
@@ -52,6 +57,40 @@ const es: LocaleContent = {
       ],
     },
   },
+  macbook: {
+    appName: 'Notas',
+    folder: 'Javier',
+    notes: {
+      welcome: 'Bienvenida',
+      experience: 'Experiencia',
+      technologies: 'Tecnologías y habilidades',
+      leadership: 'Arquitectura y liderazgo',
+      startups: 'Startups',
+      projects: 'Proyectos personales',
+    },
+    projects: {
+      writingfree: {
+        description:
+          'Un espacio limpio, centrado y sin distracciones para plasmar tus ideas. Un modelo de IA en el propio dispositivo te ofrece observaciones útiles sobre lo que escribes.',
+        status: null,
+      },
+      necktimer: {
+        description:
+          'Una app que ayuda a tomar conciencia de la postura de la espalda y a prevenir lesiones, usando las señales de los acelerómetros de los AirPods para detectar la postura.',
+        status: null,
+      },
+      proof: {
+        description:
+          'Te ayuda a saber qué imágenes son fiables en un mundo en el que ver ya no es creer. La comunidad de beta testers no para de crecer.',
+        status: 'En desarrollo',
+      },
+      'swift-courses': {
+        description: 'Recursos de aprendizaje para la comunidad de desarrolladores.',
+        status: null,
+      },
+    },
+  },
+  windows: { start: 'Inicio', clock: '23:47' },
   apple: {
     heading: 'Plataformas Apple',
     sections: {

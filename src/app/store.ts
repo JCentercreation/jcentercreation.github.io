@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LOCALES, type Locale, type ShotId } from '@/content';
+import { LOCALES, type InteractiveObjectId, type Locale, type ShotId } from '@/content';
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 
@@ -15,6 +15,14 @@ function initialLocale(): Locale {
 }
 
 export type Phase = 'loading' | 'intro' | 'exploring';
+
+const SHOT_IDS: ShotId[] = ['macbookIntro', 'overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaLaptop'];
+
+/** Review helpers: `?shot=bookshelf` opens a shot directly, `?intro=1` forces the welcome sequence. */
+const params = new URLSearchParams(window.location.search);
+const shotParam = params.get('shot') as ShotId | null;
+export const initialShotOverride: ShotId | null = shotParam && SHOT_IDS.includes(shotParam) ? shotParam : null;
+export const forceIntro = params.get('intro') === '1';
 
 interface ExperienceState {
   locale: Locale;
@@ -34,6 +42,22 @@ interface ExperienceState {
   shot: ShotId;
   goTo: (shot: ShotId) => void;
   backToOverview: () => void;
+
+  /** Object under the pointer (or keyboard focus), for highlight + tooltip. */
+  hovered: InteractiveObjectId | null;
+  /** Book under the pointer while at the bookshelf. */
+  hoveredBook: string | null;
+  setHovered: (id: InteractiveObjectId | null) => void;
+  setHoveredBook: (id: string | null) => void;
+
+  teslaDoorOpen: boolean;
+  /** Door click → door opens → camera flies to the laptop, as one sequence (spec §7.3). */
+  openTeslaDoor: () => void;
+  closeTeslaDoor: () => void;
+
+  /** Set by the Skip button; the camera controller consumes it. */
+  skipIntroRequested: boolean;
+  requestSkipIntro: () => void;
 
   /** Returning visitors may skip the welcome sequence (spec §4). */
   hasVisited: boolean;
@@ -59,6 +83,22 @@ export const useExperience = create<ExperienceState>((set) => ({
   shot: 'macbookIntro',
   goTo: (shot) => set({ shot }),
   backToOverview: () => set({ shot: 'overview' }),
+
+  hovered: null,
+  hoveredBook: null,
+  setHovered: (hovered) => set({ hovered }),
+  setHoveredBook: (hoveredBook) => set({ hoveredBook }),
+
+  teslaDoorOpen: false,
+  openTeslaDoor: () => {
+    set({ teslaDoorOpen: true });
+    // Start the camera while the door is still swinging so it reads as one continuous move.
+    window.setTimeout(() => set({ shot: 'teslaLaptop' }), 550);
+  },
+  closeTeslaDoor: () => set({ teslaDoorOpen: false }),
+
+  skipIntroRequested: false,
+  requestSkipIntro: () => set({ skipIntroRequested: true }),
 
   hasVisited: safeStorage.get(VISITED_KEY) === '1',
   markVisited: () => {

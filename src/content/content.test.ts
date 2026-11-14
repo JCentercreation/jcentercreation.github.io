@@ -34,3 +34,11 @@ describe('content', () => {
     expect(new Set(slots).size).toBe(slots.length);
   });
 });
+
+describe('projects', () => {
+  it('every personal project has text in each locale', async () => {
+    const { projects } = await import('./index');
+    for (const locale of LOCALES)
+      for (const p of projects) expect(content[locale].macbook.projects[p.id], `${locale}:${p.id}`).toBeDefined();
+  });
+});

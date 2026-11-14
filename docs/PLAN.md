@@ -91,16 +91,39 @@ texture resize) → `public/models/`. Target: **≤ 8 MB** for the initial overv
 
 | # | Phase | Status |
 |---|---|---|
-| 1 | Foundation: scaffold, Pages workflow, bilingual content system, loader, HUD, fallback | **Done** |
-| 2 | Environment & visual direction (blockout → review → final assets, lighting, window, weather) | Next |
-| 3 | Camera shots, hover states, transitions, return to overview | |
-| 4 | MacBook + welcome reveal (5–7 s, skippable for returning visitors) | |
+| 1 | Foundation: scaffold, Pages workflow, bilingual content system, loader, HUD, fallback | **Done, approved** |
+| 2 | Visual prototype: room, materials, lighting, storm, desk, bookshelf, Tesla, workshop, decor + camera shots, transitions, welcome sequence | **Prototype done — awaiting review** |
+| 3 | Final modelling / textures (Blender + licensed assets), visual polish | After review |
+| 4 | MacBook interactive Notes portfolio (welcome, experience, skills, leadership, startups, personal projects) | |
 | 5 | iPad Apple portfolio | |
 | 6 | Tesla door + diagnostic laptop + Windows-style automotive portfolio | |
 | 7 | Bookshelf interaction | |
 | 8 | Poster, shoes, workshop details | |
 | 9 | Optimisation, accessibility, cross-browser, publish | |
 
-Phase 2 proposal: start with a **grey-box blockout** (simple shapes, clearly temporary) to agree on room proportions
-and the overview composition, then replace it piece by piece with real assets. The blockout is a review tool,
-not a final asset (spec §16.8).
+Owner decision (Phase 2): **no grey-box**. Go straight to an early visual prototype with approximate but
+reasonably realistic provisional models, then replace modules with final assets after review.
+
+## 6. Phase 2 prototype — what is provisional
+
+Every area is its own module positioned from `src/scene/layout.ts` (which also derives every camera shot),
+so a provisional model can be swapped for a GLB without touching the rest.
+
+| Element | Module | Prototype | Intended final |
+|---|---|---|---|
+| Room shell, window, beams | `environment/Room.tsx` | Code-built, procedural brick / concrete / cement | Blender model with baked lightmaps |
+| Materials | `materials/proceduralTextures.ts` | Generated at load (no downloads) | Scanned CC0 / authored PBR sets, KTX2 |
+| Storm: sky, sea, rain, rain on glass, lightning | `environment/Outside.tsx`, `WindowGlass.tsx`, `storm.ts` | Shaders | **Intended final** (tuning only) |
+| Lighting + reflections | `Lighting.tsx`, `Effects.tsx` | Real-time, 2 shadow casters, bloom/vignette | Mostly final; baked GI added later |
+| Desk, chair, lamp, rug, mug, notebook, headphones | `desk/DeskArea.tsx` | Code-built | Blender |
+| MacBook Pro 14", iPad Pro, iPhone, Pencil | `desk/*` | Code-built approximations | Licensed or custom models (approval) |
+| Screen contents (Notes, iPad portfolio, Windows-style laptop) | `screens/screenTextures.ts` | Canvas previews from the content layer | Interactive DOM UIs when focused (Phases 4–6); previews stay for distance |
+| Bookshelf frame + books | `bookshelf/*` | Code-built; seeded, stable arrangement; real books data-driven | Frame in Blender; arrangement logic **intended final** |
+| Tesla Model 3 | `tesla/carGeometry.ts`, `Tesla.tsx` | Procedural body with real door opening, hinge, interior, laptop, OBD cable | **Licensed model** (approval), same door/interior contract |
+| Workshop (tool chest, pegboard, cart, tyres, wall charger) | `tesla/Workshop.tsx` | Code-built | Blender / CC0 |
+| Think different. poster | `decor/Poster.tsx` | **Neutral placeholder** (no Apple marks, no photo) | Owner-supplied image they may use |
+| Orange running shoes | `decor/RunningShoes.tsx` | Code-built silhouette, no logos | Licensed / custom model (approval) |
+| Camera director, intro, hover, door sequence | `camera/*`, `Interactive.tsx`, store | Implemented | **Intended final** (timing tuning only) |
+
+Review helpers: `?shot=overview|desk|macbook|ipad|bookshelf|tesla|teslaLaptop`, `?intro=1`, `?lang=es`,
+`?tier=full|reduced|fallback`.

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { useExperience } from './app/store';
+import { forceIntro, initialShotOverride, useExperience } from './app/store';
 import { useDocumentLocale } from './app/useContent';
 import { Loader } from './ui/Loader';
 import { Hud } from './ui/Hud';
@@ -23,10 +23,14 @@ export function App() {
 
   const onReady = useCallback(() => {
     const s = useExperience.getState();
-    // Phase 4 adds the MacBook → overview reveal here; returning visitors will skip it.
-    s.markVisited();
-    s.goTo('overview');
-    s.setPhase('exploring');
+    if (initialShotOverride && !forceIntro) {
+      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: initialShotOverride === 'teslaLaptop' });
+    } else if (s.hasVisited && !forceIntro) {
+      // Returning visitors skip the welcome sequence.
+      useExperience.setState({ shot: 'overview', phase: 'exploring' });
+    } else {
+      useExperience.setState({ shot: 'macbookIntro', phase: 'intro' });
+    }
   }, []);
 
   const show3D = tier !== 'fallback' || forceScene;

@@ -14,6 +14,8 @@ const en: LocaleContent = {
     present: 'Present',
     pendingContent: 'Details coming soon.',
     reducedMotionNotice: 'Reduced motion is on: camera moves are shortened.',
+    exploreHint: 'Click the MacBook, the iPad, the car door or the bookshelf to explore.',
+    placesLabel: 'Places in the garage',
     fallback: {
       title: "The Engineer's Garage",
       reason: "Your browser or device can't run the 3D garage, so here's the essential content instead.",
@@ -22,6 +24,8 @@ const en: LocaleContent = {
     objects: {
       macbook: 'MacBook Pro — read the welcome note',
       ipad: 'iPad Pro — Apple platforms portfolio',
+      desk: 'Desk',
+      tesla: 'Workshop — Tesla Model 3',
       bookshelf: 'Bookshelf — personal library',
       teslaDoor: 'Tesla Model 3 driver door — automotive portfolio',
     },
@@ -29,6 +33,7 @@ const en: LocaleContent = {
       macbookIntro: 'Welcome',
       overview: 'Garage overview',
       desk: 'Desk',
+      macbook: 'MacBook',
       ipad: 'iPad',
       bookshelf: 'Bookshelf',
       tesla: 'Workshop',
@@ -52,6 +57,40 @@ const en: LocaleContent = {
       ],
     },
   },
+  macbook: {
+    appName: 'Notes',
+    folder: 'Javier',
+    notes: {
+      welcome: 'Welcome',
+      experience: 'Experience',
+      technologies: 'Technologies & skills',
+      leadership: 'Architecture & leadership',
+      startups: 'Startups',
+      projects: 'Personal projects',
+    },
+    projects: {
+      writingfree: {
+        description:
+          'A clean, focused and distraction-free place to write down your thoughts. An on-device AI model offers helpful insights about your writing.',
+        status: null,
+      },
+      necktimer: {
+        description:
+          'An app that helps people become more aware of their back posture and prevent injuries, using AirPods accelerometer signals to detect posture.',
+        status: null,
+      },
+      proof: {
+        description:
+          'Helps you know which images are trustworthy in a world where seeing is no longer believing. The beta-tester community is growing.',
+        status: 'In development',
+      },
+      'swift-courses': {
+        description: 'Learning resources for the developer community.',
+        status: null,
+      },
+    },
+  },
+  windows: { start: 'Start', clock: '23:47' },
   apple: {
     heading: 'Apple Platforms',
     sections: {

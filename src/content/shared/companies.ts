@@ -29,7 +29,7 @@ export const automotiveCompanies: CompanyRecord[] = [
   },
   {
     id: 'rfea',
-    name: 'Real Federación Española de Automovilismo',
+    name: 'Real Federación Española de Automovilismo (RFEDA)',
     logo: null,
     period: { start: '2010-04', end: '2012-06' },
     technologies: [],

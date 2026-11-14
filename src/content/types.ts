@@ -51,6 +51,14 @@ export interface BookRecord {
   slot: number;
 }
 
+export interface ProjectRecord {
+  id: string;
+  name: string;
+  url: string;
+  /** Extra links (e.g. the two Swift courses). */
+  links?: { name: string; url: string }[];
+}
+
 // ---------- localized ----------
 
 export interface UiStrings {
@@ -65,6 +73,10 @@ export interface UiStrings {
   present: string;
   pendingContent: string;
   reducedMotionNotice: string;
+  /** One-line hint shown once the overview is reached. */
+  exploreHint: string;
+  /** Keyboard / screen-reader list of places to visit. */
+  placesLabel: string;
   fallback: {
     title: string;
     reason: string;
@@ -76,11 +88,12 @@ export interface UiStrings {
   shots: Record<ShotId, string>;
 }
 
-export type InteractiveObjectId = 'macbook' | 'ipad' | 'bookshelf' | 'teslaDoor';
+export type InteractiveObjectId = 'macbook' | 'ipad' | 'desk' | 'bookshelf' | 'tesla' | 'teslaDoor';
 export type ShotId =
   | 'macbookIntro'
   | 'overview'
   | 'desk'
+  | 'macbook'
   | 'ipad'
   | 'bookshelf'
   | 'tesla'
@@ -92,6 +105,27 @@ export interface WelcomeNote {
   body: string[];
   /** Short bullet list: what visitors can discover in the room. */
   discover: { heading: string; items: string[] };
+}
+
+/** The MacBook runs a single Notes-style app; each note is one portfolio section. */
+export interface MacBookContent {
+  appName: string;
+  folder: string;
+  notes: {
+    welcome: string;
+    experience: string;
+    technologies: string;
+    leadership: string;
+    startups: string;
+    projects: string;
+  };
+  projects: Record<string, { description: string; status: string | null }>;
+}
+
+export interface WindowsChrome {
+  start: string;
+  /** Clock shown in the taskbar — static, decorative. */
+  clock: string;
 }
 
 export interface CompanyText {
@@ -146,6 +180,8 @@ export interface BooksContent {
 export interface LocaleContent {
   ui: UiStrings;
   welcome: WelcomeNote;
+  macbook: MacBookContent;
+  windows: WindowsChrome;
   apple: AppleContent;
   automotive: AutomotiveContent;
   books: BooksContent;

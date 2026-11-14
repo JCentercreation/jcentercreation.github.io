@@ -1,7 +1,7 @@
 import { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
-import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
+import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace } from 'three';
 import { useExperience } from '@/app/store';
 import { GarageScene } from './GarageScene';
 
@@ -37,10 +37,11 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
 
   return (
     <Canvas
-      dpr={full ? [1, 2] : [1, 1.5]}
-      shadows={full}
-      gl={{ antialias: full, powerPreference: 'high-performance' }}
-      camera={{ fov: 40, near: 0.05, far: 200, position: [0, 1.6, 6] }}
+      dpr={full ? [1, 1.75] : [1, 1.5]}
+      shadows={full ? { type: PCFShadowMap } : false}
+      // Full tier antialiases in the post-processing composer (MSAA); reduced tier uses the default buffer.
+      gl={{ antialias: !full, powerPreference: 'high-performance', stencil: false }}
+      camera={{ fov: 50, near: 0.02, far: 600, position: [0.3, 1.68, 4.35] }}
       onCreated={({ gl }) => {
         gl.toneMapping = ACESFilmicToneMapping;
         gl.outputColorSpace = SRGBColorSpace;

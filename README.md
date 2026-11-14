@@ -4,7 +4,7 @@ Interactive 3D personal site — React + TypeScript + Vite + React Three Fiber, 
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173  (?lang=es, ?tier=full|reduced|fallback)
+npm run dev        # http://localhost:5173  (?lang=es, ?tier=full|reduced|fallback, ?shot=desk, ?intro=1)
 npm test           # content integrity (EN/ES parity, ids, book slots)
 npm run build      # type-check + production build into dist/
 ```
