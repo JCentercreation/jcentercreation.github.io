@@ -32,8 +32,26 @@ export const MACBOOK = {
 };
 
 /** iPad Pro 13" lying flat, landscape. */
+/**
+ * Apple Studio Display 27" on the tilt-adjustable stand: enclosure 623 × 362 × 30 mm,
+ * overall height 478 mm, foot 168 mm deep. Sits behind the MacBook, never in front of it.
+ */
+export const STUDIO_DISPLAY = {
+  position: new Vector3(0.42, top, -4.06), // centre of the screen's front face (x, desk top, z)
+  width: 0.6227,
+  height: 0.3623,
+  depth: 0.03,
+  /** Bottom edge of the enclosure above the desk. */
+  lift: 0.116,
+  tilt: 0.06, // radians, leaning back slightly
+};
+
+/** Magic Keyboard + Magic Trackpad, to the right of the MacBook, in front of the display. */
+export const KEYBOARD = { position: new Vector3(0.8, top, -3.6), rotationY: -0.05 };
+export const TRACKPAD = { position: new Vector3(1.04, top, -3.6), rotationY: -0.05 };
+
 export const IPAD = {
-  position: new Vector3(0.92, top + 0.006, -3.66),
+  position: new Vector3(1.16, top + 0.006, -3.9),
   rotationY: -0.12,
   width: 0.2816,
   depth: 0.2155,

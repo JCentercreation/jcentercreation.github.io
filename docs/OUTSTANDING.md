@@ -32,7 +32,9 @@ Kept up to date every phase (spec §16.11). Nothing below is invented in the app
 - [ ] Tesla Model 3: model year/version; then a licensed 3D model.
 - [ ] OBD port location / diagnostic setup for that version.
 - [ ] Decision on purchased vs. custom models (MacBook, iPad, Tesla, Vomero Plus). No purchases without approval.
-- [ ] Tesla: supply the GLB downloads of the candidates (PLAN.md §9) for inspection. Provenance concern on the preferred candidate. No purchase.
+- [ ] Tesla: supply the GLBs of brandonleong28 and wintrez (PLAN.md §10) on a separate branch for inspection. tonielpro520 on hold (provenance). No purchase.
+- [ ] Tesla model year (pre-2024 vs 2024 "Highland") — decides which body is accurate.
+- [ ] Nissan: keep the 2020 logo or switch to the 2001–2020 period mark (ASSETS.md).
 - [ ] Network access to a CC0 texture source (e.g. Poly Haven) — currently blocked in the build environment, so the prototype uses generated materials.
 
 ## Repository settings (owner)

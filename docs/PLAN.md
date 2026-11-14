@@ -209,3 +209,51 @@ Alternatives checked the same way (all free downloads need a Sketchfab account):
 Next step (no cost, no token): the owner downloads the GLB of the preferred candidate and of brandonleong28's model and
 supplies them; `node scripts/inspect-model.mjs <file>` then reports door nodes, interior parts, triangle/material/texture
 budget and real-world size, followed by test renders of the door-open and laptop camera shots.
+
+## 10. Tesla investigation — round 2 (owner: no tonielpro520 until provenance is clear)
+
+Checked from the public model pages (sketchfab.com). The downloads themselves require a Sketchfab account, so
+**door separation and interior detail cannot be confirmed without the file**; `scripts/inspect-model.mjs` is ready.
+
+| | brandonleong28 "Tesla model 3 2024" | wintrez "Tesla M3 model" |
+|---|---|---|
+| Page | https://sketchfab.com/3d-models/tesla-model-3-2024-36c52f3f89f6439c90310f14e8ff33f2 | https://sketchfab.com/3d-models/tesla-m3-model-3a602469d7874d1397efa67182198705 |
+| Licence | CC BY 4.0 (credit required, commercial use allowed) | CC BY 4.0 |
+| Body | 2024 "Highland" refresh | Pre-facelift (2017–2023) |
+| Triangles / vertices | 179,692 / 102,586 | 247,368 / 136,524 |
+| Materials / textures | 17 / 7 | 23 / 0 (pure materials, no textures) |
+| Source file | `2024_tesla_model_3.glb`, 8.7 MB | `teslaMSFullSketchfab001.blend`, 19 MB (Blender 2.82) |
+| Rig / animations | none | none |
+| Interior | not stated; 7 textures for a whole car suggests a simplified cabin | not stated |
+| Description / credits | none | "Built in blender, no textures, pure materials" |
+| Author history | account with a single published model, no bio | 4,759 downloads, published 2021 |
+| Provenance | **Unclear** — no evidence of a rip, but no evidence of authorship either (single upload, GLB-only source, no notes) | **Best signal found** — native .blend authoring file + the author's own build note |
+| Web budget (estimate) | GLB ~8.7 MB → ~2–3 MB after Draco/Meshopt + WebP/KTX2 | ~247k tris → decimate to ~150k; no textures → small GLB (~2–4 MB) |
+
+Assessment:
+- **brandonleong28:** a credible refresh-era body at a good size, but provenance cannot be established from the page;
+  under the owner's rule (no questionable provenance) it should only proceed if the file itself carries authoring
+  evidence (e.g. sensible object names, original materials) — to be checked on inspection.
+- **wintrez:** best provenance of the free options; body is the pre-2024 Model 3 (the owner's model year is still to be
+  confirmed — if the real car is pre-2024 this is the more accurate one). Being a Blender file, door separation is likely
+  but must be verified.
+- BlendKit "Tesla Model 3" (7K Studio) is listed as free, royalty-free, with interior — needs the BlendKit add-on and
+  account to download; licence text not verifiable from here.
+- Paid options are excluded per the owner.
+
+Preview images: the 3D viewers on the two pages above are the previews. (Downloading the thumbnails into this
+environment was blocked by the session's safety policy, so they are linked rather than embedded.)
+
+Requested from the owner: download both GLBs (Sketchfab "Download 3D model" → glTF/GLB; free account) and push them to a
+separate branch, e.g. `assets-tesla`, never to `main`. Then: inspection report, door split if needed, and test renders
+of the door-open and laptop shots — before any integration.
+
+## 11. Desk — Apple workstation (provisional)
+
+- Studio Display 27" (`desk/StudioDisplay.tsx`): real proportions (623 × 362 × 30 mm, tilt stand, 478 mm overall), silver,
+  behind the MacBook; dark Xcode-like editor with neutral sample Swift (`screens/screenTextures.ts`, kind `xcode`), drawn
+  dimmer than the MacBook so it frames rather than competes.
+- MacBook Pro 14" stays front and centre (welcome note; intro close-up unchanged); Thunderbolt cable to the display.
+- Magic Keyboard + Magic Trackpad (`desk/Peripherals.tsx`) to the MacBook's right; iPad moved to the back right with its
+  Pencil and USB-C cable; notebook + pen, iPhone, AirPods case, charger, lamp, mug. Headphones removed to avoid clutter.
+- All positions live in `layout.ts` (`STUDIO_DISPLAY`, `KEYBOARD`, `TRACKPAD`, `IPAD`); camera shots follow automatically.

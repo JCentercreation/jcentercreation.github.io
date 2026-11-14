@@ -20,14 +20,20 @@ for traceability.
 
 Notes:
 - Nissan and SEAT: current corporate marks (Nissan 2020, SEAT 2017). The owner's tenure (2016–2019) partly
-  predates the 2020 Nissan mark — the period logo can be swapped in if preferred.
+  predates the 2020 Nissan mark.
+- **Nissan period logo (2001–2020):** found on Commons as
+  [File:Nissan logo 2001.svg](https://commons.wikimedia.org/wiki/File:Nissan_logo_2001.svg) — tagged public domain,
+  trademarked, "Nissan logo used between 2001 and 2020". Weaker provenance than the 2020 file: its stated source is a
+  fan wiki (logos.fandom.com), not Nissan. Not downloaded yet: Wikimedia's file server answered HTTP 429 (rate limit)
+  to every attempt from this environment. Awaiting the owner's choice of 2020 vs period mark.
 - On dark interfaces (iPad) logos are placed on a white tile so their official colours stay legible.
 
 **Still placeholders:**
 - **Misfits Studio** — the owner's own studio; logo to be supplied by the owner (or read from the
   misfitsStudio repository with permission).
-- **RFEDA** — not on Commons; the official site only serves raster images from its CDN (`back.ww-cdn.com`),
-  which this environment's network policy does not allow. No SVG found.
+- **RFEDA** — not on Commons and no English/Spanish Wikipedia file found; the official site (rfeda.es) only serves raster
+  images from its CDN (`back.ww-cdn.com`), which was not approved for this environment. No SVG exists publicly.
+  Options: owner supplies the file, or approves that host for a raster (PNG/JPG) logo.
 
 ## Book covers (`public/books/`)
 

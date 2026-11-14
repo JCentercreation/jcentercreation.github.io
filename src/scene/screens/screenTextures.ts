@@ -408,9 +408,121 @@ function drawWindows(g: CanvasRenderingContext2D, c: LocaleContent, locale: Loca
   });
 }
 
+// ------------------------------------------------------------------ Studio Display: Xcode-like editor
+
+const SWIFT_SAMPLE = [
+  'import SwiftUI',
+  '',
+  'struct WorkbenchView: View {',
+  '    @State private var isExploring = false',
+  '    let areas = ["Desk", "Library", "Workshop"]',
+  '',
+  '    var body: some View {',
+  '        NavigationStack {',
+  '            List(areas, id: \\.self) { area in',
+  '                Label(area, systemImage: "square.grid.2x2")',
+  '            }',
+  '            .navigationTitle("The Engineer\'s Garage")',
+  '        }',
+  '    }',
+  '}',
+  '',
+  '#Preview {',
+  '    WorkbenchView()',
+  '}',
+];
+
+/** Minimal Swift highlighter in Xcode's default dark palette. */
+function drawSwiftLine(g: CanvasRenderingContext2D, line: string, x: number, y: number) {
+  const tokens = line.split(/(\s+|"[^"]*"|[{}()\[\],.:=]|#\w+|@\w+|\\\.self)/).filter((t) => t !== '');
+  const keywords = new Set(['import', 'struct', 'var', 'let', 'some', 'private', 'in']);
+  const types = new Set(['View', 'SwiftUI', 'NavigationStack', 'List', 'Label', 'WorkbenchView']);
+  let cx = x;
+  for (const t of tokens) {
+    let col = '#dfdfe0';
+    if (keywords.has(t)) col = '#ff7ab2';
+    else if (types.has(t)) col = '#dabaff';
+    else if (t.startsWith('"')) col = '#ff8170';
+    else if (t.startsWith('@') || t.startsWith('#')) col = '#fd8f3f';
+    else if (/^[a-z]\w*$/.test(t) && ['body', 'areas', 'isExploring', 'area', 'navigationTitle', 'systemImage', 'id'].includes(t)) col = '#67b7a4';
+    g.fillStyle = col;
+    g.fillText(t, cx, y);
+    cx += g.measureText(t).width;
+  }
+}
+
+function drawXcode(g: CanvasRenderingContext2D) {
+  const W = 2048;
+  const H = 1152;
+  g.fillStyle = '#1f1f24';
+  g.fillRect(0, 0, W, H);
+  // Toolbar.
+  g.fillStyle = '#2b2b31';
+  g.fillRect(0, 0, W, 64);
+  ['#ff5f57', '#febc2e', '#28c840'].forEach((col, i) => {
+    g.beginPath();
+    g.arc(30 + i * 28, 32, 9, 0, Math.PI * 2);
+    g.fillStyle = col;
+    g.fill();
+  });
+  g.fillStyle = '#9a9aa0';
+  g.font = `500 22px ${SYSTEM_FONT}`;
+  g.fillText('Garage  ›  My Mac', 760, 40);
+  // Navigator.
+  const nav = 360;
+  g.fillStyle = '#25252a';
+  g.fillRect(0, 64, nav, H - 64);
+  g.font = `400 21px ${SYSTEM_FONT}`;
+  const files = ['▾ Garage', '    ▾ App', '        GarageApp.swift', '        WorkbenchView.swift', '    ▾ Models', '        Area.swift', '    ▸ Resources', '    ▸ Tests'];
+  files.forEach((f, i) => {
+    if (i === 3) {
+      g.fillStyle = '#2f4b78';
+      g.fillRect(8, 96 + i * 38 - 26, nav - 16, 36);
+    }
+    g.fillStyle = '#cfcfd4';
+    g.fillText(f, 24, 96 + i * 38);
+  });
+  // Tabs.
+  g.fillStyle = '#2a2a30';
+  g.fillRect(nav, 64, W - nav, 44);
+  g.fillStyle = '#dfdfe0';
+  g.font = `500 20px ${SYSTEM_FONT}`;
+  g.fillText('WorkbenchView.swift', nav + 24, 93);
+  // Editor.
+  g.font = `400 26px Menlo, "SF Mono", Monaco, Consolas, monospace`;
+  SWIFT_SAMPLE.forEach((line, i) => {
+    const y = 160 + i * 40;
+    g.fillStyle = '#5c5c66';
+    g.textAlign = 'right';
+    g.fillText(String(i + 1), nav + 64, y);
+    g.textAlign = 'left';
+    drawSwiftLine(g, line, nav + 96, y);
+  });
+  // Canvas (preview) pane.
+  const px = 1500;
+  g.fillStyle = '#18181c';
+  g.fillRect(px, 108, W - px, H - 108);
+  roundRect(g, px + 120, 220, 300, 620, 44);
+  g.fillStyle = '#000';
+  g.fill();
+  g.fillStyle = '#f2f2f7';
+  roundRect(g, px + 134, 234, 272, 592, 34);
+  g.fill();
+  g.fillStyle = '#111';
+  g.font = `700 24px ${SYSTEM_FONT}`;
+  g.fillText("Engineer's Garage", px + 154, 310);
+  ['Desk', 'Library', 'Workshop'].forEach((a, i) => {
+    g.fillStyle = '#ffffff';
+    g.fillRect(px + 150, 340 + i * 56, 240, 50);
+    g.fillStyle = '#111';
+    g.font = `400 20px ${SYSTEM_FONT}`;
+    g.fillText(a, px + 168, 372 + i * 56);
+  });
+}
+
 // ------------------------------------------------------------------ hooks
 
-type Kind = 'notes' | 'ipad' | 'windows';
+type Kind = 'notes' | 'ipad' | 'windows' | 'xcode';
 
 /** A screen texture that redraws when the language changes (camera and state untouched). */
 export function useScreenTexture(kind: Kind) {
@@ -420,6 +532,7 @@ export function useScreenTexture(kind: Kind) {
     const c = content[locale];
     if (kind === 'notes') return make(2048, 1330, (g) => drawNotes(g, c));
     if (kind === 'ipad') return make(2048, 1536, (g) => drawIPad(g, c, locale));
+    if (kind === 'xcode') return make(2048, 1152, drawXcode);
     return make(1600, 1000, (g) => drawWindows(g, c, locale));
     // `logos` re-draws once official logo files have loaded.
   }, [kind, locale, logos]);

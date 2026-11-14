@@ -5,7 +5,9 @@ import { useExperience } from '@/app/store';
 import { DESK } from '../layout';
 import { oakDesk } from '../materials/proceduralTextures';
 import { lockScreenTexture } from './deckTextures';
-import { IPAD, MACBOOK } from '../layout';
+import { IPAD, MACBOOK, STUDIO_DISPLAY } from '../layout';
+import { StudioDisplay } from './StudioDisplay';
+import { MagicKeyboard, MagicTrackpad } from './Peripherals';
 import { Rod } from '../primitives';
 import { Interactive } from '../Interactive';
 import { MacBook } from './MacBook';
@@ -40,9 +42,9 @@ function Desk() {
           ))}
         </group>
       ))}
-      {/* Felt desk pad under the laptop. */}
-      <mesh position={[-0.05, TOP + 0.0015, 0.05]} receiveShadow>
-        <boxGeometry args={[0.82, 0.003, 0.42]} />
+      {/* Felt desk pad under the laptop, keyboard and trackpad. */}
+      <mesh position={[0.15, TOP + 0.0015, 0.12]} receiveShadow>
+        <boxGeometry args={[1.08, 0.003, 0.4]} />
         <meshStandardMaterial color="#3b3936" roughness={0.95} />
       </mesh>
     </group>
@@ -130,8 +132,10 @@ const T = TOP + 0.0025; // resting on the desk
 function DeskProps() {
   const lock = lockScreenTexture();
   const mbLeft = MACBOOK.position.x - MACBOOK.width / 2;
-  const ipadRight = IPAD.position.x + IPAD.width / 2 - 0.004;
-  const charger: [number, number, number] = [1.06, TOP, -4.08];
+  const ipadLeft = IPAD.position.x - IPAD.width / 2 + 0.004;
+  const mbRight = MACBOOK.position.x + MACBOOK.width / 2;
+  const dz = STUDIO_DISPLAY.position.z;
+  const charger: [number, number, number] = [0.93, TOP, -4.1];
   return (
     <group>
       {/* Notebook (closed, elastic band) with a pen. */}
@@ -186,20 +190,6 @@ function DeskProps() {
         </mesh>
       </group>
 
-      {/* Over-ear headphones lying on the desk. */}
-      <group position={[1.22, TOP + 0.04, -3.98]} rotation-y={0.5}>
-        <mesh>
-          <torusGeometry args={[0.085, 0.009, 8, 32, Math.PI]} />
-          <meshStandardMaterial color="#1e1f22" roughness={0.5} />
-        </mesh>
-        {[-0.085, 0.085].map((x) => (
-          <mesh key={x} position={[x, 0, 0]} rotation-z={Math.PI / 2} castShadow>
-            <cylinderGeometry args={[0.04, 0.04, 0.035, 24]} />
-            <meshStandardMaterial color="#26272a" roughness={0.6} />
-          </mesh>
-        ))}
-      </group>
-
       {/* Compact USB-C charger at the back of the desk. */}
       <RoundedBox args={[0.045, 0.03, 0.06]} radius={0.006} position={[charger[0], TOP + 0.015, charger[2]]} castShadow>
         <meshStandardMaterial color="#e7e7e5" roughness={0.4} />
@@ -218,14 +208,38 @@ function DeskProps() {
           [mbLeft - 0.02, 0.02, -4.26],
         ]}
       />
-      {/* iPad USB-C to the charger. */}
+      {/* iPad USB-C (from its left short edge) to the charger. */}
       <Cable
         points={[
-          [ipadRight + 0.004, TOP + 0.004, IPAD.position.z + 0.02],
-          [ipadRight + 0.05, T, IPAD.position.z - 0.02],
-          [ipadRight + 0.03, T, -3.95],
-          [charger[0] - 0.01, T, charger[2] + 0.06],
+          [ipadLeft - 0.004, TOP + 0.004, IPAD.position.z + 0.01],
+          [ipadLeft - 0.04, T, IPAD.position.z - 0.02],
+          [charger[0] + 0.02, T, -4.0],
           [charger[0], TOP + 0.012, charger[2] + 0.03],
+        ]}
+      />
+      {/* Thunderbolt: MacBook right side → behind the laptop → up into the back of the display. */}
+      <Cable
+        color="#d9d9d7"
+        radius={0.0024}
+        points={[
+          [mbRight + 0.003, TOP + 0.007, -3.8],
+          [mbRight + 0.05, T, -3.84],
+          [mbRight + 0.06, T, -3.97],
+          [STUDIO_DISPLAY.position.x + 0.12, T, dz - 0.07],
+          [STUDIO_DISPLAY.position.x + 0.06, TOP + 0.06, dz - 0.075],
+          [STUDIO_DISPLAY.position.x + 0.02, TOP + 0.16, dz - 0.05],
+        ]}
+      />
+      {/* Display power cord down behind the desk. */}
+      <Cable
+        color="#d9d9d7"
+        radius={0.0028}
+        points={[
+          [STUDIO_DISPLAY.position.x - 0.02, TOP + 0.16, dz - 0.05],
+          [STUDIO_DISPLAY.position.x - 0.05, TOP + 0.05, dz - 0.09],
+          [STUDIO_DISPLAY.position.x - 0.07, T, -4.17],
+          [STUDIO_DISPLAY.position.x - 0.08, TOP - 0.05, -4.21],
+          [STUDIO_DISPLAY.position.x - 0.06, 0.02, -4.26],
         ]}
       />
       {/* Charger lead down behind the desk. */}
@@ -291,7 +305,10 @@ export function DeskArea() {
       </Interactive>
       <DeskLamp />
       <DeskProps />
+      <StudioDisplay />
       <MacBook />
+      <MagicKeyboard />
+      <MagicTrackpad />
       <IPad />
     </group>
   );
