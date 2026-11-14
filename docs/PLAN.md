@@ -1,0 +1,106 @@
+# The Engineer's Garage — Implementation Plan
+
+Companion to the Master Project Specification v1.0. The spec is the source of truth; this file records
+how it is being built and the trade-offs taken.
+
+## 1. Repository findings (before Phase 1)
+
+- `jcentercreation.github.io` is a GitHub **user site**, served at the domain root → Vite `base: '/'`.
+- It held a single hand-written page (`index.html` + `styles.css` + favicons) and an unused `secondary.html`.
+  The page is preserved verbatim at **`/legacy/`** (`public/legacy/`); `secondary.html` was a template leftover and was removed.
+- Sibling project sites (`/misfitsStudio/`, `/PROOF-Image_Verification/`, `/SwiftSecurityCourse/`) are separate repos
+  and are unaffected by this one.
+
+## 2. Architecture
+
+| Concern | Choice | Notes |
+|---|---|---|
+| App | React 19 + TypeScript (strict) + Vite 8 | |
+| 3D | three r187, React Three Fiber 9, Drei 10 | Lazy chunk (~245 KB gz), never downloaded by the 2D fallback |
+| Animation | GSAP (camera rigs, door hinge, book extraction) | From Phase 3 |
+| State | Zustand (`src/app/store.ts`) | `locale` and `shot` are independent → switching language never moves the camera |
+| Styling | CSS Modules + global tokens (`src/styles/global.css`) | |
+| Content | `src/content/{en,es}` + `src/content/shared` | Typed schema; a test fails if ES/EN shapes diverge |
+| Tests | Vitest (content integrity), Playwright for visual checks | |
+| Deploy | GitHub Actions → GitHub Pages (`.github/workflows/deploy.yml`) | Builds on `main` only |
+
+```
+src/
+  app/        store, content hooks
+  content/    types.ts, shared/ (dates, logos, book slots), en/, es/
+  lib/        capability tiering, storage, formatting
+  scene/      GarageCanvas (renderer), GarageScene (+ future areas)
+  ui/         Loader, Hud (language + back), Fallback (2D content page)
+```
+
+Planned scene modules (spec §12.1): `GarageScene`, `Lighting`, `Weather` (rain + lightning), `Window`,
+`DeskArea`, `MacBook`, `IPad`, `Bookshelf`, `Book`, `Tesla`, `DriverDoor`, `DiagnosticLaptop`, `Poster`,
+`RunningShoes`, `CameraController` + `cameraShots.ts` (one data record per cinematic shot).
+
+### Device tiers (decided once at boot, `?tier=` overrides for testing)
+
+- **full** — desktop: DPR up to 2, shadows, all effects.
+- **reduced** — touch / small screen / ≤4 GB RAM: DPR ≤1.5, baked shadows only, lighter rain, no DoF.
+- **fallback** — no WebGL2: content-first 2D page (`ui/Fallback.tsx`), with an opt-in "try 3D anyway".
+
+### Device screens (MacBook, iPad, diagnostic laptop) — key trade-off
+
+The three screens are real React DOM UIs (Notes, iPad portfolio, Windows-style window), not textures.
+Proposed approach:
+- **At a distance**: the screen shows a cheap static texture/glow (no live DOM in 3D).
+- **When the camera arrives**: the React UI is mounted with Drei `<Html transform>` aligned to the screen plane,
+  so it is crisp, selectable, accessible and keyboard-navigable.
+Rendering live DOM into textures on every frame is avoided — it is slow and blurry and breaks accessibility.
+
+## 3. 3D assets required
+
+| Asset | Source options | Risk |
+|---|---|---|
+| Garage shell (walls, floor, window, ceiling) | Custom Blender model, lightmaps baked | Main visual-quality driver |
+| Wooden desk, lamp, chair, notebook | Blender / CC0 (Poly Haven) | Low |
+| MacBook Pro 14", iPad Pro, Apple Pencil, iPhone | Licensed models (Sketchfab / TurboSquid) or custom | Product-likeness; licence must allow web use |
+| Floor-to-ceiling bookshelf + procedural books | Blender shelf; books generated in code from `books.ts` | Low |
+| **Tesla Model 3**, dark metallic grey, **openable driver door as a separate node with correct hinge pivot**, interior with driver seat + steering column | Licensed model, re-rigged in Blender | **Highest risk**: size, licence, trademark, interior quality |
+| Diagnostic laptop + OBD cable | Blender | Depends on confirmed vehicle version |
+| Workshop tools, diagnostic cart, cables, chargers, headphones | CC0 / Blender | Low |
+| Think Different (Einstein) poster | Owner-supplied reference image | Apple/Einstein image rights — personal use; owner's decision |
+| Nike Vomero Plus (orange) | Licensed or custom model | Accuracy; trademark |
+| Sea / rain / lightning | Shaders (no models) | Performance |
+| HDRI / environment map | Poly Haven (CC0), night | Low |
+
+Asset pipeline: Blender → glTF → `gltf-transform` (Meshopt or Draco geometry, KTX2/Basis textures,
+texture resize) → `public/models/`. Target: **≤ 8 MB** for the initial overview, everything else lazy.
+
+## 4. Technical risks
+
+1. **Tesla model** — weight and licence. Must budget ~1.5–2.5 MB after compression; interior only detailed where the camera goes.
+2. **Lighting cost** — real-time shadows from many lights is the usual frame-rate killer. Plan: baked lightmaps for the static
+   room + 1 shadow-casting light (desk lamp) + lightning as a brief global intensity pulse (no extra shadow pass).
+3. **Rain/sea** — one instanced/shader rain system outside the window only; sea as a single animated shader plane.
+4. **DOM-in-3D screens** — `<Html transform>` must be mounted only when focused (see §2).
+5. **Mobile** — GPU memory limits on iOS Safari; mitigated by the `reduced` tier (smaller textures, lower DPR).
+6. **GitHub Pages** —
+   - Pages source must be switched to **"GitHub Actions"** (repo Settings → Pages) before the first deploy.
+   - No server-side routing → the app is single-URL with state in memory; `404.html` = `index.html` as a fallback.
+   - No custom headers → can't set long-lived cache headers; Vite hashes filenames, which is enough.
+   - Large GLBs are fine (100 MB per file limit) but should stay small for load time; Git LFS is **not** served by Pages.
+   - Custom domain later = add `public/CNAME`; base path stays `/`.
+7. **Trademarks/logos** — company logos must be official files supplied by the owner, stored as replaceable images.
+
+## 5. Phases
+
+| # | Phase | Status |
+|---|---|---|
+| 1 | Foundation: scaffold, Pages workflow, bilingual content system, loader, HUD, fallback | **Done** |
+| 2 | Environment & visual direction (blockout → review → final assets, lighting, window, weather) | Next |
+| 3 | Camera shots, hover states, transitions, return to overview | |
+| 4 | MacBook + welcome reveal (5–7 s, skippable for returning visitors) | |
+| 5 | iPad Apple portfolio | |
+| 6 | Tesla door + diagnostic laptop + Windows-style automotive portfolio | |
+| 7 | Bookshelf interaction | |
+| 8 | Poster, shoes, workshop details | |
+| 9 | Optimisation, accessibility, cross-browser, publish | |
+
+Phase 2 proposal: start with a **grey-box blockout** (simple shapes, clearly temporary) to agree on room proportions
+and the overview composition, then replace it piece by piece with real assets. The blockout is a review tool,
+not a final asset (spec §16.8).
