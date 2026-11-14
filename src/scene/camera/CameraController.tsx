@@ -7,6 +7,12 @@ import { useExperience } from '@/app/store';
 import { SHOTS } from '../layout';
 import { responsiveFov } from './fov';
 
+// Review tooling only: `?capture=1` exposes the animation clock so a recorder can step the
+// welcome sequence frame by frame (software-rendered review captures can't run in real time).
+if (new URLSearchParams(window.location.search).has('capture')) {
+  (window as unknown as { __gsap: typeof gsap }).__gsap = gsap;
+}
+
 interface Rig {
   pos: Vector3;
   target: Vector3;

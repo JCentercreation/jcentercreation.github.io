@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { CanvasTexture, Color, type Group, type InstancedMesh, Matrix4, MeshStandardMaterial, Quaternion, SRGBColorSpace, Euler, Vector3 } from 'three';
+import { CanvasTexture, Color, TextureLoader, type Group, type InstancedMesh, Matrix4, MeshStandardMaterial, Quaternion, SRGBColorSpace, Euler, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import type { BookRecord } from '@/content';
 import { BOOKSHELF, ROOM } from '../layout';
@@ -198,19 +198,33 @@ function spineTexture(record: BookRecord) {
 }
 
 /** A catalogue book: titled spine, hover pulls it out slightly (only once at the bookshelf). */
+/** Front cover image (Open Library), or the spine colour if none is supplied. */
+function useCover(record: BookRecord) {
+  return useMemo(() => {
+    if (!record.cover) return null;
+    const t = new TextureLoader().load(`${import.meta.env.BASE_URL}${record.cover}`);
+    t.colorSpace = SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+  }, [record]);
+}
+
 function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) {
+  const coverMap = useCover(book.record);
   const ref = useRef<Group>(null);
   const atShelf = useExperience((s) => s.shot === 'bookshelf' && s.phase === 'exploring');
   const materials = useMemo(() => {
     const cover = new MeshStandardMaterial({ color: book.color, roughness: 0.6 });
+    // Front cover is the +z face (spine on the reader's left). Shown when the book is extracted.
+    const front = coverMap ? new MeshStandardMaterial({ map: coverMap, roughness: 0.55 }) : cover;
     const pages = new MeshStandardMaterial({ color: '#efe8d8', roughness: 0.9 });
     // The spine faces the room (-x). Its text runs bottom→top, rotated to read like a real spine.
     const spineMap = spineTexture(book.record);
     spineMap.center.set(0.5, 0.5);
     spineMap.rotation = Math.PI / 2;
     const spine = new MeshStandardMaterial({ map: spineMap, roughness: 0.55 });
-    return [pages, spine, pages, pages, cover, cover];
-  }, [book]);
+    return [pages, spine, pages, pages, front, cover];
+  }, [book, coverMap]);
 
   useFrame((_, dt) => {
     const g = ref.current;

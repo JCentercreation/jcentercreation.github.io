@@ -4,7 +4,7 @@ import type { BookRecord } from '../types';
  * The personal library. Deliberately unsorted (spec §9): `place` is a fixed, hand-picked
  * position on the shelf, not derived from genre or title. The three catalogue books sit at
  * eye level in the middle bays so they are easy to find.
- * Covers go in /public/books/ once supplied.
+ * Covers: /public/books/, from Open Library (editions and sources in docs/ASSETS.md).
  */
 export const books: BookRecord[] = [
   {
@@ -13,7 +13,7 @@ export const books: BookRecord[] = [
     // Spec wrote "Arari (to verify)"; the published author name is Yuval Noah Harari.
     author: 'Yuval Noah Harari',
     spine: { color: '#e9e4d8', textColor: '#b3261e', heightCm: 23.4, thicknessCm: 3.4 },
-    cover: null,
+    cover: 'books/sapiens.jpg',
     place: { shelf: 3, bay: 1, at: 0.35 },
   },
   {
@@ -21,7 +21,7 @@ export const books: BookRecord[] = [
     title: 'The Rise and Fall of the Dinosaurs',
     author: 'Steve Brusatte',
     spine: { color: '#1f3b4d', textColor: '#e8c26a', heightCm: 24.0, thicknessCm: 3.0 },
-    cover: null,
+    cover: 'books/dinosaurs.jpg',
     place: { shelf: 4, bay: 2, at: 0.6 },
   },
   {
@@ -29,7 +29,7 @@ export const books: BookRecord[] = [
     title: 'The Emperor of All Maladies',
     author: 'Siddhartha Mukherjee',
     spine: { color: '#f2efe6', textColor: '#1a1a1a', heightCm: 23.5, thicknessCm: 4.2 },
-    cover: null,
+    cover: 'books/emperor-maladies.jpg',
     place: { shelf: 3, bay: 2, at: 0.15 },
   },
 ];

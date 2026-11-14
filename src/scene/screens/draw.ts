@@ -50,6 +50,17 @@ export function drawLogo(
   dark: boolean,
 ) {
   if (logo) {
+    if (dark) {
+      // Official colours are designed for light backgrounds: sit the logo on a white tile.
+      roundRect(g, x, y, w, h, Math.min(w, h) * 0.18);
+      g.fillStyle = '#ffffff';
+      g.fill();
+      const inset = Math.min(w, h) * 0.14;
+      x += inset;
+      y += inset;
+      w -= inset * 2;
+      h -= inset * 2;
+    }
     const k = Math.min(w / logo.naturalWidth, h / logo.naturalHeight);
     const lw = logo.naturalWidth * k;
     const lh = logo.naturalHeight * k;

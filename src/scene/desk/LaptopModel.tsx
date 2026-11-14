@@ -77,8 +77,8 @@ export function LaptopModel({
           <meshBasicMaterial map={screen} toneMapped={false} color={[glow, glow, glow]} />
         </mesh>
         {notch && (
-          <mesh position={[0, lidH * 0.505 + (lidH * display[1]) / 2 - 0.0035, 0.0008]}>
-            <planeGeometry args={[0.032, 0.007]} />
+          <mesh position={[0, lidH * 0.505 + (lidH * display[1]) / 2 - 0.00225, 0.0008]}>
+            <planeGeometry args={[0.02, 0.0045]} />
             <meshBasicMaterial color="#000" />
           </mesh>
         )}

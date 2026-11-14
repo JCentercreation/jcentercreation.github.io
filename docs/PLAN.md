@@ -179,3 +179,33 @@ Assessment:
   `sketchfab.com` in this environment's network settings and provide a Sketchfab API token so I can fetch candidates.
 - **Paid fallback (needs explicit approval):** the Nex3D model (functional doors + HQ interior), after confirming the
   editorial licence fits.
+
+## 9. Tesla candidate verification (preferred: "2024 Tesla Model 3 + Interior")
+
+Verified from the public Sketchfab page (download itself needs a free account, so the file has not been inspected yet):
+
+| Check | Result |
+|---|---|
+| Licence | **CC Attribution 4.0** ("Author must be credited. Commercial use is allowed.") |
+| Attribution required | "2024 Tesla Model 3 + Interior" by **tonielpro520** (sketchfab.com/tonielpro520), CC BY 4.0, link to licence, note that it was modified |
+| Size | 167,747 triangles / 100,509 vertices — fine for the web after compression |
+| Materials / textures | 46 materials, 37 textures (source: DDS, incl. 4K `EXT_skin`, `INT_OCC`, `INT_Screen`) — needs merging and conversion to KTX2/WebP at 1–2K |
+| Formats | Source OBJ (23 MB) + MTL + DDS; Sketchfab also provides auto-converted **glTF and GLB** |
+| Rig / animation | Not rigged, 0 animations (doors are not pre-animated) |
+| Interior | Present: textures for occlusion, leather ×3, fabric, carpet, plastics, a screen + icons atlas → a modelled cockpit (seats, wheel, dashboard), likely game-quality — good for our camera distances |
+| Driver door | **Unknown until the file is inspected.** OBJ groups decide whether it is a separate object; if merged it must be split |
+| Camera compatibility | Depends on the door split and the interior behind it; to be checked with the inspection script + test renders |
+| **Provenance risk** | The texture naming (`DAMAGE_GLASS`, `Rim_Blur`, `DISK_blur`, `EXT_skin`, `TEssuto`, `iconstesla`, `jw_` file prefix, DDS format) matches models extracted from racing games/mods, and the page credits no original author. If so, the uploader may not hold the rights to grant CC BY. **Recommendation: do not ship it without clearer provenance.** |
+
+Alternatives checked the same way (all free downloads need a Sketchfab account):
+
+| Model | Licence | Triangles | Materials | Notes |
+|---|---|---|---|---|
+| "Tesla model 3 2024" — brandonleong28 | CC BY | 179,692 | 17 | Source is a GLB (8.7 MB); compact material set; interior not stated; no provenance red flags in the metadata |
+| "Tesla Model 3 2020" — ItsDiyor | CC BY | 176,714 | 5 | Pre-facelift body; source file `MDL14252_reversed.glb` resembles a stock-site product ID → provenance to check |
+| "Tesla model 3" — dannzjs | CC BY | 684,315 | 37 | Too heavy; source named `tesla_model_x.glb` and description copied from Tesla marketing |
+| "Tesla Model 3 – Ultra Detailed" — VTX_car | **CC BY-NC-SA** | 153,106 | 65 | Marked **rigged**; non-commercial + share-alike: acceptable for a personal non-commercial site, but our modified model would have to be offered under the same licence |
+
+Next step (no cost, no token): the owner downloads the GLB of the preferred candidate and of brandonleong28's model and
+supplies them; `node scripts/inspect-model.mjs <file>` then reports door nodes, interior parts, triangle/material/texture
+budget and real-world size, followed by test renders of the door-open and laptop camera shots.

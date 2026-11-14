@@ -11,14 +11,15 @@ import { rugTexture } from './rug';
  * Fills the empty centre floor and adds a lived-in zone between workshop, desk and library.
  */
 
-export const CORNER = { x: 2.55, z: -0.05 };
+export const CORNER = { x: 2.75, z: -0.3 };
 
 function LoungeChair() {
-  const leather = '#7b4a2b';
-  const shell = '#3a2516';
+  // Deliberately quiet: dark, desaturated leather so the corner supports the room, not leads it.
+  const leather = '#4f3626';
+  const shell = '#241913';
   return (
     // Front of the chair is +z before rotation; turned to face the desk and window.
-    <group position={[CORNER.x, 0, CORNER.z]} rotation-y={-2.0}>
+    <group position={[CORNER.x, 0, CORNER.z]} rotation-y={-2.45}>
       {/* Swivel base. */}
       {[0, 1, 2, 3, 4].map((i) => (
         <group key={i} rotation-y={(i / 5) * Math.PI * 2}>
@@ -122,9 +123,9 @@ function ArcLamp() {
       </mesh>
       <mesh position={[head.x, head.y - 0.02, head.z]}>
         <sphereGeometry args={[0.045, 16, 12]} />
-        <meshStandardMaterial color="#000" emissive="#ffc98a" emissiveIntensity={6} toneMapped={false} />
+        <meshStandardMaterial color="#000" emissive="#ffc98a" emissiveIntensity={3} toneMapped={false} />
       </mesh>
-      <pointLight position={[head.x, head.y - 0.08, head.z]} intensity={3.2} distance={6} decay={2} color="#ffbe7a" />
+      <pointLight position={[head.x, head.y - 0.08, head.z]} intensity={2.1} distance={5} decay={2} color="#ffbe7a" />
     </group>
   );
 }
@@ -174,7 +175,7 @@ function Plant() {
 }
 
 export function ReadingCorner() {
-  const rug = rugTexture('lounge', [88, 92, 99], [112, 106, 96]);
+  const rug = rugTexture('lounge-quiet', [78, 80, 84], [90, 89, 86]);
   return (
     <group>
       <mesh position={[CORNER.x - 0.1, 0.005, CORNER.z + 0.15]} rotation={[-Math.PI / 2, 0, 0.12]} receiveShadow>
