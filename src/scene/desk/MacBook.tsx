@@ -3,6 +3,7 @@ import { MACBOOK } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { useScreenTexture } from '../screens/screenTextures';
 import { LaptopModel } from './LaptopModel';
+import { macbookDeckTexture } from './deckTextures';
 
 /** MacBook Pro 14" (silver). Click → camera to the screen. */
 export function MacBook() {
@@ -17,11 +18,18 @@ export function MacBook() {
           depth={MACBOOK.depth}
           thickness={MACBOOK.baseThickness}
           lidAngle={MACBOOK.lidAngle}
-          bodyColor="#b4b6b9"
+          bodyColor="#c2c4c7"
           screen={screen}
-          glow={hovered ? 1.25 : 1.05}
+          glow={hovered ? 1.3 : 1.12}
           display={[0.955, 0.9]}
+          deck={macbookDeckTexture()}
+          notch
         />
+        {/* Screen glow spilling onto the keyboard and desk — keeps the MacBook the focal point. */}
+        <group position={[0, 0.12, -0.06]}>
+          {/* Rect lights emit along -z: turn to face the user, tilted down onto the keyboard. */}
+          <rectAreaLight rotation={[0.45, Math.PI, 0]} width={0.28} height={0.17} intensity={2.2} color="#eef2ff" />
+        </group>
       </group>
     </Interactive>
   );

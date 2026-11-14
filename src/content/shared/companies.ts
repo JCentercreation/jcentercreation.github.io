@@ -1,20 +1,22 @@
 import type { CompanyRecord, PositionRecord } from '../types';
 
 /**
- * Logos: drop official files into /public/logos/ and set the path here.
- * Left `null` until the owner supplies them (spec §8.4).
+ * Logos: drop official files into /public/logos/ and set the path here (e.g. 'logos/nissan.svg').
+ * They are drawn preserving their original proportions and colours. Left `null` until the owner
+ * supplies them (spec §8.4); screens then show a clearly marked placeholder, never a fake logo.
  */
 
 export const appleCompanies: CompanyRecord[] = [
-  { id: 'sabadell', name: 'Banc Sabadell', logo: null, period: { start: '2020', end: '2021' }, technologies: [] },
-  { id: 'misfits', name: 'Misfits Studio', logo: null, period: { start: '2020', end: null }, technologies: [] },
-  { id: 'inditex', name: 'Inditex', logo: null, period: { start: '2023', end: '2024' }, technologies: [] },
-  { id: 'santander', name: 'Banco Santander', logo: null, period: { start: '2024', end: '2025' }, technologies: [] },
+  { id: 'sabadell', shortName: 'Sabadell', name: 'Banc Sabadell', logo: null, period: { start: '2020', end: '2021' }, technologies: [] },
+  { id: 'misfits', shortName: 'Misfits', name: 'Misfits Studio', logo: null, period: { start: '2020', end: null }, technologies: [] },
+  { id: 'inditex', shortName: 'Inditex', name: 'Inditex', logo: null, period: { start: '2023', end: '2024' }, technologies: [] },
+  { id: 'santander', shortName: 'Santander', name: 'Banco Santander', logo: null, period: { start: '2024', end: '2025' }, technologies: [] },
 ];
 
 export const automotiveCompanies: CompanyRecord[] = [
   {
     id: 'nissan',
+    shortName: 'Nissan',
     name: 'Nissan Motor Corporation',
     logo: null,
     period: { start: '2016-09', end: '2018-08' },
@@ -22,6 +24,7 @@ export const automotiveCompanies: CompanyRecord[] = [
   },
   {
     id: 'seat',
+    shortName: 'SEAT',
     name: 'SEAT, S.A.',
     logo: null,
     period: { start: '2018-10', end: '2019-11' },
@@ -29,6 +32,7 @@ export const automotiveCompanies: CompanyRecord[] = [
   },
   {
     id: 'rfea',
+    shortName: 'RFEDA',
     name: 'Real Federación Española de Automovilismo (RFEDA)',
     logo: null,
     period: { start: '2010-04', end: '2012-06' },

@@ -127,3 +127,55 @@ so a provisional model can be swapped for a GLB without touching the rest.
 
 Review helpers: `?shot=overview|desk|macbook|ipad|bookshelf|tesla|teslaLaptop`, `?intro=1`, `?lang=es`,
 `?tier=full|reduced|fallback`.
+
+## 7. Refinement pass (after the first prototype review)
+
+- **Finishes:** window wall = board-formed concrete panels; brick only on the workshop wall (muted, reclaimed);
+  limewash plaster behind the bookshelf; oak slat acoustic panel; exposed concrete soffit; polished concrete floor
+  with saw-cut joints.
+- **Lighting:** the ceiling batten is gone. Workshop = ceiling track with three small warm-neutral spots aimed at the
+  car; indirect warm bounce from the soffit (cove); desk lamp + MacBook screen glow; arc floor lamp in the reading
+  corner; shelf LEDs. Storm/window light unchanged.
+- **Centre floor:** reading corner (lounge chair + ottoman, side table, arc lamp, fiddle-leaf fig, rug).
+- **Desk:** MacBook keyboard deck + notch + screen glow; iPhone with dim lock screen; notebook + pen; AirPods case;
+  charger; MagSafe, iPad USB-C and charger leads; single non-repeating 3-board oak top.
+- **Bookshelf:** wider size spread, leaning books, flat stacks, bookends, muted palette, non-legible spine
+  typography on anonymous books (no invented titles), catalogue books at fixed eye-level `place`s with titled spines.
+- **Laptop UI:** full-width 2010–2020 timeline, three larger cards (most recent first), confirmed skills/events as
+  chips, logo slots that render official files from `public/logos/` (placeholder until supplied).
+- **Shoes:** real-size max-cushion silhouette (rocker midsole, orange knit upper, collar, laces), no logos.
+
+## 8. Tesla Model 3 — asset investigation
+
+Target contract (already implemented by the provisional car): separate driver door hinged at its front edge, usable
+interior (driver seat, steering wheel, dashboard), room for the laptop on the seat and the OBD cable, dark metallic grey.
+
+Findings (Nov 2026; model pages could not be opened from the build environment — sketchfab.com / turbosquid.com are
+blocked by its network policy — so details come from search listings and must be verified on the pages):
+
+| Option | Licence / cost | Interior | Driver door separate? | Notes |
+|---|---|---|---|---|
+| Sketchfab "2024 Tesla Model 3 + Interior" (tonielpro520) | Free, CC BY (credit required) | Yes (per title) | Unknown — inspect | ~168k triangles: OK for web after compression |
+| Sketchfab "Tesla model 3 2024" (brandonleong28) | Free, CC BY | Unknown | Unknown | ~180k triangles |
+| Sketchfab "Tesla Model 3 2020" (ItsDiyor) | Free, CC BY (to verify) | Unknown | Unknown | Pre-facelift body |
+| Sketchfab "Tesla 2018 Model 3" (Ameer Studio) | Free, CC BY | Unknown | Unknown | ~684k triangles: needs heavy decimation |
+| RenderHub "2024 Tesla Model 3" (MantangCG) | Listed as free (verify licence) | Listed "with interior" | Unknown | |
+| TurboSquid "Tesla Model 3 2024 with HQ interior" (Nex3D) | ~$139 standard; Blender/FBX/OBJ variants from ~$79 | HQ interior | Yes — doors, hood, trunk, charge cap functional | **Editorial-use only** licence |
+| CGTrader Model 3 listings (several sellers) | ~$59–$149, royalty-free | With interior | Some listed "rigged" / separate | Formats mostly BLEND/FBX/OBJ |
+
+Assessment:
+- **Door animation:** feasible with any of them. If the driver door is a separate object we animate it directly;
+  if not, it can be split in Blender (cut along panel lines, set the pivot on the front hinge axis). Blender is not
+  installed here, but `bpy` (Blender as a Python module) can be installed from PyPI for scripted, headless processing.
+- **Interior:** free models vary; "+ Interior" listings normally include seats, wheel and dashboard, but quality and
+  triangle budget must be checked in the file. Paid "HQ interior" models are reliably detailed.
+- **Web budget:** target ≤ 2–3 MB GLB after Draco/Meshopt + KTX2; a 150–200k-triangle source is the sweet spot.
+- **Licensing:** CC BY needs a visible credit (an attribution line in the site's footer/credits). Editorial-only licences
+  (common for branded cars on TurboSquid) are generally acceptable for a personal, non-commercial portfolio but must be
+  confirmed. Tesla's name and design are trademarks; we show the car as a personal object, without Tesla logos.
+- **Recommended path (no cost):** the owner downloads 1–2 of the free CC BY candidates (a free Sketchfab account is
+  required) and commits the GLB/zip to `assets-source/tesla/`; I inspect hierarchy, door separation, interior and
+  triangle count, then split/rig/compress and swap it into `tesla/Tesla.tsx`. Alternatively the owner can allow
+  `sketchfab.com` in this environment's network settings and provide a Sketchfab API token so I can fetch candidates.
+- **Paid fallback (needs explicit approval):** the Nex3D model (functional doors + HQ interior), after confirming the
+  editorial licence fits.

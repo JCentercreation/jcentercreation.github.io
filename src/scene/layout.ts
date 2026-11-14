@@ -138,8 +138,9 @@ export const SHOTS: Record<ShotId, Shot> = {
     parallax: false,
   },
   bookshelf: {
-    position: new Vector3(BOOKSHELF.x - 3.0, 1.62, -0.95),
-    target: new Vector3(BOOKSHELF.x, 1.55, -2.35),
+    // Close enough that the catalogue spines (eye level, middle bays) are legible.
+    position: new Vector3(BOOKSHELF.x - 2.35, 1.6, -1.35),
+    target: new Vector3(BOOKSHELF.x, 1.5, -2.45),
     fov: 50,
     parallax: true,
   },
@@ -150,7 +151,7 @@ export const SHOTS: Record<ShotId, Shot> = {
     parallax: true,
   },
   teslaLaptop: {
-    position: laptopScreen.clone().addScaledVector(laptopOut, 0.42),
+    position: laptopScreen.clone().addScaledVector(laptopOut, 0.36),
     target: laptopScreen,
     fov: 40,
     parallax: false,

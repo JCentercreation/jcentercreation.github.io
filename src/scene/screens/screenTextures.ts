@@ -4,7 +4,8 @@ import { appleCompanies, automotiveCompanies, automotivePositions, type LocaleCo
 import { useExperience } from '@/app/store';
 import { content } from '@/content';
 import { formatPeriod } from '@/lib/format';
-import { SYSTEM_FONT, WIN_FONT, fitText, logoPending, roundRect, wrapText } from './draw';
+import { SYSTEM_FONT, WIN_FONT, drawLogo, fitText, roundRect, wrapText } from './draw';
+import { getLogo, useLogosVersion } from './logos';
 
 /**
  * PROTOTYPE screen contents, drawn to textures from the content layer.
@@ -159,7 +160,7 @@ function drawIPad(g: CanvasRenderingContext2D, c: LocaleContent, locale: Locale)
     roundRect(g, cx, cy, cardW, cardH, 28);
     g.fillStyle = '#1c1c1e';
     g.fill();
-    logoPending(g, co.name, cx + 36, cy + 36, 110, true);
+    drawLogo(g, getLogo(co.id), co.shortName, cx + 36, cy + 36, 110, 110, true);
     g.fillStyle = '#ffffff';
     g.font = `700 40px ${SYSTEM_FONT}`;
     g.fillText(fitText(g, co.name, cardW - 200), cx + 176, cy + 86);
@@ -185,6 +186,27 @@ function drawIPad(g: CanvasRenderingContext2D, c: LocaleContent, locale: Locale)
 
 // ------------------------------------------------------------------ Laptop: Windows-style
 
+/** Months since Jan 2000, for the timeline. */
+function months(ym: string) {
+  const [y, m] = ym.split('-');
+  return (Number(y) - 2000) * 12 + (m ? Number(m) - 1 : 0);
+}
+
+function chip(g: CanvasRenderingContext2D, text: string, x: number, y: number, maxX: number) {
+  g.font = `400 18px ${WIN_FONT}`;
+  const w = g.measureText(text).width + 20;
+  if (x + w > maxX) return null;
+  roundRect(g, x, y, w, 30, 4);
+  g.fillStyle = '#e4ecf7';
+  g.fill();
+  g.strokeStyle = '#9db3d3';
+  g.lineWidth = 1;
+  g.stroke();
+  g.fillStyle = '#123a73';
+  g.fillText(text, x + 10, y + 21);
+  return x + w + 7;
+}
+
 function drawWindows(g: CanvasRenderingContext2D, c: LocaleContent, locale: Locale) {
   const W = 1600;
   const H = 1000;
@@ -196,7 +218,7 @@ function drawWindows(g: CanvasRenderingContext2D, c: LocaleContent, locale: Loca
   g.fillRect(0, 0, W, H);
 
   // Taskbar.
-  const tb = 52;
+  const tb = 48;
   const tg = g.createLinearGradient(0, H - tb, 0, H);
   tg.addColorStop(0, '#3a7ce8');
   tg.addColorStop(0.5, '#2459c9');
@@ -204,111 +226,185 @@ function drawWindows(g: CanvasRenderingContext2D, c: LocaleContent, locale: Loca
   g.fillStyle = tg;
   g.fillRect(0, H - tb, W, tb);
   // Start button — generic, no OS logo.
-  roundRect(g, 0, H - tb, 150, tb, 14);
+  roundRect(g, 0, H - tb, 140, tb, 14);
   const sg = g.createLinearGradient(0, H - tb, 0, H);
   sg.addColorStop(0, '#4fae47');
   sg.addColorStop(1, '#2f8a2b');
   g.fillStyle = sg;
   g.fill();
   g.fillStyle = '#ffffff';
-  g.font = `italic 700 28px ${WIN_FONT}`;
-  g.fillText(c.windows.start, 28, H - 16);
-  // Task button + clock.
-  roundRect(g, 170, H - tb + 7, 360, tb - 14, 6);
+  g.font = `italic 700 26px ${WIN_FONT}`;
+  g.fillText(c.windows.start, 26, H - 15);
+  roundRect(g, 160, H - tb + 6, 360, tb - 12, 6);
   g.fillStyle = '#1e4fb8';
   g.fill();
   g.fillStyle = '#ffffff';
-  g.font = `400 21px ${WIN_FONT}`;
-  g.fillText(fitText(g, c.automotive.windowTitle, 320), 188, H - 19);
+  g.font = `400 19px ${WIN_FONT}`;
+  g.fillText(fitText(g, c.automotive.windowTitle, 330), 176, H - 17);
   g.fillStyle = '#1590e8';
-  g.fillRect(W - 120, H - tb, 120, tb);
+  g.fillRect(W - 110, H - tb, 110, tb);
   g.fillStyle = '#ffffff';
-  g.fillText(c.windows.clock, W - 88, H - 19);
+  g.fillText(c.windows.clock, W - 80, H - 17);
 
-  // Main window.
-  const x = 70;
-  const y = 50;
-  const w = W - 140;
-  const h = H - tb - 90;
-  roundRect(g, x, y, w, h, 10);
+  // Main window, nearly maximised to use the whole screen.
+  const x = 22;
+  const y = 18;
+  const w = W - 44;
+  const h = H - tb - 30;
+  roundRect(g, x, y, w, h, 9);
   g.fillStyle = '#0a49c4';
   g.fill();
-  const title = 46;
+  const title = 38;
   const tgr = g.createLinearGradient(0, y, 0, y + title);
   tgr.addColorStop(0, '#0a5ce8');
   tgr.addColorStop(0.15, '#3b8cf7');
   tgr.addColorStop(1, '#0548c4');
   g.fillStyle = tgr;
-  roundRect(g, x, y, w, title + 10, 10);
+  roundRect(g, x, y, w, title + 8, 9);
   g.fill();
   g.fillStyle = '#ffffff';
-  g.font = `700 24px ${WIN_FONT}`;
-  g.fillText(c.automotive.windowTitle, x + 18, y + 31);
-  // Min / max / close.
+  g.font = `700 21px ${WIN_FONT}`;
+  g.fillText(c.automotive.windowTitle, x + 16, y + 26);
   [['#3b7cf0', '_'], ['#3b7cf0', '□'], ['#d9512c', '×']].forEach(([col, glyph], i) => {
-    const bx = x + w - 134 + i * 42;
-    roundRect(g, bx, y + 8, 34, 32, 5);
+    const bx = x + w - 112 + i * 36;
+    roundRect(g, bx, y + 6, 30, 27, 5);
     g.fillStyle = col!;
     g.fill();
     g.strokeStyle = '#ffffff';
     g.lineWidth = 2;
     g.stroke();
     g.fillStyle = '#ffffff';
-    g.font = `700 22px ${WIN_FONT}`;
+    g.font = `700 19px ${WIN_FONT}`;
     g.textAlign = 'center';
-    g.fillText(glyph!, bx + 17, y + 31);
+    g.fillText(glyph!, bx + 15, y + 26);
     g.textAlign = 'left';
   });
+
   // Client area.
-  const cx = x + 5;
-  const cy = y + title + 4;
-  const cw = w - 10;
-  const ch = h - title - 9;
+  const cx = x + 4;
+  const cy = y + title + 2;
+  const cw = w - 8;
+  const ch = h - title - 6;
   g.fillStyle = '#ece9d8';
   g.fillRect(cx, cy, cw, ch);
   g.fillStyle = '#ffffff';
-  g.fillRect(cx + 16, cy + 16, cw - 32, ch - 32);
+  g.fillRect(cx + 10, cy + 10, cw - 20, ch - 20);
   g.strokeStyle = '#7f9db9';
-  g.lineWidth = 2;
-  g.strokeRect(cx + 16, cy + 16, cw - 32, ch - 32);
+  g.lineWidth = 1.5;
+  g.strokeRect(cx + 10, cy + 10, cw - 20, ch - 20);
 
+  const pad = 36;
+  const left = cx + pad;
+  const right = cx + cw - pad;
   g.fillStyle = '#0b2f6b';
-  g.font = `700 40px ${WIN_FONT}`;
-  g.fillText(c.automotive.heading, cx + 48, cy + 80);
-  g.fillStyle = '#555555';
-  g.font = `400 24px ${WIN_FONT}`;
-  g.fillText(c.automotive.subtitle, cx + 48, cy + 118);
+  g.font = `700 36px ${WIN_FONT}`;
+  g.fillText(c.automotive.heading, left, cy + 60);
+  g.fillStyle = '#4a4a4a';
+  g.font = `400 20px ${WIN_FONT}`;
+  g.fillText(c.automotive.subtitle, left, cy + 92);
 
-  const colW = (cw - 96 - 40) / 3;
-  automotiveCompanies.forEach((co, i) => {
-    const bx = cx + 48 + i * (colW + 20);
-    const by = cy + 150;
-    g.fillStyle = '#f4f3ee';
-    g.fillRect(bx, by, colW, ch - 200);
+  // Timeline 2010 → 2020 across the full width.
+  const t0 = months('2010');
+  const t1 = months('2020');
+  const ty = cy + 150;
+  const span = right - left;
+  const px = (m: number) => left + ((m - t0) / (t1 - t0)) * span;
+  g.strokeStyle = '#9aa7b8';
+  g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(left, ty + 22);
+  g.lineTo(right, ty + 22);
+  g.stroke();
+  g.fillStyle = '#6b7685';
+  g.font = `400 15px ${WIN_FONT}`;
+  for (let yr = 2010; yr <= 2020; yr++) {
+    const xx = px(months(String(yr)));
+    g.fillRect(xx - 1, ty + 18, 2, 9);
+    g.textAlign = 'center';
+    g.fillText(String(yr), xx, ty + 46);
+  }
+  g.textAlign = 'left';
+  const colours: Record<string, string> = { rfea: '#2f8a2b', nissan: '#0a5ce8', seat: '#d26a17' };
+  for (const co of automotiveCompanies) {
+    const col = colours[co.id] ?? '#0a5ce8';
+    const positions = automotivePositions.filter((p) => p.companyId === co.id);
+    positions.forEach((p, i) => {
+      const a = px(months(p.period.start));
+      const b = px(months(p.period.end ?? '2020'));
+      roundRect(g, a, ty + 10, Math.max(4, b - a - 2), 24, 4);
+      g.fillStyle = col;
+      g.globalAlpha = i % 2 ? 0.75 : 1;
+      g.fill();
+      g.globalAlpha = 1;
+    });
+    g.fillStyle = col;
+    g.font = `700 16px ${WIN_FONT}`;
+    g.fillText(co.shortName, px(months(co.period.start)), ty);
+  }
+
+  // Cards, most recent first.
+  const ordered = [...automotiveCompanies].sort((a, b) => months(b.period.start) - months(a.period.start));
+  const gap = 22;
+  const top = ty + 74;
+  const colW = (span - gap * 2) / 3;
+  const cardH = cy + ch - 26 - top;
+  ordered.forEach((co, i) => {
+    const bx = left + i * (colW + gap);
+    const by = top;
+    const inner = colW - 36;
+    g.fillStyle = '#f7f6f1';
+    g.fillRect(bx, by, colW, cardH);
     g.strokeStyle = '#c4c1b4';
-    g.strokeRect(bx, by, colW, ch - 200);
-    logoPending(g, co.name, bx + 16, by + 16, 64, false);
-    g.fillStyle = '#000000';
-    g.font = `700 22px ${WIN_FONT}`;
-    let ty = wrapText(g, co.name, bx + 94, by + 42, colW - 110, 26);
-    ty = Math.max(ty, by + 110);
-    g.fillStyle = '#444444';
-    g.font = `400 18px ${WIN_FONT}`;
-    g.fillText(formatPeriod(co.period, locale, c.ui.present), bx + 16, ty);
-    ty += 34;
+    g.lineWidth = 1.5;
+    g.strokeRect(bx, by, colW, cardH);
+    g.fillStyle = colours[co.id] ?? '#0a5ce8';
+    g.fillRect(bx, by, colW, 5);
+
+    drawLogo(g, getLogo(co.id), co.shortName, bx + 18, by + 22, 150, 64, false);
+    g.fillStyle = '#111111';
+    g.font = `700 25px ${WIN_FONT}`;
+    let yy = wrapText(g, co.name, bx + 184, by + 48, colW - 200, 29);
+    g.fillStyle = '#555555';
+    g.font = `400 20px ${WIN_FONT}`;
+    g.fillText(formatPeriod(co.period, locale, c.ui.present), bx + 184, Math.max(yy, by + 84));
+    yy = Math.max(yy + 36, by + 130);
+
     for (const p of automotivePositions.filter((p) => p.companyId === co.id)) {
       const text = c.automotive.positions[p.id];
       if (!text) continue;
       g.fillStyle = '#0b2f6b';
-      g.font = `700 18px ${WIN_FONT}`;
-      ty = wrapText(g, text.title, bx + 16, ty, colW - 32, 22);
-      g.fillStyle = '#555555';
-      g.font = `400 16px ${WIN_FONT}`;
-      ty = wrapText(g, `${formatPeriod(p.period, locale, c.ui.present)} · ${text.location}`, bx + 16, ty, colW - 32, 20) + 8;
+      g.font = `700 22px ${WIN_FONT}`;
+      yy = wrapText(g, text.title, bx + 18, yy, inner, 27);
+      g.fillStyle = '#5a5a5a';
+      g.font = `400 18px ${WIN_FONT}`;
+      yy = wrapText(g, `${formatPeriod(p.period, locale, c.ui.present)} · ${text.location}`, bx + 18, yy, inner, 23) + 12;
     }
-    g.fillStyle = co.technologies.length || c.automotive.companies[co.id]?.description ? '#222222' : '#888888';
-    g.font = `400 17px ${WIN_FONT}`;
-    wrapText(g, c.automotive.companies[co.id]?.description ?? c.ui.pendingContent, bx + 16, ty + 6, colW - 32, 22);
+
+    const desc = c.automotive.companies[co.id]?.description;
+    g.fillStyle = desc ? '#222222' : '#8a8a8a';
+    g.font = `${desc ? 400 : 'italic 400'} 21px ${WIN_FONT}`;
+    yy = wrapText(g, desc ?? c.ui.pendingContent, bx + 18, yy + 6, inner, 28) + 10;
+
+    // Confirmed skills / events as chips.
+    const highlight = c.automotive.highlights[co.id];
+    const chips = [...co.technologies, ...(highlight?.items ?? [])];
+    if (chips.length) {
+      g.fillStyle = '#6b7685';
+      g.font = `700 15px ${WIN_FONT}`;
+      g.fillText((highlight?.label ?? c.automotive.labels.technologies).toUpperCase(), bx + 18, yy + 6);
+      let cxp = bx + 18;
+      let cyp = yy + 18;
+      for (const t of chips) {
+        let next = chip(g, t, cxp, cyp, bx + colW - 14);
+        if (next === null) {
+          cxp = bx + 18;
+          cyp += 38;
+          if (cyp > by + cardH - 34) break;
+          next = chip(g, t, cxp, cyp, bx + colW - 14);
+        }
+        if (next !== null) cxp = next;
+      }
+    }
   });
 }
 
@@ -319,12 +415,14 @@ type Kind = 'notes' | 'ipad' | 'windows';
 /** A screen texture that redraws when the language changes (camera and state untouched). */
 export function useScreenTexture(kind: Kind) {
   const locale = useExperience((s) => s.locale);
+  const logos = useLogosVersion();
   const texture = useMemo(() => {
     const c = content[locale];
     if (kind === 'notes') return make(2048, 1330, (g) => drawNotes(g, c));
     if (kind === 'ipad') return make(2048, 1536, (g) => drawIPad(g, c, locale));
     return make(1600, 1000, (g) => drawWindows(g, c, locale));
-  }, [kind, locale]);
+    // `logos` re-draws once official logo files have loaded.
+  }, [kind, locale, logos]);
   useEffect(() => () => texture.dispose(), [texture]);
   return texture;
 }

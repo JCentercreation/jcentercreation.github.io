@@ -29,9 +29,9 @@ describe('content', () => {
     for (const p of automotivePositions) expect(ids.has(p.companyId)).toBe(true);
   });
 
-  it('book shelf slots are unique so positions are stable', () => {
-    const slots = books.map((b) => b.slot);
-    expect(new Set(slots).size).toBe(slots.length);
+  it('book shelf places are unique so positions are stable', () => {
+    const places = books.map((b) => `${b.place.shelf}/${b.place.bay}/${b.place.at}`);
+    expect(new Set(places).size).toBe(places.length);
   });
 });
 

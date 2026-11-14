@@ -1,8 +1,9 @@
 import type { BookRecord } from '../types';
 
 /**
- * The personal library. Deliberately unsorted (spec §9): `slot` is a fixed, hand-picked
- * position on the shelf, not derived from genre or title.
+ * The personal library. Deliberately unsorted (spec §9): `place` is a fixed, hand-picked
+ * position on the shelf, not derived from genre or title. The three catalogue books sit at
+ * eye level in the middle bays so they are easy to find.
  * Covers go in /public/books/ once supplied.
  */
 export const books: BookRecord[] = [
@@ -13,7 +14,7 @@ export const books: BookRecord[] = [
     author: 'Yuval Noah Harari',
     spine: { color: '#e9e4d8', textColor: '#b3261e', heightCm: 23.4, thicknessCm: 3.4 },
     cover: null,
-    slot: 7,
+    place: { shelf: 3, bay: 1, at: 0.35 },
   },
   {
     id: 'dinosaurs',
@@ -21,7 +22,7 @@ export const books: BookRecord[] = [
     author: 'Steve Brusatte',
     spine: { color: '#1f3b4d', textColor: '#e8c26a', heightCm: 24.0, thicknessCm: 3.0 },
     cover: null,
-    slot: 19,
+    place: { shelf: 4, bay: 2, at: 0.6 },
   },
   {
     id: 'emperor-maladies',
@@ -29,6 +30,6 @@ export const books: BookRecord[] = [
     author: 'Siddhartha Mukherjee',
     spine: { color: '#f2efe6', textColor: '#1a1a1a', heightCm: 23.5, thicknessCm: 4.2 },
     cover: null,
-    slot: 31,
+    place: { shelf: 3, bay: 2, at: 0.15 },
   },
 ];

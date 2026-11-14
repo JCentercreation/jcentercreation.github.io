@@ -3,7 +3,9 @@ import { RoundedBox } from '@react-three/drei';
 import { type SpotLight, Object3D, CatmullRomCurve3, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import { DESK } from '../layout';
-import { oakWood } from '../materials/proceduralTextures';
+import { oakDesk } from '../materials/proceduralTextures';
+import { lockScreenTexture } from './deckTextures';
+import { IPAD, MACBOOK } from '../layout';
 import { Rod } from '../primitives';
 import { Interactive } from '../Interactive';
 import { MacBook } from './MacBook';
@@ -12,13 +14,15 @@ import { IPad } from './IPad';
 const TOP = DESK.height;
 
 function Desk() {
-  const oak = oakWood();
+  // One texture spans the whole top: three glued oak boards, no repetition.
+  const oak = oakDesk();
   const legX = DESK.width / 2 - 0.08;
   return (
     <group position={[DESK.x, 0, DESK.z]}>
-      <RoundedBox args={[DESK.width, 0.04, DESK.depth]} radius={0.006} position-y={TOP - 0.02} castShadow receiveShadow>
-        <meshStandardMaterial {...oak} normalScale={[0.25, 0.25]} />
-      </RoundedBox>
+      <mesh position-y={TOP - 0.02} castShadow receiveShadow>
+        <boxGeometry args={[DESK.width, 0.04, DESK.depth]} />
+        <meshStandardMaterial {...oak} normalScale={[0.3, 0.3]} />
+      </mesh>
       {/* Black steel trestle legs. */}
       {[-legX, legX].map((x) => (
         <group key={x} position-x={x}>
@@ -111,56 +115,79 @@ function DeskLamp() {
   );
 }
 
-function DeskProps() {
-  const cable = useMemo(
-    () =>
-      new CatmullRomCurve3([
-        new Vector3(0.22, TOP + 0.006, -3.72),
-        new Vector3(0.1, TOP + 0.003, -3.8),
-        new Vector3(0.0, TOP + 0.002, -4.05),
-        new Vector3(-0.1, TOP + 0.002, -4.17),
-        new Vector3(-0.12, TOP - 0.1, -4.2),
-        new Vector3(-0.1, 0.25, -4.25),
-      ]),
-    [],
+function Cable({ points, color = '#e9e9e7', radius = 0.0022 }: { points: [number, number, number][]; color?: string; radius?: number }) {
+  const curve = useMemo(() => new CatmullRomCurve3(points.map((p) => new Vector3(...p)), false, 'centripetal'), [points]);
+  return (
+    <mesh castShadow>
+      <tubeGeometry args={[curve, 64, radius, 6, false]} />
+      <meshStandardMaterial color={color} roughness={0.55} />
+    </mesh>
   );
+}
+
+const T = TOP + 0.0025; // resting on the desk
+
+function DeskProps() {
+  const lock = lockScreenTexture();
+  const mbLeft = MACBOOK.position.x - MACBOOK.width / 2;
+  const ipadRight = IPAD.position.x + IPAD.width / 2 - 0.004;
+  const charger: [number, number, number] = [1.06, TOP, -4.08];
   return (
     <group>
-      {/* Notebook with elastic band, iPhone on top. */}
-      <group position={[-0.17, TOP, -3.6]} rotation-y={0.18}>
+      {/* Notebook (closed, elastic band) with a pen. */}
+      <group position={[-0.2, TOP, -3.62]} rotation-y={0.14}>
         <mesh position-y={0.008} castShadow receiveShadow>
           <boxGeometry args={[0.135, 0.016, 0.21]} />
-          <meshStandardMaterial color="#141414" roughness={0.75} />
+          <meshStandardMaterial color="#161616" roughness={0.75} />
         </mesh>
-        <mesh position={[0.067, 0.008, 0]}>
-          <boxGeometry args={[0.004, 0.0165, 0.21]} />
+        <mesh position={[0.0, 0.008, 0]}>
+          <boxGeometry args={[0.128, 0.013, 0.205]} />
+          <meshStandardMaterial color="#efe8d9" roughness={0.9} />
+        </mesh>
+        <mesh position={[0.058, 0.0085, 0]}>
+          <boxGeometry args={[0.004, 0.0172, 0.212]} />
           <meshStandardMaterial color="#0a0a0a" roughness={0.6} />
         </mesh>
-        <group position={[0.005, 0.0165, 0.01]} rotation-y={-0.32}>
-          <RoundedBox args={[0.0716, 0.0083, 0.1476]} radius={0.003} smoothness={3} position-y={0.0042} castShadow>
-            <meshStandardMaterial color="#4a4b4e" metalness={0.85} roughness={0.3} />
-          </RoundedBox>
-          <mesh position-y={0.0085} rotation-x={-Math.PI / 2}>
-            <planeGeometry args={[0.066, 0.142]} />
-            <meshStandardMaterial color="#020202" roughness={0.05} />
-          </mesh>
-        </group>
+        <mesh position={[-0.02, 0.0185, 0.01]} rotation={[0, 0.5, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.0045, 0.0045, 0.14, 12]} />
+          <meshStandardMaterial color="#1a2a44" metalness={0.5} roughness={0.35} />
+        </mesh>
       </group>
+
+      {/* iPhone face up on the desk pad, lock screen dimly lit. */}
+      <group position={[0.06, TOP + 0.003, -3.5]} rotation-y={0.32}>
+        <RoundedBox args={[0.0716, 0.0083, 0.1476]} radius={0.0035} smoothness={3} position-y={0.0042} castShadow>
+          <meshStandardMaterial color="#5a5c60" metalness={0.85} roughness={0.3} />
+        </RoundedBox>
+        <mesh position-y={0.0085} rotation-x={-Math.PI / 2}>
+          <planeGeometry args={[0.0685, 0.1445]} />
+          <meshStandardMaterial color="#000" roughness={0.05} />
+        </mesh>
+        <mesh position-y={0.0087} rotation-x={-Math.PI / 2}>
+          <planeGeometry args={[0.066, 0.142]} />
+          <meshBasicMaterial map={lock} toneMapped={false} color={[0.55, 0.55, 0.55]} />
+        </mesh>
+      </group>
+
+      {/* AirPods Pro case. */}
+      <RoundedBox args={[0.06, 0.022, 0.045]} radius={0.01} smoothness={4} position={[-0.06, TOP + 0.011, -3.88]} rotation-y={-0.4} castShadow>
+        <meshStandardMaterial color="#f4f4f2" roughness={0.3} />
+      </RoundedBox>
 
       {/* Mug. */}
       <group position={[1.3, TOP, -3.5]}>
         <mesh position-y={0.048} castShadow>
           <cylinderGeometry args={[0.042, 0.04, 0.096, 32]} />
-          <meshStandardMaterial color="#d9d5cc" roughness={0.3} />
+          <meshStandardMaterial color="#2b2b2b" roughness={0.45} />
         </mesh>
         <mesh position={[0.046, 0.05, 0]} rotation-x={Math.PI / 2}>
           <torusGeometry args={[0.022, 0.006, 8, 16, Math.PI]} />
-          <meshStandardMaterial color="#d9d5cc" roughness={0.3} />
+          <meshStandardMaterial color="#2b2b2b" roughness={0.45} />
         </mesh>
       </group>
 
       {/* Over-ear headphones lying on the desk. */}
-      <group position={[1.2, TOP + 0.04, -3.98]} rotation-y={0.5}>
+      <group position={[1.22, TOP + 0.04, -3.98]} rotation-y={0.5}>
         <mesh>
           <torusGeometry args={[0.085, 0.009, 8, 32, Math.PI]} />
           <meshStandardMaterial color="#1e1f22" roughness={0.5} />
@@ -173,11 +200,44 @@ function DeskProps() {
         ))}
       </group>
 
-      {/* USB-C charging cable off the back of the desk. */}
-      <mesh>
-        <tubeGeometry args={[cable, 40, 0.0025, 6, false]} />
-        <meshStandardMaterial color="#e8e8e6" roughness={0.5} />
-      </mesh>
+      {/* Compact USB-C charger at the back of the desk. */}
+      <RoundedBox args={[0.045, 0.03, 0.06]} radius={0.006} position={[charger[0], TOP + 0.015, charger[2]]} castShadow>
+        <meshStandardMaterial color="#e7e7e5" roughness={0.4} />
+      </RoundedBox>
+
+      {/* MagSafe 3 (silver braided) from the MacBook's left side, off the back edge, down to the floor. */}
+      <Cable
+        color="#b9bbbe"
+        points={[
+          [mbLeft - 0.004, TOP + 0.008, -3.8],
+          [mbLeft - 0.06, T, -3.83],
+          [mbLeft - 0.12, T, -3.98],
+          [mbLeft - 0.13, T, -4.16],
+          [mbLeft - 0.13, TOP - 0.03, -4.21],
+          [mbLeft - 0.1, 0.35, -4.24],
+          [mbLeft - 0.02, 0.02, -4.26],
+        ]}
+      />
+      {/* iPad USB-C to the charger. */}
+      <Cable
+        points={[
+          [ipadRight + 0.004, TOP + 0.004, IPAD.position.z + 0.02],
+          [ipadRight + 0.05, T, IPAD.position.z - 0.02],
+          [ipadRight + 0.03, T, -3.95],
+          [charger[0] - 0.01, T, charger[2] + 0.06],
+          [charger[0], TOP + 0.012, charger[2] + 0.03],
+        ]}
+      />
+      {/* Charger lead down behind the desk. */}
+      <Cable
+        points={[
+          [charger[0], TOP + 0.012, charger[2] - 0.03],
+          [charger[0] + 0.01, T, -4.17],
+          [charger[0] + 0.02, TOP - 0.04, -4.21],
+          [charger[0] + 0.05, 0.3, -4.24],
+          [charger[0] + 0.1, 0.02, -4.26],
+        ]}
+      />
     </group>
   );
 }

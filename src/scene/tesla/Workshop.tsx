@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { RoundedBox } from '@react-three/drei';
-import { CatmullRomCurve3, LatheGeometry, Vector2, Vector3 } from 'three';
-import { CAR, ROOM, carLocalToWorld } from '../layout';
+import { CatmullRomCurve3, LatheGeometry, Object3D, Vector2, Vector3 } from 'three';
+import { ROOM, carLocalToWorld } from '../layout';
 import { pegboard } from '../materials/proceduralTextures';
 import { Rod } from '../primitives';
 
@@ -159,15 +159,50 @@ function WallCharger() {
   );
 }
 
-function CeilingBattens() {
+/**
+ * Ceiling track with three small spots aimed at the car — natural, directional workshop light
+ * instead of a glaring batten. Spots cast no shadows (cost), the lamp and window do.
+ */
+function TrackLights() {
+  const heads = useMemo(() => {
+    const out: { pos: Vector3; aim: Object3D }[] = [];
+    for (const lx of [-1.3, 0.1, 1.4]) {
+      const onCar = carLocalToWorld(new Vector3(lx, 0.7, -0.15));
+      // Track runs above the room side of the car, so light rakes the driver side.
+      const pos = carLocalToWorld(new Vector3(lx, 0, -1.7));
+      pos.y = ROOM.height - 0.32;
+      const aim = new Object3D();
+      aim.position.copy(onCar);
+      out.push({ pos, aim });
+    }
+    return out;
+  }, []);
+  const a = heads[0]!.pos;
+  const b = heads[2]!.pos;
   return (
-    <group position={[CAR.position.x, ROOM.height - 0.3, CAR.position.z]} rotation-y={CAR.rotationY}>
-      <mesh>
-        <boxGeometry args={[2.2, 0.03, 0.08]} />
-        <meshStandardMaterial color="#000" emissive="#e4ebf7" emissiveIntensity={1.6} toneMapped={false} />
-      </mesh>
-      <Rod from={[-0.9, 0, 0]} to={[-0.9, 0.3, 0]} radius={0.003} color="#222" />
-      <Rod from={[0.9, 0, 0]} to={[0.9, 0.3, 0]} radius={0.003} color="#222" />
+    <group>
+      <Rod from={[a.x, a.y + 0.05, a.z]} to={[b.x, b.y + 0.05, b.z]} radius={0.012} color="#111" castShadow={false} />
+      {heads.map(({ pos, aim }, i) => {
+        const q = new Object3D();
+        q.position.copy(pos);
+        q.lookAt(aim.position);
+        return (
+          <group key={i}>
+            <group position={pos} quaternion={q.quaternion}>
+              <mesh rotation-x={Math.PI / 2}>
+                <cylinderGeometry args={[0.035, 0.03, 0.12, 20]} />
+                <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
+              </mesh>
+              <mesh position-z={0.061}>
+                <circleGeometry args={[0.026, 20]} />
+                <meshStandardMaterial color="#000" emissive="#fff1dd" emissiveIntensity={2.2} toneMapped={false} />
+              </mesh>
+            </group>
+            <primitive object={aim} />
+            <spotLight position={pos} target={aim} angle={0.42} penumbra={0.9} intensity={26} decay={2} color="#ffe9cf" />
+          </group>
+        );
+      })}
     </group>
   );
 }
@@ -176,7 +211,7 @@ function CeilingBattens() {
 function FloorDetails() {
   return (
     <group>
-      <mesh rotation-x={-Math.PI / 2} position={[CAR.position.x + 0.2, 0.003, CAR.position.z + 0.5]}>
+      <mesh rotation-x={-Math.PI / 2} position={[carLocalToWorld(new Vector3(0.3, 0, 0)).x, 0.003, carLocalToWorld(new Vector3(0.3, 0, 0)).z]}>
         <circleGeometry args={[0.35, 32]} />
         <meshStandardMaterial color="#1a1814" roughness={0.4} transparent opacity={0.45} />
       </mesh>
@@ -192,7 +227,7 @@ export function Workshop() {
       <DiagnosticCart />
       <TyreStack />
       <WallCharger />
-      <CeilingBattens />
+      <TrackLights />
       <FloorDetails />
     </group>
   );

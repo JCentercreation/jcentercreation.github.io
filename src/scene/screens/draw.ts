@@ -35,23 +35,37 @@ export function fitText(g: CanvasRenderingContext2D, text: string, maxWidth: num
   return `${t}…`;
 }
 
-/** Neutral stand-in until the official logo file is supplied: never a fake logo, just initials. */
-export function logoPending(g: CanvasRenderingContext2D, name: string, x: number, y: number, s: number, dark: boolean) {
-  roundRect(g, x, y, s, s, s * 0.22);
-  g.fillStyle = dark ? '#2c2c2e' : '#e5e5ea';
-  g.fill();
-  g.fillStyle = dark ? '#8e8e93' : '#6e6e73';
-  g.font = `600 ${s * 0.34}px ${SYSTEM_FONT}`;
+/**
+ * Company logo: the official file when supplied (fitted, original proportions and colours);
+ * otherwise a clearly marked placeholder — dashed outline + short name — never a fake logo.
+ */
+export function drawLogo(
+  g: CanvasRenderingContext2D,
+  logo: HTMLImageElement | null,
+  shortName: string,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  dark: boolean,
+) {
+  if (logo) {
+    const k = Math.min(w / logo.naturalWidth, h / logo.naturalHeight);
+    const lw = logo.naturalWidth * k;
+    const lh = logo.naturalHeight * k;
+    g.drawImage(logo, x + (w - lw) / 2, y + (h - lh) / 2, lw, lh);
+    return;
+  }
+  g.save();
+  roundRect(g, x + 1, y + 1, w - 2, h - 2, Math.min(w, h) * 0.12);
+  g.setLineDash([6, 5]);
+  g.lineWidth = 2;
+  g.strokeStyle = dark ? '#48484a' : '#b8b5a8';
+  g.stroke();
+  g.fillStyle = dark ? '#8e8e93' : '#8a877c';
+  g.font = `600 ${Math.min(h * 0.26, w * 0.16)}px ${SYSTEM_FONT}`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  const initials = name
-    .replace(/[(),.]/g, '')
-    .split(/\s+/)
-    .filter((w) => /^[A-Z]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('');
-  g.fillText(initials, x + s / 2, y + s / 2 + 1);
-  g.textAlign = 'left';
-  g.textBaseline = 'alphabetic';
+  g.fillText(shortName.toUpperCase(), x + w / 2, y + h / 2 + 1);
+  g.restore();
 }

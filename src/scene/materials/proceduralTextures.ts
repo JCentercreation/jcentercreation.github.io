@@ -15,9 +15,10 @@ export interface TextureSet {
 
 const cache = new Map<string, TextureSet>();
 
-function canvas(size: number) {
+function canvas(w: number, h = w) {
   const c = document.createElement('canvas');
-  c.width = c.height = size;
+  c.width = w;
+  c.height = h;
   return c;
 }
 
@@ -36,22 +37,25 @@ function build(
   size: number,
   sample: (u: number, v: number) => { r: number; g: number; b: number; rough: number; height: number },
   normalStrength: number,
+  height = size,
 ): TextureSet {
   const hit = cache.get(key);
   if (hit) return hit;
 
-  const albedo = canvas(size);
-  const rough = canvas(size);
-  const normal = canvas(size);
-  const a = albedo.getContext('2d')!.createImageData(size, size);
-  const r = rough.getContext('2d')!.createImageData(size, size);
-  const n = normal.getContext('2d')!.createImageData(size, size);
-  const heights = new Float32Array(size * size);
+  const W = size;
+  const H = height;
+  const albedo = canvas(W, H);
+  const rough = canvas(W, H);
+  const normal = canvas(W, H);
+  const a = albedo.getContext('2d')!.createImageData(W, H);
+  const r = rough.getContext('2d')!.createImageData(W, H);
+  const n = normal.getContext('2d')!.createImageData(W, H);
+  const heights = new Float32Array(W * H);
 
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const s = sample(x / size, y / size);
-      const i = (y * size + x) * 4;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const s = sample(x / W, y / H);
+      const i = (y * W + x) * 4;
       a.data[i] = s.r * 255;
       a.data[i + 1] = s.g * 255;
       a.data[i + 2] = s.b * 255;
@@ -59,16 +63,16 @@ function build(
       const rr = Math.max(0, Math.min(1, s.rough)) * 255;
       r.data[i] = r.data[i + 1] = r.data[i + 2] = rr;
       r.data[i + 3] = 255;
-      heights[y * size + x] = s.height;
+      heights[y * W + x] = s.height;
     }
   }
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const h = (xx: number, yy: number) => heights[((yy + size) % size) * size + ((xx + size) % size)]!;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const h = (xx: number, yy: number) => heights[((yy + H) % H) * W + ((xx + W) % W)]!;
       const dx = (h(x + 1, y) - h(x - 1, y)) * normalStrength;
       const dy = (h(x, y + 1) - h(x, y - 1)) * normalStrength;
       const len = Math.hypot(dx, dy, 1);
-      const i = (y * size + x) * 4;
+      const i = (y * W + x) * 4;
       n.data[i] = ((-dx / len) * 0.5 + 0.5) * 255;
       n.data[i + 1] = ((dy / len) * 0.5 + 0.5) * 255;
       n.data[i + 2] = ((1 / len) * 0.5 + 0.5) * 255;
@@ -84,29 +88,97 @@ function build(
   return set;
 }
 
-/** Slightly aged, sealed industrial concrete floor. One tile ≈ 3 m. */
+/** Polished, slightly aged concrete floor with saw-cut joints every 1.5 m. One tile = 3 m. */
 export function concreteFloor(): TextureSet {
   const { fbm } = makeNoise(11);
   const fine = makeNoise(12);
   return build(
     'concreteFloor',
-    512,
+    1024,
     (u, v) => {
       const big = fbm(u, v, 4, 5);
-      const stain = Math.max(0, fbm(u + 0.3, v + 0.7, 2, 4) - 0.55) * 1.6;
+      const stain = Math.max(0, fbm(u + 0.3, v + 0.7, 2, 4) - 0.56) * 1.4;
       const grain = fine.fbm(u, v, 64, 2);
-      const speck = grain > 0.78 ? 0.06 : 0;
-      const base = 0.36 + big * 0.12 - stain * 0.12 + (grain - 0.5) * 0.05 - speck;
+      const aggregate = fine.noise(u * 380, v * 380) > 0.82 ? 0.035 : 0;
+      // Joints at u,v = 0 and 0.5 of the tile.
+      const ju = Math.min(Math.abs(((u * 2) % 1) - 0), Math.abs(((u * 2) % 1) - 1));
+      const jv = Math.min(Math.abs(((v * 2) % 1) - 0), Math.abs(((v * 2) % 1) - 1));
+      const joint = Math.min(ju, jv) < 0.0018 ? 1 : 0;
+      const base = 0.47 + big * 0.1 - stain * 0.09 + (grain - 0.5) * 0.04 + aggregate - joint * 0.22;
       return {
         r: base * 1.0,
-        g: base * 0.985,
-        b: base * 0.96,
-        // Polished where worn, dull in stains.
-        rough: 0.62 + big * 0.18 + stain * 0.2 - grain * 0.08,
-        height: grain * 0.6 + big * 0.4,
+        g: base * 0.99,
+        b: base * 0.965,
+        rough: 0.42 + big * 0.2 + stain * 0.18 - grain * 0.06 + joint * 0.4,
+        height: grain * 0.5 + big * 0.3 - joint * 2,
       };
     },
-    1.5,
+    1.6,
+  );
+}
+
+/** Board-formed architectural concrete: 1.2 × 0.6 m panels, tie holes, soft timber imprint. One tile = 2.4 m. */
+export function concretePanels(): TextureSet {
+  const { fbm, noise } = makeNoise(51);
+  return build(
+    'concretePanels',
+    1024,
+    (u, v) => {
+      const pu = (u * 2) % 1; // 2 panels across (1.2 m each)
+      const pv = (v * 4) % 1; // 4 panels down (0.6 m each)
+      const panel = Math.floor(u * 2) * 7 + Math.floor(v * 4) * 3;
+      const seam = Math.min(pu, 1 - pu) < 0.003 || Math.min(pv, 1 - pv) < 0.006 ? 1 : 0;
+      // Formwork tie holes.
+      const holeD = Math.min(Math.hypot(pu - 0.2, (pv - 0.25) / 2), Math.hypot(pu - 0.8, (pv - 0.25) / 2), Math.hypot(pu - 0.2, (pv - 0.75) / 2), Math.hypot(pu - 0.8, (pv - 0.75) / 2));
+      const hole = holeD < 0.011 ? 1 : 0;
+      const imprint = noise(u * 6, v * 220) * 0.5 + noise(u * 3, v * 90) * 0.5;
+      const cloud = fbm(u, v, 4, 5);
+      const tone = 0.5 + ((panel * 0.137) % 1) * 0.05 + (cloud - 0.5) * 0.12 + (imprint - 0.5) * 0.04 - seam * 0.16 - hole * 0.25;
+      return {
+        r: tone * 0.98,
+        g: tone * 0.975,
+        b: tone * 0.96,
+        rough: 0.82 + cloud * 0.1,
+        height: imprint * 0.35 + cloud * 0.2 - seam * 1.2 - hole * 1.5,
+      };
+    },
+    1.4,
+  );
+}
+
+/** Oak slat acoustic panel: vertical slats with dark felt gaps. One tile = 0.6 m wide. */
+export function oakSlats(): TextureSet {
+  const { fbm, noise } = makeNoise(61);
+  return build(
+    'oakSlats',
+    512,
+    (u, v) => {
+      const slats = 12; // 5 cm pitch
+      const su = (u * slats) % 1;
+      const idx = Math.floor(u * slats);
+      const gap = su > 0.62;
+      if (gap) return { r: 0.05, g: 0.05, b: 0.05, rough: 1, height: 0 };
+      const grain = noise(u * 40 + idx * 3.1, v * 6) * 0.5 + fbm(u, v, 8, 3) * 0.5;
+      const t = 0.62 + (grain - 0.5) * 0.25 + ((idx * 0.37) % 1) * 0.08;
+      return { r: 0.55 * t + 0.14, g: 0.38 * t + 0.08, b: 0.22 * t + 0.04, rough: 0.6, height: 1 - Math.abs(su - 0.31) };
+    },
+    2,
+  );
+}
+
+/** Warm limewash plaster (behind the bookshelf). One tile = 2 m. */
+export function limewash(): TextureSet {
+  const { fbm } = makeNoise(71);
+  return build(
+    'limewash',
+    512,
+    (u, v) => {
+      const n = fbm(u, v, 3, 5);
+      const m = fbm(u + 0.4, v, 12, 3);
+      const base = 0.58 + n * 0.1 + (m - 0.5) * 0.05;
+      return { r: base * 1.0, g: base * 0.95, b: base * 0.87, rough: 0.92, height: m };
+    },
+    0.6,
   );
 }
 
@@ -136,15 +208,15 @@ export function brickWall(): TextureSet {
       const n = fbm(u, v, 16, 4);
       const g = fine.fbm(u, v, 128, 2);
       if (inMortar) {
-        const m = 0.33 + n * 0.08 + g * 0.05;
-        return { r: m, g: m * 0.97, b: m * 0.93, rough: 0.95, height: 0 };
+        const m = 0.42 + n * 0.06 + g * 0.04;
+        return { r: m, g: m * 0.98, b: m * 0.95, rough: 0.95, height: 0 };
       }
-      // Muted, slightly sooty industrial brick.
-      const dark = 0.75 + tone * 0.35 + (n - 0.5) * 0.25;
+      // Muted reclaimed brick: greyed terracotta with some darker headers.
+      const dark = 0.8 + tone * 0.32 + (n - 0.5) * 0.22;
       return {
-        r: 0.36 * dark,
-        g: 0.2 * dark,
-        b: 0.15 * dark,
+        r: 0.4 * dark,
+        g: 0.27 * dark,
+        b: 0.22 * dark,
         rough: 0.82 + g * 0.15,
         height: 0.7 + Math.min(edge * 6, 0.3) + g * 0.12,
       };
@@ -169,28 +241,41 @@ export function cementWall(): TextureSet {
   );
 }
 
-/** Natural oak with straight grain along u. One tile ≈ 1 m of board. */
+function oakSample(seed: number, boards: number) {
+  const { fbm, noise } = makeNoise(seed);
+  return (u: number, v: number) => {
+    const board = Math.min(boards - 1, Math.floor(v * boards));
+    const bv = v * boards - board;
+    const offset = board * 0.37;
+    // Cathedral figure: arches whose apex wanders along the board.
+    const apex = 0.3 + 0.4 * fbm(offset, 0.1, 2, 2);
+    const arch = Math.pow(Math.abs(u - apex) * 1.6, 2) * 0.35;
+    const warp = fbm(u * 0.6 + offset, bv, 3, 4) * 0.35;
+    const t = (bv + arch + warp) * 18;
+    const ring = Math.pow(Math.abs(Math.sin(t * Math.PI)), 0.6);
+    const pores = noise(u * 700 + offset * 50, bv * 30);
+    const streak = fbm(u * 2 + offset, bv * 8, 4, 3);
+    const boardTone = [0.0, 0.05, -0.04, 0.03][board % 4]!;
+    const k = 0.62 + boardTone - ring * 0.1 + (pores - 0.5) * 0.07 + (streak - 0.5) * 0.12;
+    const glue = Math.min(bv, 1 - bv) < 0.002 ? 0.08 : 0;
+    return {
+      r: 0.66 * k + 0.2 - glue,
+      g: 0.5 * k + 0.13 - glue,
+      b: 0.34 * k + 0.06 - glue,
+      rough: 0.5 + ring * 0.08 + (1 - k) * 0.15,
+      height: ring * 0.4 + pores * 0.25,
+    };
+  };
+}
+
+/** Desk top: one texture spanning the whole 1.9 × 0.82 m top — no visible repetition. */
+export function oakDesk(): TextureSet {
+  return build('oakDesk', 2048, oakSample(41, 3), 0.8, 1024);
+}
+
+/** Tiling oak boards for shelves. One tile ≈ 1 m. */
 export function oakWood(): TextureSet {
-  const { fbm, noise } = makeNoise(41);
-  return build(
-    'oakWood',
-    1024,
-    (u, v) => {
-      const warp = fbm(u, v, 4, 4) * 0.7;
-      const rings = Math.sin((v * 64 + warp * 3) * Math.PI);
-      const fibre = noise(u * 320, v * 24);
-      const streak = fbm(u, v, 32, 2);
-      const t = 0.55 + rings * 0.12 + (fibre - 0.5) * 0.12 + (streak - 0.5) * 0.18;
-      return {
-        r: 0.5 * t + 0.12,
-        g: 0.33 * t + 0.07,
-        b: 0.19 * t + 0.03,
-        rough: 0.48 + (1 - t) * 0.2,
-        height: rings * 0.3 + fibre * 0.4,
-      };
-    },
-    1.2,
-  );
+  return build('oakWood', 1024, oakSample(43, 4), 0.8, 512);
 }
 
 /** Perforated hardboard for the workshop pegboard. */

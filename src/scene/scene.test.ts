@@ -10,7 +10,7 @@ describe('bookshelf arrangement', () => {
   });
 
   it('places every catalogue book exactly once, on the shelf', () => {
-    const placed = arrangeShelf().filter((b) => b.record);
+    const placed = arrangeShelf().books.filter((b) => b.record);
     expect(placed.map((b) => b.record!.id).sort()).toEqual(books.map((b) => b.id).sort());
     const zEnd = BOOKSHELF.zStart + BOOKSHELF.bays * BOOKSHELF.bayWidth;
     for (const b of placed) {

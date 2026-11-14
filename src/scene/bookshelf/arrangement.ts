@@ -3,8 +3,8 @@ import { BOOKSHELF } from '../layout';
 import { mulberry32 } from '../materials/noise';
 
 /**
- * Deterministic shelf arrangement. A fixed seed means every visitor sees the same shelf,
- * and adding a book to `books.ts` only fills its `slot` — the rest of the shelf is unchanged.
+ * Deterministic shelf arrangement: a fixed seed means every visitor sees the same shelf, and
+ * catalogue books sit at the fixed `place` from books.ts — the rest of the shelf flows around them.
  * Books are deliberately not grouped by colour, size or subject (spec §9).
  */
 
@@ -20,76 +20,124 @@ export interface PlacedBook {
   h: number;
   t: number;
   color: string;
-  /** Lying flat in a small stack. */
-  flat: boolean;
-  tilt: number;
+  /** Rotation about the shelf's depth axis (leaning books), radians. */
+  lean: number;
+  /** Spine typography variant for anonymous books. */
+  design: number;
 }
 
+export interface Bookend {
+  x: number;
+  y: number;
+  z: number;
+}
+
+// Muted, real-library tones: cloth, paper and dust jackets rather than saturated blocks.
 const PALETTE = [
-  '#2b3a4a', '#7a2e2a', '#c9b98f', '#1f1f1f', '#3d5a40', '#e6dfcf', '#8a6d3b', '#4b3b5c',
-  '#b04a2f', '#d8cfbf', '#264653', '#5c4033', '#a3a39a', '#0f3057', '#6b705c', '#e9c46a',
-  '#2a2a2e', '#9c2f2f', '#f1ece2', '#40556b',
+  '#2f3b47', '#6e3430', '#c2b48f', '#232323', '#43553f', '#dcd5c4', '#7d6440', '#4a3f55',
+  '#9a4b35', '#cfc6b4', '#2c4a52', '#5a4434', '#9c9b92', '#1d3149', '#666a58', '#c9ab62',
+  '#2c2c30', '#843432', '#e8e2d4', '#45576a', '#a8683c', '#1e3348', '#e4dccb', '#56603b',
 ];
 
-export function arrangeShelf(): PlacedBook[] {
-  const rand = mulberry32(2024);
-  const bySlot = new Map(books.map((b) => [b.slot, b]));
-  const out: PlacedBook[] = [];
-  const front = BOOKSHELF.x - BOOKSHELF.depth;
-  let slot = 0;
+/** Number of spine typography designs per contrast family (see Bookshelf.tsx). */
+export const SPINE_DESIGNS = 4;
+/** Design index for books lying flat: plain spine (typography would stretch). */
+export const PLAIN_SPINE = SPINE_DESIGNS * 2;
 
+function luminance(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+}
+
+export function arrangeShelf(): { books: PlacedBook[]; bookends: Bookend[] } {
+  const rand = mulberry32(2024);
+  const out: PlacedBook[] = [];
+  const ends: Bookend[] = [];
+  const front = BOOKSHELF.x - BOOKSHELF.depth;
   const heights = BOOKSHELF.shelfHeights;
+
+  const filler = (shelfTop: number, clearance: number) => {
+    // Mostly ordinary paperbacks/hardbacks, a few tall art books and slim volumes.
+    const r = rand();
+    const h = Math.min(clearance - 0.01, r < 0.1 ? 0.29 + rand() * 0.06 : r < 0.25 ? 0.15 + rand() * 0.03 : 0.19 + rand() * 0.07);
+    const t = 0.011 + Math.pow(rand(), 1.8) * 0.065;
+    const w = Math.min(0.31, h * (0.62 + rand() * 0.14));
+    const color = PALETTE[Math.floor(rand() * PALETTE.length)]!;
+    const family = luminance(color) > 0.5 ? 1 : 0; // 0: light text on dark, 1: dark text on light
+    const design = family * SPINE_DESIGNS + Math.floor(rand() * SPINE_DESIGNS);
+    return { h, t, w, color, design, shelfTop };
+  };
+
   for (let s = 0; s < heights.length; s++) {
     const shelfTop = heights[s]! + 0.03;
     const clearance = (heights[s + 1] ?? 3.55) - shelfTop - 0.02;
     for (let b = 0; b < BOOKSHELF.bays; b++) {
       const z0 = BOOKSHELF.zStart + b * BOOKSHELF.bayWidth + 0.03;
       const z1 = z0 + BOOKSHELF.bayWidth - 0.06;
-      // Some shelves are only partly filled; a lived-in library is never perfectly packed.
-      const fill = s === heights.length - 1 ? 0.55 : 0.78 + rand() * 0.2;
-      const end = z0 + (z1 - z0) * fill;
-      let z = z0 + (rand() < 0.3 ? rand() * 0.12 : 0);
+      const reserved = books
+        .filter((bk) => bk.place.shelf === s && bk.place.bay === b)
+        .sort((a, c) => a.place.at - c.place.at)
+        .map((bk) => ({ record: bk, z: z0 + bk.place.at * (z1 - z0) }));
+
+      const fill = s === heights.length - 1 ? 0.5 + rand() * 0.2 : 0.7 + rand() * 0.25;
+      const end = Math.max(z0 + (z1 - z0) * fill, (reserved.at(-1)?.z ?? 0) + 0.06);
+      let z = z0 + (rand() < 0.25 ? 0.03 + rand() * 0.1 : 0);
+      let lastH = 0.2;
 
       while (z < end) {
-        const record = bySlot.get(slot) ?? null;
-        slot++;
-        // Occasional small horizontal stack (never for catalogue books, which must be pullable).
-        if (!record && rand() < 0.06 && end - z > 0.3) {
+        const next = reserved[0];
+        if (next && z >= next.z - 0.02) {
+          reserved.shift();
+          const r = next.record;
+          const h = r.spine.heightCm / 100;
+          const t = r.spine.thicknessCm / 100;
+          const w = Math.min(0.3, h * 0.66);
+          out.push({ record: r, x: front + 0.008 + w / 2, y: shelfTop + h / 2, z: z + t / 2, w, h, t, color: r.spine.color, lean: 0, design: 0 });
+          z += t + 0.002;
+          lastH = h;
+          continue;
+        }
+
+        // Occasional small horizontal stack (sized before placing so it never overlaps neighbours).
+        if (rand() < 0.05 && end - z > 0.32 && !next) {
           const n = 2 + Math.floor(rand() * 3);
+          const depth = 0.19 + rand() * 0.05;
+          const layers = Array.from({ length: n }, () => ({ f: filler(shelfTop, clearance), t: 0.02 + rand() * 0.03 }));
+          const len = Math.min(0.28, Math.max(...layers.map((l) => l.f.h)));
           let y = shelfTop;
-          const w = 0.2 + rand() * 0.06;
-          for (let i = 0; i < n; i++) {
-            const t = 0.02 + rand() * 0.03;
-            const h = 0.15 + rand() * 0.05;
-            out.push({ record: null, x: front + 0.02 + h / 2, y: y + t / 2, z: z + w / 2, w: h, h: t, t: w, color: PALETTE[Math.floor(rand() * PALETTE.length)]!, flat: true, tilt: (rand() - 0.5) * 0.2 });
+          for (const { f, t } of layers) {
+            const l = Math.min(len, f.h);
+            out.push({ record: null, x: front + 0.015 + depth / 2, y: y + t / 2 + 0.0005, z: z + len / 2, w: depth, h: t - 0.001, t: l, color: f.color, lean: 0, design: PLAIN_SPINE });
             y += t;
           }
-          z += w + 0.02;
+          z += len + 0.012;
           continue;
         }
-        if (!record && rand() < 0.07) {
-          z += 0.04 + rand() * 0.12; // a gap
+        if (rand() < 0.04 && !next) {
+          z += 0.03 + rand() * 0.06;
           continue;
         }
-        const h = record ? record.spine.heightCm / 100 : Math.min(clearance, 0.17 + rand() * 0.13);
-        const t = record ? record.spine.thicknessCm / 100 : 0.016 + rand() * 0.04;
-        const w = Math.min(0.3, h * (0.62 + rand() * 0.1));
-        const recess = record ? 0.006 : rand() * 0.02;
-        out.push({
-          record,
-          x: front + 0.012 + recess + w / 2,
-          y: shelfTop + h / 2,
-          z: z + t / 2,
-          w,
-          h,
-          t,
-          color: record ? record.spine.color : PALETTE[Math.floor(rand() * PALETTE.length)]!,
-          flat: false,
-          tilt: 0,
-        });
-        z += t + (rand() < 0.15 ? 0.004 : 0.0008);
+
+        const f = filler(shelfTop, clearance);
+        const recess = rand() * 0.018;
+        out.push({ record: null, x: front + 0.012 + recess + f.w / 2, y: shelfTop + f.h / 2, z: z + f.t / 2, w: f.w, h: f.h, t: f.t, color: f.color, lean: 0, design: f.design });
+        z += f.t + (rand() < 0.2 ? 0.003 : 0.0006);
+        lastH = f.h;
+      }
+
+      const space = z1 - z;
+      if (space > 0.1 && rand() < 0.55) {
+        // A book leaning on the end of the row.
+        const f = filler(shelfTop, clearance);
+        const phi = Math.min(0.5, 0.12 + rand() * 0.25, Math.asin(Math.min(1, (space - f.t) / f.h)));
+        const lean = -phi;
+        const cz = z + (f.h / 2) * Math.sin(phi) + (f.t / 2) * Math.cos(phi) - Math.max(0, f.h - lastH) * Math.sin(phi) * 0.5;
+        const cy = shelfTop + (f.h / 2) * Math.cos(phi) + (f.t / 2) * Math.sin(phi);
+        out.push({ record: null, x: front + 0.015 + f.w / 2, y: cy, z: cz, w: f.w, h: f.h, t: f.t, color: f.color, lean, design: f.design });
+      } else if (space > 0.06) {
+        ends.push({ x: front + 0.1, y: shelfTop, z: z + 0.004 });
       }
     }
   }
-  return out;
+  return { books: out, bookends: ends };
 }

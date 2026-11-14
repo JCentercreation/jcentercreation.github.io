@@ -26,6 +26,8 @@ export interface Period {
 export interface CompanyRecord {
   id: string;
   name: string;
+  /** Short form used where space is tight (timeline labels, logo placeholder). */
+  shortName: string;
   /** Path under /public. `null` until the owner supplies the official logo file. */
   logo: string | null;
   period: Period;
@@ -47,8 +49,11 @@ export interface BookRecord {
   spine: { color: string; textColor: string; heightCm: number; thicknessCm: number };
   /** Path under /public. `null` until a cover image is supplied. */
   cover: string | null;
-  /** Fixed shelf slot so positions stay stable. Index into the bookshelf slot list. */
-  slot: number;
+  /**
+   * Fixed place on the shelf, stable between visits: shelf (0 = bottom), bay (0 = nearest the
+   * window) and position along the bay (0–1). Everything else on the shelf flows around it.
+   */
+  place: { shelf: number; bay: number; at: number };
 }
 
 export interface ProjectRecord {

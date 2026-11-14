@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ExtrudeGeometry, Path, Shape } from 'three';
 import { ROOM, WINDOW } from '../layout';
-import { brickWall, cementWall, concreteFloor } from '../materials/proceduralTextures';
+import { brickWall, concreteFloor, concretePanels, limewash, oakSlats } from '../materials/proceduralTextures';
 import { tiledPlane } from './geometry';
 
 const W = ROOM.maxX - ROOM.minX;
@@ -27,8 +27,11 @@ function useBackWallGeometry() {
     hole.lineTo(x1, WINDOW.sill);
     hole.closePath();
     s.holes.push(hole);
-    // Shape coordinates are metres, so the brick texture (1 tile = 1 m) maps at true scale.
-    return new ExtrudeGeometry(s, { depth: T, bevelEnabled: false });
+    // Shape coordinates are metres; scale UVs so one concrete tile = 2.4 m.
+    const g = new ExtrudeGeometry(s, { depth: T, bevelEnabled: false });
+    const uv = g.attributes.uv!;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 2.4, uv.getY(i) / 2.4);
+    return g;
   }, []);
 }
 
@@ -65,6 +68,23 @@ function WindowFrame() {
   );
 }
 
+/** Oak slat acoustic panel on the window wall, between window and bookshelf. */
+function SlatPanel() {
+  const slats = oakSlats();
+  const geo = useMemo(() => tiledPlane(1.5, 2.6, 0.6), []);
+  return (
+    <group position={[3.55, 1.55, ROOM.minZ + 0.025]}>
+      <mesh geometry={geo} receiveShadow>
+        <meshStandardMaterial {...slats} normalScale={[1.5, 1.5]} />
+      </mesh>
+      <mesh position-z={-0.012}>
+        <boxGeometry args={[1.52, 2.62, 0.02]} />
+        <meshStandardMaterial color="#0d0d0d" roughness={1} />
+      </mesh>
+    </group>
+  );
+}
+
 function CeilingBeams() {
   return (
     <group>
@@ -90,40 +110,44 @@ function CeilingBeams() {
 export function Room() {
   const floor = concreteFloor();
   const brick = brickWall();
-  const cement = cementWall();
+  const panels = concretePanels();
+  const plaster = limewash();
   const backWall = useBackWallGeometry();
   const floorGeo = useMemo(() => tiledPlane(W, D, 3), []);
   const sideGeo = useMemo(() => tiledPlane(D, H, 1), []);
-  const cementSide = useMemo(() => tiledPlane(D, H, 2), []);
-  const frontGeo = useMemo(() => tiledPlane(W, H, 2), []);
-  const ceilGeo = useMemo(() => tiledPlane(W, D, 2), []);
+  const plasterSide = useMemo(() => tiledPlane(D, H, 2), []);
+  const frontGeo = useMemo(() => tiledPlane(W, H, 2.4), []);
+  const ceilGeo = useMemo(() => tiledPlane(W, D, 2.4), []);
 
   return (
     <group>
       <mesh geometry={floorGeo} rotation-x={-Math.PI / 2} position={[0, 0, 0]} receiveShadow>
-        <meshStandardMaterial {...floor} normalScale={[0.4, 0.4]} metalness={0.05} envMapIntensity={0.6} />
+        <meshStandardMaterial {...floor} normalScale={[0.35, 0.35]} metalness={0.05} envMapIntensity={1.1} />
       </mesh>
 
+      {/* Window wall: board-formed architectural concrete. */}
       <mesh geometry={backWall} position={[0, 0, ROOM.minZ - T]} receiveShadow>
-        <meshStandardMaterial {...brick} normalScale={[1.1, 1.1]} />
+        <meshStandardMaterial {...panels} normalScale={[0.6, 0.6]} />
       </mesh>
 
-      {/* Left: brick (workshop side). */}
+      {/* Left: reclaimed brick — the only brick wall, on the workshop side. */}
       <mesh geometry={sideGeo} position={[ROOM.minX, H / 2, 0]} rotation-y={Math.PI / 2} receiveShadow>
         <meshStandardMaterial {...brick} normalScale={[1.1, 1.1]} />
       </mesh>
-      {/* Right: cement plaster behind the bookshelf. */}
-      <mesh geometry={cementSide} position={[ROOM.maxX, H / 2, 0]} rotation-y={-Math.PI / 2} receiveShadow>
-        <meshStandardMaterial {...cement} normalScale={[0.3, 0.3]} />
+      {/* Right: warm limewash plaster behind the bookshelf. */}
+      <mesh geometry={plasterSide} position={[ROOM.maxX, H / 2, 0]} rotation-y={-Math.PI / 2} receiveShadow>
+        <meshStandardMaterial {...plaster} normalScale={[0.3, 0.3]} />
       </mesh>
       <mesh geometry={frontGeo} position={[0, H / 2, ROOM.maxZ]} rotation-y={Math.PI} receiveShadow>
-        <meshStandardMaterial {...cement} normalScale={[0.3, 0.3]} />
+        <meshStandardMaterial {...panels} normalScale={[0.5, 0.5]} />
       </mesh>
+      {/* Exposed concrete soffit. */}
       <mesh geometry={ceilGeo} position={[0, H, 0]} rotation-x={Math.PI / 2}>
-        <meshStandardMaterial {...cement} color="#6d6b67" />
+        <meshStandardMaterial {...panels} color="#9a9894" />
       </mesh>
 
       <CeilingBeams />
+      <SlatPanel />
       <WindowFrame />
     </group>
   );

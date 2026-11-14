@@ -43,7 +43,11 @@ export function Lighting() {
 
   return (
     <>
-      <hemisphereLight args={['#33435f', '#1a130c', 0.5]} />
+      <hemisphereLight args={['#3a4a66', '#2a2016', 0.6]} />
+
+      {/* Indirect light: LED cove on top of the beams washing the concrete soffit — a soft, warm
+          bounce that keeps the room readable without any visible fixture. */}
+      <rectAreaLight position={[-0.3, ROOM.height - 0.25, 0]} rotation-x={-Math.PI / 2} width={9} height={7} intensity={0.7} color="#ffdcb4" />
 
       {/* Cold glow of the stormy sky filling the room from the window. */}
       <rectAreaLight
@@ -77,23 +81,18 @@ export function Lighting() {
         position={[ROOM.maxX - 1.1, 1.7, shelfZ]}
         width={BOOKSHELF.bays * BOOKSHELF.bayWidth}
         height={3.0}
-        intensity={2.2}
+        intensity={1.3}
         color="#ffc887"
       />
 
-      {/* Workshop LED batten above the car. */}
-      <group position={[CAR.position.x, ROOM.height - 0.32, CAR.position.z]} rotation-y={CAR.rotationY}>
-        {/* Facing down, long side along the car. */}
-        <rectAreaLight rotation-x={-Math.PI / 2} width={2.2} height={0.35} intensity={9} color="#e4ebf7" />
-      </group>
 
       {/* Wall-mounted work light on the room side of the car: picks out the driver door. */}
       <group position={[-1.3, 2.2, 0.3]}>
-        <rectAreaLight ref={driverSideLight} width={1.6} height={0.5} intensity={5} color="#dfe6f2" />
+        <rectAreaLight ref={driverSideLight} width={1.6} height={0.5} intensity={3} color="#e8ecf2" />
       </group>
 
       {/* Reflections only (not visible): soft studio-like strips so car paint, glass and metal read. */}
-      <Environment resolution={256} frames={1} environmentIntensity={0.55}>
+      <Environment resolution={256} frames={1} environmentIntensity={0.7}>
         <Lightformer form="rect" intensity={2.2} color="#e4ebf7" position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[1, 6, 1]} />
         <Lightformer form="rect" intensity={1.4} color="#7f9cc9" position={[0, 2, -6]} scale={[6, 2.5, 1]} />
         <Lightformer form="circle" intensity={3} color="#ffb067" position={[1.5, 2, 2]} scale={1.2} />

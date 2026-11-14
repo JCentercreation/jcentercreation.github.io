@@ -5,6 +5,7 @@ import { Lighting } from './Lighting';
 import { Bookshelf } from './bookshelf/Bookshelf';
 import { RunningShoes } from './decor/RunningShoes';
 import { Poster } from './decor/Poster';
+import { ReadingCorner } from './decor/ReadingCorner';
 import { DeskArea } from './desk/DeskArea';
 import { Outside } from './environment/Outside';
 import { Room } from './environment/Room';
@@ -35,6 +36,7 @@ export function GarageScene() {
       <Tesla />
       <Workshop />
       <Poster />
+      <ReadingCorner />
       <RunningShoes />
 
       <CameraController />

@@ -6,7 +6,7 @@ import type { BookRecord } from '@/content';
 import { BOOKSHELF, ROOM } from '../layout';
 import { oakWood } from '../materials/proceduralTextures';
 import { Interactive } from '../Interactive';
-import { arrangeShelf, type PlacedBook } from './arrangement';
+import { PLAIN_SPINE, SPINE_DESIGNS, arrangeShelf, type Bookend, type PlacedBook } from './arrangement';
 import { SYSTEM_FONT } from '../screens/draw';
 
 const LENGTH = BOOKSHELF.bays * BOOKSHELF.bayWidth;
@@ -47,8 +47,89 @@ function Frame() {
   );
 }
 
-/** All anonymous books in one instanced draw call. */
+/**
+ * Spine typography for anonymous books: title-like bands and blocks that read as spines from a
+ * distance but are intentionally not legible — no invented titles. Drawn portrait (thickness ×
+ * height); alpha marks where the text colour replaces the book colour.
+ */
+function spineDesign(index: number) {
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 512;
+  const g = c.getContext('2d')!;
+  const lightText = index < SPINE_DESIGNS;
+  const ink = lightText ? ['#e9dcb8', '#f4f1ea', '#d6b25e', '#f2e6cf'][index % 4]! : ['#1b1b1b', '#7a1f1a', '#1f2a44', '#2d2d2d'][index % 4]!;
+  g.fillStyle = ink;
+  const v = index % SPINE_DESIGNS;
+  // Fine, low-contrast marks: thin rules and narrow "title" lines, like small spine type.
+  g.globalAlpha = 0.78;
+  const band = (y: number, h: number) => g.fillRect(0, y, 64, h);
+  const line = (y: number, h: number, w = 8) => g.fillRect(32 - w / 2, y, w, h);
+  if (v === 0) {
+    band(30, 3), band(38, 1.5), band(474, 1.5), band(480, 3);
+    line(110, 190, 9), line(330, 60, 6);
+  } else if (v === 1) {
+    band(0, 46);
+    line(130, 160, 8), line(330, 46, 6), line(456, 16, 14);
+  } else if (v === 2) {
+    line(70, 230, 10), line(330, 80, 6);
+  } else {
+    band(160, 1.5), band(320, 1.5);
+    line(180, 120, 9), line(50, 50, 6), line(420, 40, 6);
+  }
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+/** Keep page edges cream while the cover/spine take the per-instance colour. */
+function untinted(m: MeshStandardMaterial) {
+  m.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', '');
+  };
+  m.customProgramCacheKey = () => 'untinted';
+  return m;
+}
+
+/** Spine: instance colour first, then the typography mask on top in its own ink colour. */
+function inkOverTint(m: MeshStandardMaterial) {
+  m.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <map_fragment>', '')
+      .replace(
+        '#include <color_fragment>',
+        `#include <color_fragment>
+        #ifdef USE_MAP
+          vec4 ink = texture2D( map, vMapUv );
+          diffuseColor.rgb = mix( diffuseColor.rgb, ink.rgb, ink.a );
+        #endif`,
+      );
+  };
+  m.customProgramCacheKey = () => 'inkOverTint';
+  return m;
+}
+
+/** Anonymous books: one instanced mesh per spine design (8 draw calls for ~800 books). */
 function FillerBooks({ items }: { items: PlacedBook[] }) {
+  const groups = useMemo(() => {
+    const pages = untinted(new MeshStandardMaterial({ color: '#ece4d2', roughness: 0.9 }));
+    const cover = new MeshStandardMaterial({ roughness: 0.72 });
+    return Array.from({ length: PLAIN_SPINE + 1 }, (_, d) => {
+      const spine = d === PLAIN_SPINE ? cover : inkOverTint(new MeshStandardMaterial({ map: spineDesign(d), roughness: 0.62 }));
+      return { items: items.filter((b) => b.design === d), materials: [pages, spine, pages, pages, cover, cover] };
+    }).filter((g) => g.items.length);
+  }, [items]);
+  return (
+    <>
+      {groups.map((g, i) => (
+        <FillerGroup key={i} items={g.items} materials={g.materials} />
+      ))}
+    </>
+  );
+}
+
+function FillerGroup({ items, materials }: { items: PlacedBook[]; materials: MeshStandardMaterial[] }) {
   const ref = useRef<InstancedMesh>(null);
   useLayoutEffect(() => {
     const mesh = ref.current;
@@ -56,19 +137,37 @@ function FillerBooks({ items }: { items: PlacedBook[] }) {
     const m = new Matrix4();
     const c = new Color();
     items.forEach((b, i) => {
-      m.compose(new Vector3(b.x, b.y, b.z), new Quaternion().setFromEuler(new Euler(b.tilt, 0, 0)), new Vector3(b.w, b.h, b.t));
+      m.compose(new Vector3(b.x, b.y, b.z), new Quaternion().setFromEuler(new Euler(b.lean, 0, 0)), new Vector3(b.w, b.h, b.t));
       mesh.setMatrixAt(i, m);
-      c.set(b.color).offsetHSL(0, 0, ((i * 37) % 11) / 110 - 0.05);
+      c.set(b.color).offsetHSL(0, 0, ((i * 37) % 11) / 140 - 0.04);
       mesh.setColorAt(i, c);
     });
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [items]);
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, items.length]} castShadow receiveShadow>
+    <instancedMesh ref={ref} args={[undefined, undefined, items.length]} material={materials} castShadow receiveShadow>
       <boxGeometry />
-      <meshStandardMaterial roughness={0.78} />
     </instancedMesh>
+  );
+}
+
+function Bookends({ items }: { items: Bookend[] }) {
+  return (
+    <>
+      {items.map((e, i) => (
+        <group key={i} position={[e.x, e.y, e.z]}>
+          <mesh position={[0, 0.07, 0.002]} castShadow>
+            <boxGeometry args={[0.12, 0.14, 0.004]} />
+            <meshStandardMaterial color="#141414" metalness={0.7} roughness={0.4} />
+          </mesh>
+          <mesh position={[0, 0.002, 0.04]}>
+            <boxGeometry args={[0.12, 0.004, 0.08]} />
+            <meshStandardMaterial color="#141414" metalness={0.7} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+    </>
   );
 }
 
@@ -81,11 +180,17 @@ function spineTexture(record: BookRecord) {
   g.fillRect(0, 0, c.width, c.height);
   g.fillStyle = record.spine.textColor;
   g.textBaseline = 'middle';
-  g.font = `700 ${c.height * 0.36}px ${SYSTEM_FONT}`;
-  g.fillText(record.title.toUpperCase(), 60, c.height / 2);
-  g.font = `500 ${c.height * 0.26}px ${SYSTEM_FONT}`;
+  // Title fitted to the spine; author at the top end, like a real spine read bottom-to-top.
+  let size = c.height * 0.46;
+  g.font = `800 ${size}px ${SYSTEM_FONT}`;
+  while (g.measureText(record.title.toUpperCase()).width > c.width * 0.62 && size > 8) {
+    size -= 1;
+    g.font = `800 ${size}px ${SYSTEM_FONT}`;
+  }
+  g.fillText(record.title.toUpperCase(), 50, c.height / 2);
+  g.font = `600 ${c.height * 0.27}px ${SYSTEM_FONT}`;
   g.textAlign = 'right';
-  g.fillText(record.author, c.width - 50, c.height / 2);
+  g.fillText(record.author.toUpperCase(), c.width - 40, c.height / 2);
   const t = new CanvasTexture(c);
   t.colorSpace = SRGBColorSpace;
   t.anisotropy = 8;
@@ -143,7 +248,7 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
 }
 
 export function Bookshelf() {
-  const placed = useMemo(() => arrangeShelf(), []);
+  const { books: placed, bookends } = useMemo(() => arrangeShelf(), []);
   const fillers = useMemo(() => placed.filter((b) => !b.record), [placed]);
   const catalogue = useMemo(() => placed.filter((b): b is PlacedBook & { record: BookRecord } => !!b.record), [placed]);
   const shot = useExperience((s) => s.shot);
@@ -152,6 +257,7 @@ export function Bookshelf() {
     <Interactive id="bookshelf" enabled={shot !== 'bookshelf'} onSelect={() => useExperience.getState().goTo('bookshelf')}>
       <Frame />
       <FillerBooks items={fillers} />
+      <Bookends items={bookends} />
       {catalogue.map((b) => (
         <CatalogueBook key={b.record.id} book={b} />
       ))}
