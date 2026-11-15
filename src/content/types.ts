@@ -77,6 +77,12 @@ export interface UiStrings {
   siteTitle: string;
   loading: string;
   loadingHint: string;
+  /** Real loading stages (no invented percentages). */
+  loadingStages: { engine: string; scene: string; ready: string };
+  /** Shown if the 3D scene cannot start (WebGL or download failure). */
+  loadError: { title: string; body: string; retry: string; continue2d: string };
+  /** Accessible label for the welcome caption region during the intro. */
+  welcomeLabel: string;
   enter: string;
   backToGarage: string;
   skipIntro: string;

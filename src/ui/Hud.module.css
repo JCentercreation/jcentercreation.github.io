@@ -153,7 +153,7 @@
   pointer-events: none;
 }
 
-.places:focus-within {
+.places:has(:focus-visible) {
   clip-path: none;
   pointer-events: auto;
 }
@@ -170,4 +170,13 @@
 
 .places button[aria-current='true'] {
   border-color: var(--accent);
+}
+
+/* Comfortable touch targets for Skip / Back on touch screens. */
+@media (pointer: coarse) {
+  .back {
+    min-height: 44px;
+    padding: 0 16px 0 12px;
+    font-size: 14px;
+  }
 }

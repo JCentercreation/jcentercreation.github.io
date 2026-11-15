@@ -40,6 +40,11 @@ interface ExperienceState {
   /** User chose to try 3D despite the fallback recommendation. */
   forceScene: boolean;
   setForceScene: (v: boolean) => void;
+  /** The 3D scene failed or the visitor chose the simple version. */
+  forceFallback: boolean;
+  setForceFallback: (v: boolean) => void;
+  /** True once the intro's pull-back has started (the welcome caption fades out). */
+  introRevealing: boolean;
 
   reducedMotion: boolean;
 
@@ -118,7 +123,10 @@ export const useExperience = create<ExperienceState>((set) => ({
 
   capabilities: detectCapabilities(),
   forceScene: false,
-  setForceScene: (forceScene) => set({ forceScene }),
+  setForceScene: (forceScene) => set({ forceScene, forceFallback: false }),
+  forceFallback: false,
+  setForceFallback: (forceFallback) => set({ forceFallback }),
+  introRevealing: false,
 
   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
 

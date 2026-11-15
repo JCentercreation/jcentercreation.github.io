@@ -7,7 +7,8 @@ import { useNarrowViewport } from '@/lib/useViewport';
 import { GarageScene } from './GarageScene';
 
 interface Props {
-  onProgress: (pct: number) => void;
+  /** Real asset progress, or null when the loading manager has nothing in flight. */
+  onProgress: (pct: number | null) => void;
   onReady: () => void;
 }
 
@@ -15,7 +16,7 @@ interface Props {
 function ProgressReporter({ onProgress }: Pick<Props, 'onProgress'>) {
   const { progress, active } = useProgress();
   useEffect(() => {
-    onProgress(active ? progress : 100);
+    onProgress(active ? progress : null);
   }, [progress, active, onProgress]);
   return null;
 }

@@ -1,7 +1,9 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { forceIntro, holdDoorOpen, initialShotOverride, useExperience } from './app/store';
 import { useDocumentLocale } from './app/useContent';
-import { Loader } from './ui/Loader';
+import { Loader, type LoadStage } from './ui/Loader';
+import { SceneErrorBoundary } from './ui/SceneErrorBoundary';
+import { IntroCaption } from './ui/IntroCaption';
 import { Hud } from './ui/Hud';
 import { Fallback } from './ui/Fallback';
 import { PortfolioSheet } from './ui/macbook/PortfolioSheet';
@@ -13,18 +15,17 @@ import { InteriorHint } from './ui/automotive/InteriorHint';
 // three.js + R3F live in their own chunk; nothing 3D is downloaded for the fallback path.
 const GarageCanvas = lazy(() => import('./scene/GarageCanvas'));
 
-/** Share of the progress bar reserved for downloading the 3D engine chunk itself. */
-const ENGINE_SHARE = 20;
 
 export function App() {
   useDocumentLocale();
   const tier = useExperience((s) => s.capabilities.tier);
   const webgl2 = useExperience((s) => s.capabilities.webgl2);
   const forceScene = useExperience((s) => s.forceScene);
+  const forceFallback = useExperience((s) => s.forceFallback);
   const phase = useExperience((s) => s.phase);
 
   const [engineLoaded, setEngineLoaded] = useState(false);
-  const [sceneProgress, setSceneProgress] = useState(0);
+  const [sceneProgress, setSceneProgress] = useState<number | null>(null);
 
   const onReady = useCallback(() => {
     const s = useExperience.getState();
@@ -38,25 +39,31 @@ export function App() {
     }
   }, []);
 
-  const show3D = tier !== 'fallback' || forceScene;
+  const show3D = (tier !== 'fallback' || forceScene) && !forceFallback;
 
   if (!show3D) return <Fallback canTry3D={webgl2} />;
 
-  const progress = engineLoaded ? ENGINE_SHARE + (sceneProgress * (100 - ENGINE_SHARE)) / 100 : 8;
+  // Real stages only: engine chunk downloading → scene preparing (with genuine asset progress when available).
+  const stage: LoadStage = !engineLoaded ? 'engine' : 'scene';
 
   return (
     <>
-      <Suspense fallback={<EngineLoading />}>
-        <EngineLoaded onLoaded={setEngineLoaded} />
-        <GarageCanvas onProgress={setSceneProgress} onReady={onReady} />
-      </Suspense>
+      <SceneErrorBoundary>
+        {(attempt) => (
+          <Suspense key={attempt} fallback={<EngineLoading />}>
+            <EngineLoaded onLoaded={setEngineLoaded} />
+            <GarageCanvas onProgress={setSceneProgress} onReady={onReady} />
+          </Suspense>
+        )}
+      </SceneErrorBoundary>
+      <IntroCaption />
       <Hud />
       <PortfolioSheet />
       <CareerSheet />
       <BookPanel />
       <AutoSheet />
       <InteriorHint />
-      <Loader progress={progress} done={phase !== 'loading'} />
+      <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading'} />
     </>
   );
 }

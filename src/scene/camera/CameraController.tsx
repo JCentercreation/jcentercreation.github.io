@@ -41,7 +41,7 @@ export function CameraController() {
   }, []);
 
   /** Animate the rig to a shot. Resolves when it arrives. */
-  const flyTo = (id: ShotId, opts: { duration?: number; ease?: string; delay?: number; onComplete?: () => void } = {}) => {
+  const flyTo = (id: ShotId, opts: { duration?: number; ease?: string; delay?: number; onStart?: () => void; onComplete?: () => void } = {}) => {
     const r = rig.current;
     if (!r) return;
     const shot = SHOTS[id];
@@ -62,6 +62,7 @@ export function CameraController() {
       duration,
       delay: opts.delay ?? 0,
       ease: opts.ease ?? 'power3.inOut',
+      onStart: opts.onStart,
       onUpdate: () => {
         r.pos.lerpVectors(fromPos, shot.position, p.t);
         r.pos.y += Math.sin(Math.PI * p.t) * lift;
@@ -81,7 +82,7 @@ export function CameraController() {
     const finishIntro = () => {
       const s = useExperience.getState();
       s.markVisited();
-      useExperience.setState({ phase: 'exploring', shot: 'overview', skipIntroRequested: false });
+      useExperience.setState({ phase: 'exploring', shot: 'overview', skipIntroRequested: false, introRevealing: false });
     };
 
     return useExperience.subscribe((state, prev) => {
@@ -95,19 +96,22 @@ export function CameraController() {
           return;
         }
         if (state.phase === 'intro') {
-          // Welcome sequence: hold on the note, then a slow pull-back revealing the garage (~6 s total).
+          // Welcome sequence: hold on the note, then a slow pull-back revealing the garage (~6.8 s total).
+          // Reduced motion: the same hold (to read the note), then a cut instead of a camera flight.
           const reduced = state.reducedMotion;
           flyTo('overview', {
-            delay: reduced ? 1.2 : 2.4,
-            duration: reduced ? 1.2 : 4.4,
+            delay: reduced ? 3 : 2.4,
+            duration: reduced ? 0.01 : 4.4,
             ease: 'power2.inOut',
+            onStart: () => useExperience.setState({ introRevealing: true }),
             onComplete: finishIntro,
           });
         }
         return;
       }
       if (state.phase === 'intro' && state.skipIntroRequested && !prev.skipIntroRequested) {
-        flyTo('overview', { duration: 1.0, ease: 'power2.out', onComplete: finishIntro });
+        // Skip: settle quickly (or cut, with reduced motion); the scene is interactive on arrival.
+        flyTo('overview', { duration: state.reducedMotion ? 0.01 : 0.9, ease: 'power2.out', onComplete: finishIntro });
         return;
       }
       if (state.phase === 'exploring' && state.shot !== prev.shot && prev.phase === 'exploring') {

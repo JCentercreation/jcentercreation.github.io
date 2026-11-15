@@ -417,3 +417,21 @@ exploration of the iOS career.
   Unit tests pin positions, periods, titles, locations, technologies, venues and events.
 - Contract for the final model: a `door` node pivoting on the front hinge (car-local −Z side), seat top ≈ 0.52 m,
   `CAR.laptop` position, `teslaInterior`/`teslaLaptop` shots derived from `carLocalToWorld`.
+
+## 18. First-visit experience
+
+Already in place (kept): MacBook close-up → hold on the Notes welcome (~2.4 s) → 4.4 s pull-back to the approved
+overview (≈ 6.8 s); Skip button; returning visitors skip it (`localStorage` `garage.visited`, nothing else stored,
+no analytics); language selector live during the intro; the note redraws in the new language without restarting.
+
+Added / changed:
+- Loader: real stages ("Loading the 3D engine…" → "Preparing the garage…"); a percentage only when three's loading
+  manager reports genuine asset progress, otherwise an indeterminate bar (the old hard-coded 8 %/20 % is gone).
+- Pre-JS paint in `index.html` (title on the loader gradient) so there is no blank black frame.
+- Failure handling: `SceneErrorBoundary` (engine chunk / WebGL / scene errors) with "Try again" and "Continue to the
+  simple version"; if starting takes >15 s the loader also offers the simple version.
+- Escape skips the intro. Skip hands keyboard focus to the garage places (only if it had focus). Skip/Back are
+  44 px tall on touch screens; places nav reveals on `:focus-visible`.
+- Phones / portrait (where the MacBook's screen is too small to read in the close-up): the welcome note appears as
+  an understated caption that fades out as the camera pulls back (`ui/IntroCaption.tsx`).
+- Reduced motion: same hold to read the note, then a cut to the overview (no camera flight); skip also cuts.

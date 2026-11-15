@@ -15,7 +15,16 @@
     <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Painted before any JavaScript runs; React replaces it with the real loader. -->
+    <div id="root">
+      <div
+        style="position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(120% 90% at 50% 60%, #0d1118 0%, #05070b 70%)"
+      >
+        <p style="margin: 0; font: 600 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.22em; text-transform: uppercase; color: #ece8e1">
+          The Engineer's Garage
+        </p>
+      </div>
+    </div>
     <noscript>
       <p style="font-family: system-ui, sans-serif; color: #ece8e1; padding: 24px; max-width: 640px">
         The Engineer's Garage needs JavaScript. A plain version of this site is at

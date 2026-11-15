@@ -77,3 +77,63 @@
     transform: scale(1.04);
   }
 }
+
+/* Indeterminate: a short highlight sweeping the track — no invented percentage. */
+.indeterminate .bar {
+  width: 32%;
+  transform: none;
+  animation: sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indeterminate .bar {
+    width: 100%;
+    opacity: 0.5;
+    animation: none;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.slow {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.slow button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
