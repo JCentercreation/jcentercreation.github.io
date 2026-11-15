@@ -26,6 +26,7 @@ export function App() {
 
   const [engineLoaded, setEngineLoaded] = useState(false);
   const [sceneProgress, setSceneProgress] = useState<number | null>(null);
+  const [sceneFailed, setSceneFailed] = useState(false);
 
   const onReady = useCallback(() => {
     const s = useExperience.getState();
@@ -48,13 +49,11 @@ export function App() {
 
   return (
     <>
-      <SceneErrorBoundary>
-        {(attempt) => (
-          <Suspense key={attempt} fallback={<EngineLoading />}>
-            <EngineLoaded onLoaded={setEngineLoaded} />
-            <GarageCanvas onProgress={setSceneProgress} onReady={onReady} />
-          </Suspense>
-        )}
+      <SceneErrorBoundary onFailed={() => setSceneFailed(true)}>
+        <Suspense fallback={<EngineLoading />}>
+          <EngineLoaded onLoaded={setEngineLoaded} />
+          <GarageCanvas onProgress={setSceneProgress} onReady={onReady} />
+        </Suspense>
       </SceneErrorBoundary>
       <IntroCaption />
       <Hud />
@@ -63,7 +62,7 @@ export function App() {
       <BookPanel />
       <AutoSheet />
       <InteriorHint />
-      <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading'} />
+      <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading' || sceneFailed} />
     </>
   );
 }
