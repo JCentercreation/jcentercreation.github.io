@@ -11,6 +11,8 @@
 .hidden {
   opacity: 0;
   visibility: hidden;
+  /* Don't swallow clicks (e.g. on Skip) while fading out. */
+  pointer-events: none;
 }
 
 .inner {
