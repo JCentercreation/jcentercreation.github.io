@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { CanvasTexture, SRGBColorSpace } from 'three';
-import { appleCompanies, automotiveCompanies, automotivePositions, projects, type LocaleContent, type Locale } from '@/content';
+import { IPAD_SECTIONS, appleCompanies, automotiveCompanies, automotivePositions, projects, type LocaleContent, type Locale } from '@/content';
 import { useExperience } from '@/app/store';
 import { content } from '@/content';
 import { formatPeriod } from '@/lib/format';
@@ -118,70 +118,57 @@ function drawNotes(g: CanvasRenderingContext2D, c: LocaleContent) {
 
 // ------------------------------------------------------------------ iPad: Apple portfolio
 
-function drawIPad(g: CanvasRenderingContext2D, c: LocaleContent, locale: Locale) {
+function drawIPad(g: CanvasRenderingContext2D, c: LocaleContent) {
+  // Mirrors the interactive career app's overview (src/ui/ipad), so the hand-off on arrival is seamless.
   const W = 2048;
   const H = 1536;
   g.fillStyle = '#000000';
   g.fillRect(0, 0, W, H);
-  // Status bar.
-  g.fillStyle = '#ffffff';
-  g.font = `600 30px ${SYSTEM_FONT}`;
-  g.fillText('23:47', 48, 52);
-  // Sidebar.
-  const side = 520;
+  g.fillStyle = '#f5f5f7';
+  g.font = `600 26px ${SYSTEM_FONT}`;
+  g.fillText(c.windows.clock, 38, 36);
+  const side = 427; // 250 / 1200 of the width
   g.fillStyle = '#1c1c1e';
-  g.fillRect(0, 80, side, H - 80);
-  g.fillStyle = '#ffffff';
-  g.font = `700 52px ${SYSTEM_FONT}`;
-  g.fillText(c.apple.heading, 44, 180);
-  const sections = Object.values(c.apple.sections);
-  sections.forEach((label, i) => {
-    const y = 250 + i * 96;
+  g.fillRect(0, 51, side, H - 51);
+  g.fillStyle = '#f5f5f7';
+  g.font = `700 48px ${SYSTEM_FONT}`;
+  g.fillText(c.ipad.appName, 40, 130);
+  const items = [c.ipad.labels.overview, ...IPAD_SECTIONS.map((id) => c.ipad.sections[id].title)];
+  items.forEach((label, i) => {
+    const y = 170 + i * 74;
     if (i === 0) {
-      roundRect(g, 24, y, side - 48, 80, 18);
+      roundRect(g, 20, y, side - 40, 62, 16);
       g.fillStyle = '#0a84ff';
       g.fill();
     }
-    g.fillStyle = '#ffffff';
-    g.font = `500 32px ${SYSTEM_FONT}`;
-    g.fillText(fitText(g, label, side - 110), 56, y + 52);
+    g.fillStyle = '#f5f5f7';
+    g.font = `500 28px ${SYSTEM_FONT}`;
+    g.fillText(fitText(g, label, side - 120), 92, y + 41);
   });
-
-  // Experience: company cards.
-  const x0 = side + 64;
-  g.fillStyle = '#ffffff';
-  g.font = `700 60px ${SYSTEM_FONT}`;
-  g.fillText(c.apple.sections.experience, x0, 190);
-  const cardW = (W - x0 - 64 - 40) / 2;
-  const cardH = 300;
-  appleCompanies.forEach((co, i) => {
-    const cx = x0 + (i % 2) * (cardW + 40);
-    const cy = 250 + Math.floor(i / 2) * (cardH + 40);
-    roundRect(g, cx, cy, cardW, cardH, 28);
+  const x0 = side + 88;
+  g.fillStyle = '#0a84ff';
+  g.font = `600 26px ${SYSTEM_FONT}`;
+  g.fillText(c.ipad.home.eyebrow.toUpperCase(), x0, 220);
+  g.fillStyle = '#f5f5f7';
+  g.font = `700 88px ${SYSTEM_FONT}`;
+  wrapText(g, c.ipad.home.title, x0, 320, 1000, 94);
+  const cardW = (W - x0 - 88 - 48) / 3;
+  IPAD_SECTIONS.forEach((id, i) => {
+    const cx = x0 + (i % 3) * (cardW + 24);
+    const cy = 760 + Math.floor(i / 3) * 290;
+    roundRect(g, cx, cy, cardW, 260, 30);
     g.fillStyle = '#1c1c1e';
     g.fill();
-    drawLogo(g, getLogo(co.id), co.shortName, cx + 36, cy + 36, 110, 110, true);
-    g.fillStyle = '#ffffff';
-    g.font = `700 40px ${SYSTEM_FONT}`;
-    g.fillText(fitText(g, co.name, cardW - 200), cx + 176, cy + 86);
-    g.fillStyle = '#8e8e93';
-    g.font = `500 32px ${SYSTEM_FONT}`;
-    g.fillText(formatPeriod(co.period, locale, c.ui.present), cx + 176, cy + 134);
-    g.font = `400 30px ${SYSTEM_FONT}`;
-    const desc = c.apple.companies[co.id]?.description ?? c.ui.pendingContent;
-    wrapText(g, desc, cx + 36, cy + 220, cardW - 72, 40);
+    g.fillStyle = '#0a84ff';
+    g.font = `700 24px ${SYSTEM_FONT}`;
+    g.fillText(String(i + 1).padStart(2, '0'), cx + 30, cy + 54);
+    g.fillStyle = '#f5f5f7';
+    g.font = `700 34px ${SYSTEM_FONT}`;
+    g.fillText(fitText(g, c.ipad.sections[id].title, cardW - 60), cx + 30, cy + 106);
+    g.fillStyle = '#98989f';
+    g.font = `400 24px ${SYSTEM_FONT}`;
+    wrapText(g, c.ipad.sections[id].intro, cx + 30, cy + 150, cardW - 60, 32);
   });
-  // Startups card (anonymised, no names).
-  const sy = 250 + 2 * (cardH + 40);
-  roundRect(g, x0, sy, W - x0 - 64, 250, 28);
-  g.fillStyle = '#1c1c1e';
-  g.fill();
-  g.fillStyle = '#ffffff';
-  g.font = `700 40px ${SYSTEM_FONT}`;
-  g.fillText(c.apple.startups.heading, x0 + 36, sy + 74);
-  g.fillStyle = '#c7c7cc';
-  g.font = `400 32px ${SYSTEM_FONT}`;
-  wrapText(g, c.apple.startups.intro, x0 + 36, sy + 134, W - x0 - 140, 44);
 }
 
 // ------------------------------------------------------------------ Laptop: Windows-style
@@ -531,7 +518,7 @@ export function useScreenTexture(kind: Kind) {
   const texture = useMemo(() => {
     const c = content[locale];
     if (kind === 'notes') return make(2048, 1330, (g) => drawNotes(g, c));
-    if (kind === 'ipad') return make(2048, 1536, (g) => drawIPad(g, c, locale));
+    if (kind === 'ipad') return make(2048, 1536, (g) => drawIPad(g, c));
     if (kind === 'xcode') return make(2048, 1152, drawXcode);
     return make(1600, 1000, (g) => drawWindows(g, c, locale));
     // `logos` re-draws once official logo files have loaded.

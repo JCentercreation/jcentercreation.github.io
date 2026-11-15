@@ -145,6 +145,58 @@ const es: LocaleContent = {
       },
     },
   },
+  ipad: {
+    appName: 'Trayectoria',
+    home: {
+      eyebrow: 'Ingeniería iOS',
+      title: 'Mi evolución como ingeniero iOS',
+      subtitle: 'Explora la trayectoria, las tecnologías y patrones con los que trabajo, y mis responsabilidades técnicas y de mentoría.',
+    },
+    sections: {
+      timeline: { title: 'Trayectoria', intro: 'Construyendo para plataformas Apple, desde 2020 hasta hoy. Selecciona una empresa para ver los detalles.' },
+      ios: { title: 'Ingeniería iOS', intro: 'Los lenguajes y frameworks de UI que utilizo para desarrollar en plataformas Apple.' },
+      architecture: { title: 'Arquitectura', intro: 'Patrones de arquitectura con los que trabajo.' },
+      practices: { title: 'Prácticas de ingeniería', intro: 'Testing y calidad, entrega de apps y decisiones técnicas.' },
+      leadership: { title: 'Liderazgo y mentoría', intro: 'Responsabilidades documentadas en mi experiencia profesional.' },
+    },
+    labels: {
+      sections: 'Secciones de la trayectoria',
+      overview: 'Inicio',
+      close: 'Cerrar y volver al garaje',
+      role: 'Puesto',
+      period: 'Periodo',
+      selectHint: 'Selecciona una empresa',
+      closeDetail: 'Cerrar detalles',
+      generalOverview: 'Descripción general',
+      generalNote: 'Descripciones breves y generales de cada patrón, no vinculadas a una empresa o proyecto concreto.',
+      context: 'Contexto',
+    },
+    ios: { languages: 'Lenguajes', uiFrameworks: 'Frameworks de UI' },
+    architecture: {
+      patterns: {
+        mvc: { expansion: 'Model–View–Controller', summary: 'Separa los datos, la presentación y el controlador que los coordina. El patrón tradicional de UIKit.' },
+        mvvm: { expansion: 'Model–View–ViewModel', summary: 'Un view model expone el estado de presentación que la vista observa y representa.' },
+        mvp: { expansion: 'Model–View–Presenter', summary: 'Un presenter contiene la lógica de presentación y dirige una vista pasiva.' },
+        viper: { expansion: 'View–Interactor–Presenter–Entity–Router', summary: 'Divide cada módulo en capas de responsabilidad única, incluida la navegación.' },
+        mv: { expansion: 'Model–View', summary: 'Las vistas de SwiftUI observan los modelos directamente, sin una capa intermedia.' },
+        tca: { expansion: 'The Composable Architecture', summary: 'Estado, acciones y reducers compuestos en un único store fácil de testear.' },
+      },
+    },
+    practices: {
+      testing: { label: 'Testing y calidad', items: ['Tests unitarios', 'Tests de UI', 'Tests end-to-end', 'Cobertura de tests'] },
+      delivery: { label: 'Entrega de apps', items: ['App Store Connect', 'TestFlight', 'Publicaciones en App Store'] },
+      technical: { label: 'Ingeniería técnica', items: ['Decisiones de arquitectura', 'Decisiones de rendimiento', 'Decisiones de seguridad'] },
+    },
+    leadership: {
+      items: {
+        techReference: 'Referente técnico iOS',
+        interviews: 'Entrevistas técnicas',
+        mentoring: 'Mentoría de nuevas incorporaciones',
+        guidance: 'Orientación técnica',
+        decisions: 'Decisiones de ingeniería',
+      },
+    },
+  },
   windows: { start: 'Inicio', clock: '23:47' },
   apple: {
     heading: 'Plataformas Apple',

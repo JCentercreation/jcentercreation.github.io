@@ -29,6 +29,15 @@ export function Hud() {
         s.openProject(null);
         return;
       }
+      // iPad: company detail → section → overview → garage.
+      if (s.shot === 'ipad' && s.ipad.company) {
+        s.selectIPadCompany(null);
+        return;
+      }
+      if (s.shot === 'ipad' && s.ipad.section !== 'home') {
+        s.openIPadSection('home');
+        return;
+      }
       if (s.shot !== 'overview') backToOverview();
     };
     window.addEventListener('keydown', onKey);

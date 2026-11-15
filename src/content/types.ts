@@ -167,6 +167,36 @@ export interface MacBookContent {
   projects: Record<string, { description: string; status: string | null }>;
 }
 
+/** Sections of the iPad career experience ("home" is the overview screen). */
+export type IPadSection = 'home' | 'timeline' | 'ios' | 'architecture' | 'practices' | 'leadership';
+export const IPAD_SECTIONS: readonly Exclude<IPadSection, 'home'>[] = ['timeline', 'ios', 'architecture', 'practices', 'leadership'] as const;
+export type ArchitecturePattern = 'mvc' | 'mvvm' | 'mvp' | 'viper' | 'mv' | 'tca';
+export type LeadershipItem = 'techReference' | 'interviews' | 'mentoring' | 'guidance' | 'decisions';
+
+/** The iPad: a visual, technical exploration of the iOS career (complements the MacBook). */
+export interface IPadContent {
+  appName: string;
+  home: { eyebrow: string; title: string; subtitle: string };
+  sections: Record<Exclude<IPadSection, 'home'>, { title: string; intro: string }>;
+  labels: {
+    sections: string;
+    overview: string;
+    close: string;
+    role: string;
+    period: string;
+    selectHint: string;
+    closeDetail: string;
+    generalOverview: string;
+    generalNote: string;
+    context: string;
+  };
+  ios: { languages: string; uiFrameworks: string };
+  /** General, textbook explanations — explicitly not claims about specific projects. */
+  architecture: { patterns: Record<ArchitecturePattern, { expansion: string; summary: string }> };
+  practices: { testing: LabelledList; delivery: LabelledList; technical: LabelledList };
+  leadership: { items: Record<LeadershipItem, string> };
+}
+
 export interface WindowsChrome {
   start: string;
   /** Clock shown in the taskbar — static, decorative. */
@@ -228,6 +258,7 @@ export interface LocaleContent {
   ui: UiStrings;
   welcome: WelcomeNote;
   macbook: MacBookContent;
+  ipad: IPadContent;
   windows: WindowsChrome;
   apple: AppleContent;
   automotive: AutomotiveContent;

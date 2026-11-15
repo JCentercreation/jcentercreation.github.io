@@ -338,3 +338,31 @@ How it works:
 - Controls: mouse/touch; Tab; ↑/↓ in the notes list; Escape is layered (project → list, otherwise back to the
   garage); red traffic light / ✕ = close; "Back to the welcome note" in the toolbar. External links open in a new tab.
 - Validation: scripted browser run (desktop 1440 × 810 + phone 390 × 844): 26 checks, all passing.
+
+## 15. Phase 3 — interactive iPad career experience
+
+Purpose: the MacBook says who the owner is, where he worked and what he built; the iPad is a visual, technical
+exploration of the iOS career.
+
+- Same integration as the MacBook: `scene/desk/IPadScreen.tsx` mounts real DOM on the flat iPad display with drei
+  `<Html transform>` (1200 × 901 CSS px → 265.6 × 199.5 mm, rotated to lie flat) once the camera arrives;
+  `ui/ipad/CareerSheet.tsx` is the full-screen version for phones/portrait (3D paused while open). The distant-view
+  screen texture mirrors the app's overview.
+- UI (`ui/ipad/CareerApp.tsx`, `sections.tsx`, `CareerApp.module.css`): dark iPadOS-style app — status bar, sidebar
+  (Overview + 5 sections), editorial content.
+  - Overview: hero + five section cards.
+  - Career Timeline: swim-lane timeline 2020 → today; each company bar opens a detail panel (logo, role, period,
+    approved description). Logos from `public/logos/`; Misfits placeholder kept.
+  - iOS Engineering: Swift, Objective-C (Languages) · UIKit, SwiftUI (UI frameworks) — exactly these four.
+  - Architecture: MVC, MVVM, MVP, VIPER, MV, TCA + a "General overview" of each pattern, explicitly labelled as general
+    descriptions not tied to any company or project.
+  - Engineering Practices: Testing and quality · App delivery · Technical engineering (exactly the confirmed items).
+  - Leadership & Mentoring: iOS technical reference, technical interviews, mentoring new team members, technical
+    guidance, engineering decisions — each linked only to the company whose approved description documents it
+    (`content/shared/career.ts`); chips jump to that company on the timeline. No management roles implied.
+- Data: single source of truth — companies, periods, roles and descriptions are the same records the MacBook uses;
+  `shared/career.ts` holds only the technology/pattern lists and leadership links. Text in `content/{en,es}` (`ipad`).
+- State: `ipad.{section, company}` in the store, independent of locale; entering the iPad from the garage starts on
+  Overview. Escape (global, `Hud.tsx`): company detail → section → overview → garage. ↑/↓ in the sidebar.
+- Validation: unit tests pin the exact lists and check every leadership link against the approved descriptions;
+  browser run (desktop + phone): 34 checks, all passing; MacBook (26) and garage navigation (13) regressions pass.

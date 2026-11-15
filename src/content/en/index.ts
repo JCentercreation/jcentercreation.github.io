@@ -145,6 +145,58 @@ const en: LocaleContent = {
       },
     },
   },
+  ipad: {
+    appName: 'Career',
+    home: {
+      eyebrow: 'iOS engineering',
+      title: 'My evolution as an iOS engineer',
+      subtitle: 'Explore the timeline, the technologies and patterns I work with, and my engineering and mentoring responsibilities.',
+    },
+    sections: {
+      timeline: { title: 'Career Timeline', intro: 'Building for Apple platforms, from 2020 to today. Select a company to see the details.' },
+      ios: { title: 'iOS Engineering', intro: 'The languages and UI frameworks I use to build for Apple platforms.' },
+      architecture: { title: 'Architecture', intro: 'Architectural patterns I work with.' },
+      practices: { title: 'Engineering Practices', intro: 'Testing and quality, app delivery and technical decisions.' },
+      leadership: { title: 'Leadership & Mentoring', intro: 'Responsibilities documented in my professional experience.' },
+    },
+    labels: {
+      sections: 'Career sections',
+      overview: 'Overview',
+      close: 'Close and return to the garage',
+      role: 'Role',
+      period: 'Period',
+      selectHint: 'Select a company',
+      closeDetail: 'Close details',
+      generalOverview: 'General overview',
+      generalNote: 'Short, general descriptions of each pattern — not tied to a specific company or project.',
+      context: 'Context',
+    },
+    ios: { languages: 'Languages', uiFrameworks: 'UI frameworks' },
+    architecture: {
+      patterns: {
+        mvc: { expansion: 'Model–View–Controller', summary: 'Separates data, presentation and the controller that coordinates them. The traditional UIKit pattern.' },
+        mvvm: { expansion: 'Model–View–ViewModel', summary: 'A view model exposes presentation state that the view observes and renders.' },
+        mvp: { expansion: 'Model–View–Presenter', summary: 'A presenter holds the presentation logic and drives a passive view.' },
+        viper: { expansion: 'View–Interactor–Presenter–Entity–Router', summary: 'Splits each module into single-responsibility layers, including navigation.' },
+        mv: { expansion: 'Model–View', summary: 'SwiftUI views observe models directly, without an intermediate layer.' },
+        tca: { expansion: 'The Composable Architecture', summary: 'State, actions and reducers composed into a single, testable store.' },
+      },
+    },
+    practices: {
+      testing: { label: 'Testing and quality', items: ['Unit testing', 'UI testing', 'End-to-end testing', 'Test coverage'] },
+      delivery: { label: 'App delivery', items: ['App Store Connect', 'TestFlight', 'App Store releases'] },
+      technical: { label: 'Technical engineering', items: ['Architecture decisions', 'Performance decisions', 'Security decisions'] },
+    },
+    leadership: {
+      items: {
+        techReference: 'iOS technical reference',
+        interviews: 'Technical interviews',
+        mentoring: 'Mentoring new team members',
+        guidance: 'Technical guidance',
+        decisions: 'Engineering decisions',
+      },
+    },
+  },
   windows: { start: 'Start', clock: '23:47' },
   apple: {
     heading: 'Apple Platforms',

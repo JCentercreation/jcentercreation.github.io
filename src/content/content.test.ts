@@ -106,3 +106,35 @@ describe('owner content decisions', () => {
     expect(courses?.links?.map((l) => l.name)).toEqual(['Swift Concurrency Explained', 'Swift Security Course']);
   });
 });
+
+describe('iPad career data accuracy', () => {
+  it('lists exactly the confirmed technologies and patterns', async () => {
+    const { iosTechnologies, architecturePatterns } = await import('./index');
+    expect(iosTechnologies.map((t) => t.name)).toEqual(['Swift', 'Objective-C', 'UIKit', 'SwiftUI']);
+    expect(architecturePatterns.map((p) => p.name)).toEqual(['MVC', 'MVVM', 'MVP', 'VIPER', 'MV', 'TCA']);
+  });
+
+  it('lists exactly the confirmed practices', () => {
+    const p = content.en.ipad.practices;
+    expect(p.testing.items).toEqual(['Unit testing', 'UI testing', 'End-to-end testing', 'Test coverage']);
+    expect(p.delivery.items).toEqual(['App Store Connect', 'TestFlight', 'App Store releases']);
+    expect(p.technical.items).toEqual(['Architecture decisions', 'Performance decisions', 'Security decisions']);
+  });
+
+  it('links each leadership item only to companies whose approved description documents it', async () => {
+    const { leadershipContext } = await import('./index');
+    const evidence: Record<string, RegExp> = {
+      techReference: /iOS technical reference/,
+      interviews: /technical interviews/,
+      mentoring: /mentored new team members/,
+      guidance: /technical guidance/,
+      decisions: /engineering decisions/,
+    };
+    for (const item of leadershipContext)
+      for (const id of item.companies) expect(content.en.apple.companies[id]?.description, `${item.id}→${id}`).toMatch(evidence[item.id]!);
+  });
+
+  it('keeps job titles in English on the iPad (shared company text)', () => {
+    for (const co of appleCompanies) expect(content.es.apple.companies[co.id]?.role).toBe(content.en.apple.companies[co.id]?.role);
+  });
+});

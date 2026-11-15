@@ -591,3 +591,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* The notes list takes focus on open (for arrow keys) — no ring on the container itself. */
+.app .list:focus-visible {
+  outline: none;
+}

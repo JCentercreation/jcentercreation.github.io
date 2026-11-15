@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LOCALES, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
+import { LOCALES, type IPadSection, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 
@@ -57,6 +57,11 @@ interface ExperienceState {
   openSection: (section: PortfolioSection) => void;
   openProject: (id: string | null) => void;
   toggleCompany: (id: string) => void;
+
+  /** iPad career navigation — also independent of locale. */
+  ipad: { section: IPadSection; company: string | null };
+  openIPadSection: (section: IPadSection) => void;
+  selectIPadCompany: (id: string | null) => void;
   goTo: (shot: ShotId) => void;
   backToOverview: () => void;
 
@@ -105,12 +110,18 @@ export const useExperience = create<ExperienceState>((set) => ({
       // Entering the MacBook from elsewhere always starts on the welcome note.
       shot === 'macbook' && s.shot !== 'macbook'
         ? { shot, portfolio: { section: 'welcome', project: null, company: null } }
-        : { shot },
+        : // Entering the iPad from elsewhere starts on its overview.
+          shot === 'ipad' && s.shot !== 'ipad'
+          ? { shot, ipad: { section: 'home', company: null } }
+          : { shot },
     ),
 
   portfolio: { section: 'welcome', project: null, company: null },
   openSection: (section) => set({ portfolio: { section, project: null, company: null } }),
   openProject: (project) => set((s) => ({ portfolio: { ...s.portfolio, section: 'projects', project } })),
+  ipad: { section: 'home', company: null },
+  openIPadSection: (section) => set({ ipad: { section, company: null } }),
+  selectIPadCompany: (company) => set((s) => ({ ipad: { ...s.ipad, company } })),
   toggleCompany: (id) =>
     set((s) => ({ portfolio: { ...s.portfolio, company: s.portfolio.company === id ? null : id } })),
   backToOverview: () => set({ shot: 'overview' }),

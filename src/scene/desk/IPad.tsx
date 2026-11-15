@@ -3,6 +3,7 @@ import { useExperience } from '@/app/store';
 import { IPAD } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { useScreenTexture } from '../screens/screenTextures';
+import { IPadScreen } from './IPadScreen';
 
 /** iPad Pro 13", flat on the desk in landscape, screen on. Click → camera above, near-perpendicular. */
 export function IPad() {
@@ -24,6 +25,8 @@ export function IPad() {
           <planeGeometry args={[IPAD.width - 0.016, IPAD.depth - 0.016]} />
           <meshBasicMaterial map={screen} toneMapped={false} color={[glow, glow, glow]} />
         </mesh>
+        {/* Interactive career app, mapped onto the display once the camera arrives. */}
+        <IPadScreen />
       </group>
       {/* Apple Pencil resting along the front edge. */}
       <mesh position={[IPAD.position.x + 0.01, IPAD.position.y + 0.0045, IPAD.position.z + 0.15]} rotation={[0, IPAD.rotationY + 0.08, Math.PI / 2]} castShadow>
