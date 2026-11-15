@@ -122,6 +122,7 @@ const en: LocaleContent = {
     },
     projectsHeading: 'Side projects',
     projectsIntro: 'Things I build on my own time. Select a project to see its details.',
+    // Project texts approved by the owner (incl. the PROOF beta-tester line and the Swift courses description).
     projects: {
       writingfree: {
         description:

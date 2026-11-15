@@ -87,3 +87,22 @@ describe('approved MacBook portfolio content (source of truth)', () => {
     expect(content.es.macbook.about.paragraphs).toHaveLength(4);
   });
 });
+
+describe('owner content decisions', () => {
+  it('job titles stay in English in both locales', () => {
+    for (const co of appleCompanies) expect(content.es.apple.companies[co.id]?.role).toBe(content.en.apple.companies[co.id]?.role);
+  });
+
+  it('approved project texts are published as confirmed', () => {
+    expect(content.en.macbook.projects.proof?.description).toContain('The beta-tester community is growing.');
+    expect(content.en.macbook.projects['swift-courses']?.description).toBe('Learning resources for the developer community.');
+    expect(content.es.macbook.projects['swift-courses']?.description).toBe('Recursos de aprendizaje para la comunidad de desarrolladores.');
+  });
+
+  it('Swift course titles are kept and flagged provisional internally', async () => {
+    const { projects } = await import('./index');
+    const courses = projects.find((p) => p.id === 'swift-courses');
+    expect(courses?.provisionalNames).toBe(true);
+    expect(courses?.links?.map((l) => l.name)).toEqual(['Swift Concurrency Explained', 'Swift Security Course']);
+  });
+});

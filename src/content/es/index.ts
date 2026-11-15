@@ -122,6 +122,7 @@ const es: LocaleContent = {
     },
     projectsHeading: 'Proyectos personales',
     projectsIntro: 'Cosas que construyo en mi tiempo libre. Selecciona un proyecto para ver sus detalles.',
+    // Textos de proyectos aprobados por el propietario (incluida la frase sobre beta testers de PROOF y la descripción de los cursos de Swift).
     projects: {
       writingfree: {
         description:
@@ -156,7 +157,7 @@ const es: LocaleContent = {
     },
     companies: {
       // Roles y descripciones aprobados por el propietario (fuente de verdad — no editar).
-      // Los títulos de puesto se mantienen en inglés, tal como los facilitó el propietario.
+      // Decisión del propietario: los títulos de puesto se mantienen en inglés en ambos idiomas.
       sabadell: {
         role: 'iOS Software Engineer',
         description:
