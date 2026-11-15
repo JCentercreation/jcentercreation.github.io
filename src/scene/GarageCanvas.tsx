@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
 import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace } from 'three';
 import { useExperience } from '@/app/store';
@@ -21,11 +21,30 @@ function ProgressReporter({ onProgress }: Pick<Props, 'onProgress'>) {
   return null;
 }
 
-/** Mounted once Suspense resolves, i.e. every asset in the scene graph has loaded. */
+/**
+ * Mounted once Suspense resolves (every asset in the scene graph has loaded). Before revealing the
+ * scene, compile every material's shader while the loader is still visible — otherwise each material
+ * compiles on its first appearance, and the intro's pull-back hitches as new objects come into view.
+ */
 function ReadySignal({ onReady }: Pick<Props, 'onReady'>) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
   useEffect(() => {
-    onReady();
-  }, [onReady]);
+    let cancelled = false;
+    // Wait one frame so effects-composer passes and lazily created materials exist.
+    const id = requestAnimationFrame(() => {
+      gl.compileAsync(scene, camera)
+        .catch(() => undefined) // a compile warm-up failure must never block the visitor
+        .finally(() => {
+          if (!cancelled) onReady();
+        });
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(id);
+    };
+  }, [gl, scene, camera, onReady]);
   return null;
 }
 

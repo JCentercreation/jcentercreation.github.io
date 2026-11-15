@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from 'react';
-import { content } from '@/content';
 import { useExperience } from '@/app/store';
+import { useContent } from '@/app/useContent';
 import styles from './Loader.module.css';
 
 interface State {
@@ -26,14 +26,20 @@ export class SceneErrorBoundary extends Component<{ children: (attempt: number) 
 
   render() {
     if (!this.state.error) return this.props.children(this.state.attempt);
-    const ui = content[useExperience.getState().locale].ui;
-    return (
+    return <ErrorPanel onRetry={() => this.setState((s) => ({ error: false, attempt: s.attempt + 1 }))} />;
+  }
+}
+
+/** Follows the language selector like the rest of the UI. */
+function ErrorPanel({ onRetry }: { onRetry: () => void }) {
+  const { ui } = useContent();
+  return (
       <div className={styles.loader} role="alert">
         <div className={styles.inner}>
           <p className={styles.title}>{ui.loadError.title}</p>
           <p className={styles.hint}>{ui.loadError.body}</p>
           <div className={styles.actions}>
-            <button type="button" onClick={() => this.setState((s) => ({ error: false, attempt: s.attempt + 1 }))}>
+            <button type="button" onClick={onRetry}>
               {ui.loadError.retry}
             </button>
             <button type="button" onClick={() => useExperience.getState().setForceFallback(true)}>
@@ -42,6 +48,5 @@ export class SceneErrorBoundary extends Component<{ children: (attempt: number) 
           </div>
         </div>
       </div>
-    );
-  }
+  );
 }
