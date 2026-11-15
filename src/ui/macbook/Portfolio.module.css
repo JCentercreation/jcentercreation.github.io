@@ -596,3 +596,9 @@
 .app .list:focus-visible {
   outline: none;
 }
+
+/* Same safeguard as the iPad: no entrance animations on the CSS3D-mapped screen. */
+.screen,
+.screen .note {
+  animation: none;
+}

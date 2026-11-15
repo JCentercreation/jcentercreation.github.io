@@ -331,7 +331,8 @@
 .detail {
   position: relative;
   align-self: start;
-  margin-top: 4px;
+  /* Starts below the app's close button so the two ✕ never sit side by side. */
+  margin-top: 48px;
   padding: 22px;
   border-radius: 18px;
   background: var(--panel);
@@ -682,4 +683,15 @@
 /* The sidebar takes focus on open (for arrow keys) — no ring on the container itself. */
 .app .sidebar:focus-visible {
   outline: none;
+}
+
+/*
+ * On the 3D display (CSS3D-transformed, lying flat) Chrome may not advance CSS animations, which
+ * left panes stuck at opacity 0. The on-screen app therefore switches views without entrance
+ * animations; the phone sheet keeps them.
+ */
+.screen,
+.screen .content,
+.screen .detail {
+  animation: none;
 }
