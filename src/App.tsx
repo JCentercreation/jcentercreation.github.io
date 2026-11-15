@@ -62,7 +62,8 @@ export function App() {
       <BookPanel />
       <AutoSheet />
       <InteriorHint />
-      <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading' || sceneFailed} />
+      {/* On failure the error panel takes the loader's place outright — no cross-fade of two titles. */}
+      {!sceneFailed && <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading'} />}
     </>
   );
 }
