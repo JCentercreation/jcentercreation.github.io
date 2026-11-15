@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LOCALES, type IPadSection, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
+import { LOCALES, type AutoSection, type IPadSection, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 
@@ -16,7 +16,7 @@ function initialLocale(): Locale {
 
 export type Phase = 'loading' | 'intro' | 'exploring';
 
-const SHOT_IDS: ShotId[] = ['macbookIntro', 'overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaLaptop'];
+const SHOT_IDS: ShotId[] = ['macbookIntro', 'overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaInterior', 'teslaLaptop'];
 
 /** Review helpers: `?shot=bookshelf` opens a shot directly, `?intro=1` forces the welcome sequence. */
 const params = new URLSearchParams(window.location.search);
@@ -81,9 +81,13 @@ interface ExperienceState {
   setBookHeld: (held: boolean) => void;
 
   teslaDoorOpen: boolean;
-  /** Door click → door opens → camera flies to the laptop, as one sequence (spec §7.3). */
+  /** Door click → door opens → camera moves into the doorway (car interior), as one sequence. */
   openTeslaDoor: () => void;
   closeTeslaDoor: () => void;
+
+  /** Automotive portfolio navigation (laptop on the driver seat) — independent of locale. */
+  auto: { section: AutoSection };
+  openAutoSection: (section: AutoSection) => void;
 
   /** Set by the Skip button; the camera controller consumes it. */
   skipIntroRequested: boolean;
@@ -100,6 +104,8 @@ function goToState(s: ExperienceState, shot: ShotId): Partial<ExperienceState> {
   if (shot === 'macbook' && s.shot !== 'macbook') return { shot, portfolio: { section: 'welcome', project: null, company: null } };
   // Entering the iPad from elsewhere starts on its overview.
   if (shot === 'ipad' && s.shot !== 'ipad') return { shot, ipad: { section: 'home', company: null } };
+  // Opening the automotive portfolio from the car interior starts on its overview.
+  if (shot === 'teslaLaptop' && s.shot !== 'teslaLaptop') return { shot, auto: { section: 'overview' } };
   return { shot };
 }
 
@@ -155,9 +161,12 @@ export const useExperience = create<ExperienceState>((set) => ({
   openTeslaDoor: () => {
     set({ teslaDoorOpen: true });
     // Start the camera while the door is still swinging so it reads as one continuous move.
-    window.setTimeout(() => set({ shot: 'teslaLaptop' }), 550);
+    window.setTimeout(() => set({ shot: 'teslaInterior' }), 550);
   },
   closeTeslaDoor: () => set({ teslaDoorOpen: false }),
+
+  auto: { section: 'overview' },
+  openAutoSection: (section) => set({ auto: { section } }),
 
   skipIntroRequested: false,
   requestSkipIntro: () => set({ skipIntroRequested: true }),
@@ -173,3 +182,8 @@ export const useExperience = create<ExperienceState>((set) => ({
 matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) =>
   useExperience.setState({ reducedMotion: e.matches }),
 );
+
+// Review tooling only (`?capture=1`): lets browser checks read state such as the door position.
+if (new URLSearchParams(window.location.search).has('capture')) {
+  (window as unknown as { __store: typeof useExperience }).__store = useExperience;
+}

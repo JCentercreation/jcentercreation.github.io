@@ -1,0 +1,460 @@
+/* Restrained, Windows-inspired automotive portfolio (no OS logos). */
+.desktop {
+  --blue: #245edb;
+  --blue-dark: #0b3d91;
+  --ink: #1b1f27;
+  --muted: #5b6475;
+  --line: #c5ccd8;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #2a6cd2, #1c4fa6);
+  color: var(--ink);
+  font-family: Tahoma, 'Segoe UI', Verdana, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  overflow: hidden;
+  color-scheme: light;
+}
+
+.screen {
+  width: 1280px;
+  height: 816px;
+}
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.desktop button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.desktop :focus-visible {
+  outline: 2px dotted #000;
+  outline-offset: 2px;
+}
+
+/* window */
+.window {
+  flex: 1;
+  margin: 14px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 3px solid var(--blue-dark);
+  border-top: 0;
+  border-radius: 8px 8px 0 0;
+  background: #ece9d8;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 6px 0 12px;
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(180deg, #3d8af7 0%, #0a5ce8 18%, #0548c4 100%);
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  flex: none;
+}
+
+.controls {
+  margin-left: auto;
+  display: flex;
+  gap: 3px;
+}
+
+.controls > * {
+  width: 24px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  background: #2f6ee5;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.closeBtn {
+  background: #d6522a !important;
+  color: #fff !important;
+  font-weight: 700;
+  padding: 0;
+}
+
+.closeBtn:hover {
+  background: #e8673e !important;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  min-height: 0;
+}
+
+/* task pane */
+.pane {
+  outline: none;
+  padding: 12px;
+  background: linear-gradient(180deg, #7ba2e7, #6375d6);
+  overflow-y: auto;
+}
+
+.pane:focus-visible {
+  outline: none;
+}
+
+.paneBox {
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  background: #d6dff7;
+  overflow: hidden;
+}
+
+.paneTitle {
+  padding: 8px 10px;
+  background: linear-gradient(90deg, #fff, #c6d3f7);
+  color: #215dc6;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.paneItem {
+  padding: 7px 12px;
+  border: 0;
+  background: transparent;
+  color: #215dc6 !important;
+  text-align: left;
+}
+
+.paneItem:hover {
+  color: #428eff !important;
+  text-decoration: underline;
+}
+
+.paneItem[aria-current='true'] {
+  background: #fff;
+  font-weight: 700;
+  color: var(--blue-dark) !important;
+}
+
+/* content */
+.content {
+  margin: 10px 10px 10px 0;
+  padding: 24px 30px;
+  border: 1px solid #7f9db9;
+  background: #fff;
+  overflow-y: auto;
+}
+
+.content h1 {
+  margin: 0 0 4px;
+  color: var(--blue-dark);
+  font-size: 26px;
+}
+
+.lead {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.desc {
+  margin: 0 0 16px;
+  max-width: 70ch;
+}
+
+/* timeline */
+.timeline {
+  margin: 0 0 18px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--line);
+  background: #f7f8fb;
+}
+
+.timeline figcaption {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.track {
+  position: relative;
+  height: 18px;
+  background: #e3e7ef;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.years {
+  position: relative;
+  height: 18px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.years span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.legend {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 13px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+}
+
+/* cards */
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 12px;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-top: 4px solid;
+  background: #f7f8fb;
+  text-align: left;
+}
+
+.card:hover {
+  background: #eef2fb;
+}
+
+.card strong {
+  margin-top: 6px;
+  color: var(--blue-dark);
+}
+
+.card span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cardRoles {
+  color: var(--ink) !important;
+}
+
+.open {
+  margin-top: auto;
+  padding-top: 6px;
+  color: #215dc6 !important;
+}
+
+.logo {
+  height: 40px;
+  width: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logoPending {
+  justify-content: center;
+  border: 1.5px dashed #9aa5b8;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* company */
+.companyHeader {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.group {
+  margin: 0 0 14px;
+  padding: 8px 14px 12px;
+  border: 1px solid var(--line);
+}
+
+.group legend {
+  padding: 0 4px;
+  color: #215dc6;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.positions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.positions li {
+  display: flex;
+  flex-direction: column;
+}
+
+.positions strong {
+  color: var(--blue-dark);
+}
+
+.positions span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chips li {
+  padding: 3px 10px;
+  border: 1px solid #9db3d3;
+  background: #e4ecf7;
+  color: #123a73;
+  font-size: 13px;
+}
+
+/* taskbar */
+.taskbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  background: linear-gradient(180deg, #3a7ce8, #2459c9 50%, #1d4bb0);
+  color: #fff;
+  font-size: 13px;
+  flex: none;
+}
+
+.start {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0 22px 0 16px;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(180deg, #4fae47, #2f8a2b);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.task {
+  padding: 4px 14px;
+  border-radius: 3px;
+  background: #1e4fb8;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clock {
+  margin-left: auto;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  background: #1590e8;
+}
+
+/* phones / portrait */
+.sheet .window {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.sheet .titleBar {
+  border-radius: 0;
+  height: calc(40px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+
+.sheet .controls > span {
+  display: none;
+}
+
+.sheet .closeBtn {
+  width: 32px;
+  height: 28px;
+}
+
+.sheet .body {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+.sheet .pane {
+  padding: 6px;
+  overflow-x: auto;
+}
+
+.sheet .paneBox {
+  flex-direction: row;
+  width: max-content;
+}
+
+.sheet .paneTitle {
+  display: none;
+}
+
+.sheet .content {
+  margin: 0;
+  border: 0;
+  padding: 18px 16px 30px;
+}
+
+.sheet .taskbar {
+  display: none;
+}
+
+.sheet .companyHeader {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}

@@ -5,7 +5,7 @@ import { useContent } from '@/app/useContent';
 import { Tooltip } from './Tooltip';
 import styles from './Hud.module.css';
 
-const PLACES: ShotId[] = ['overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaLaptop'];
+const PLACES: ShotId[] = ['overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaInterior', 'teslaLaptop'];
 
 /** Persistent, discreet chrome: language selector, return-to-garage, skip intro, keyboard places. */
 export function Hud() {
@@ -24,6 +24,12 @@ export function Hud() {
     const onKey = (e: KeyboardEvent) => {
       const s = useExperience.getState();
       if (e.key !== 'Escape' || s.phase !== 'exploring') return;
+      // Car: portfolio section → portfolio overview → car interior → garage (door closes).
+      if (s.shot === 'teslaLaptop') {
+        if (s.auto.section !== 'overview') s.openAutoSection('overview');
+        else s.goTo('teslaInterior');
+        return;
+      }
       // Bookshelf: a taken book goes back first; the camera stays on the shelf.
       if (s.shot === 'bookshelf' && s.selectedBook) {
         s.closeBook();
@@ -62,8 +68,12 @@ export function Hud() {
 
   const visit = (id: ShotId) => {
     const s = useExperience.getState();
-    if (id === 'teslaLaptop') s.openTeslaDoor();
-    else s.goTo(id);
+    // Inside the car is only reachable through the open door.
+    if (id === 'teslaInterior') s.openTeslaDoor();
+    else if (id === 'teslaLaptop') {
+      useExperience.setState({ teslaDoorOpen: true });
+      s.goTo('teslaLaptop');
+    } else s.goTo(id);
   };
 
   return (

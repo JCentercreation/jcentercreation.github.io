@@ -100,7 +100,7 @@ export interface UiStrings {
   shots: Record<ShotId, string>;
 }
 
-export type InteractiveObjectId = 'macbook' | 'ipad' | 'desk' | 'bookshelf' | 'tesla' | 'teslaDoor';
+export type InteractiveObjectId = 'macbook' | 'ipad' | 'desk' | 'bookshelf' | 'tesla' | 'teslaDoor' | 'carLaptop';
 export type ShotId =
   | 'macbookIntro'
   | 'overview'
@@ -109,6 +109,7 @@ export type ShotId =
   | 'ipad'
   | 'bookshelf'
   | 'tesla'
+  | 'teslaInterior'
   | 'teslaLaptop';
 
 export interface WelcomeNote {
@@ -250,7 +251,28 @@ export interface AutomotiveContent {
   /** Extra per-company lists (e.g. RFEA events). Keyed by company id. */
   highlights: Record<string, { label: string; items: string[] }>;
   labels: { period: string; role: string; technologies: string; location: string };
+  /** Interactive laptop portfolio (Windows-inspired). */
+  portfolio: {
+    sections: Record<AutoSection, string>;
+    overviewIntro: string;
+    timeline: string;
+    openCompany: string;
+    locations: string;
+    events: string;
+    positions: string;
+    technologiesIntro: string;
+    techAt: string;
+    closePortfolio: string;
+    start: string;
+    navLabel: string;
+    selectLaptop: string;
+    /** RFEDA venues, listed separately (approved). */
+    venues: string[];
+  };
 }
+
+export type AutoSection = 'overview' | 'nissan' | 'seat' | 'rfea' | 'technologies';
+export const AUTO_SECTIONS: readonly AutoSection[] = ['overview', 'nissan', 'seat', 'rfea', 'technologies'] as const;
 
 export interface BooksContent {
   heading: string;

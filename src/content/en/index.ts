@@ -28,6 +28,7 @@ const en: LocaleContent = {
       tesla: 'Workshop — Tesla Model 3',
       bookshelf: 'Bookshelf — personal library',
       teslaDoor: 'Tesla Model 3 driver door — automotive portfolio',
+      carLaptop: 'Laptop on the driver seat — open the automotive portfolio',
     },
     shots: {
       macbookIntro: 'Welcome',
@@ -37,7 +38,8 @@ const en: LocaleContent = {
       ipad: 'iPad',
       bookshelf: 'Bookshelf',
       tesla: 'Workshop',
-      teslaLaptop: 'Diagnostic laptop',
+      teslaInterior: 'Car interior',
+      teslaLaptop: 'Automotive portfolio',
     },
   },
   welcome: {
@@ -278,11 +280,11 @@ const en: LocaleContent = {
       },
     },
     positions: {
-      'nissan-etb-bcn': { title: 'Software Engineer – Powertrain ETB', location: 'Greater Barcelona Metropolitan Area' },
+      'nissan-etb-bcn': { title: 'Software Engineer – Powertrain ETB', location: 'Barcelona, Spain' },
       'nissan-etb-cranfield': { title: 'Software Engineer – Powertrain ETB', location: 'Cranfield, United Kingdom' },
       'nissan-performance': {
         title: 'Software Engineer – Powertrain Performance',
-        location: 'Greater Barcelona Metropolitan Area',
+        location: 'Barcelona, Spain',
       },
       'seat-swe': { title: 'Software Engineer', location: 'Greater Barcelona Metropolitan Area' },
       'rfea-scrutineer': {
@@ -303,6 +305,22 @@ const en: LocaleContent = {
       },
     },
     labels: { period: 'Period', role: 'Role', technologies: 'Technologies', location: 'Location' },
+    portfolio: {
+      sections: { overview: 'Overview', nissan: 'Nissan', seat: 'SEAT', rfea: 'RFEDA', technologies: 'Technologies' },
+      overviewIntro: 'Powertrain software engineering and motorsport technical scrutineering, 2010–2019.',
+      timeline: 'Career timeline',
+      openCompany: 'Open',
+      locations: 'Locations',
+      events: 'Championships & events',
+      positions: 'Positions',
+      technologiesIntro: 'Technologies and practices recorded for my automotive roles.',
+      techAt: 'At',
+      closePortfolio: 'Close the portfolio',
+      start: 'Start',
+      navLabel: 'Portfolio sections',
+      selectLaptop: 'Select the laptop to open the automotive portfolio.',
+      venues: ['Circuito Ricardo Tormo', 'Valencia Street Circuit'],
+    },
   },
   books: {
     heading: 'Library',

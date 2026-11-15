@@ -7,6 +7,8 @@ import { Fallback } from './ui/Fallback';
 import { PortfolioSheet } from './ui/macbook/PortfolioSheet';
 import { CareerSheet } from './ui/ipad/CareerSheet';
 import { BookPanel } from './ui/bookshelf/BookPanel';
+import { AutoSheet } from './ui/automotive/AutoSheet';
+import { InteriorHint } from './ui/automotive/InteriorHint';
 
 // three.js + R3F live in their own chunk; nothing 3D is downloaded for the fallback path.
 const GarageCanvas = lazy(() => import('./scene/GarageCanvas'));
@@ -27,7 +29,7 @@ export function App() {
   const onReady = useCallback(() => {
     const s = useExperience.getState();
     if (initialShotOverride && !forceIntro) {
-      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' });
+      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' || initialShotOverride === 'teslaInterior' });
     } else if (s.hasVisited && !forceIntro) {
       // Returning visitors skip the welcome sequence.
       useExperience.setState({ shot: 'overview', phase: 'exploring' });
@@ -52,6 +54,8 @@ export function App() {
       <PortfolioSheet />
       <CareerSheet />
       <BookPanel />
+      <AutoSheet />
+      <InteriorHint />
       <Loader progress={progress} done={phase !== 'loading'} />
     </>
   );

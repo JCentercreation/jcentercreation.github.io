@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { CanvasTexture, CatmullRomCurve3, DoubleSide, type Group, LatheGeometry, MeshPhysicalMaterial, Vector2, Vector3 } from 'three';
+import { CanvasTexture, CatmullRomCurve3, type Texture, DoubleSide, type Group, LatheGeometry, MeshPhysicalMaterial, Vector2, Vector3 } from 'three';
 import gsap from 'gsap';
 import { holdDoorOpen, useExperience } from '@/app/store';
 import { CAR } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { LaptopModel } from '../desk/LaptopModel';
 import { useScreenTexture } from '../screens/screenTextures';
+import { CAR_LAPTOP, CarLaptopScreen } from './CarLaptopScreen';
 import { Rod } from '../primitives';
 import { AXLE_X, BODY_HALF, TRACK_HALF, WHEEL_RADIUS, WHEEL_Y, buildCarGeometry } from './carGeometry';
 
@@ -64,6 +65,30 @@ function Wheel({ position, mirrored }: { position: [number, number, number]; mir
         <meshStandardMaterial color="#bfc1c4" metalness={0.9} roughness={0.25} />
       </mesh>
     </group>
+  );
+}
+
+function CarLaptop({ screen }: { screen: Texture }) {
+  const shot = useExperience((s) => s.shot);
+  const hovered = useIsHovered('carLaptop');
+  return (
+    <Interactive id="carLaptop" enabled={shot === 'teslaInterior'} onSelect={() => useExperience.getState().goTo('teslaLaptop')}>
+      <group position={CAR.laptop} rotation-y={Math.PI}>
+        <LaptopModel
+          width={CAR_LAPTOP.width}
+          depth={CAR_LAPTOP.depth}
+          thickness={0.02}
+          lidAngle={0.35}
+          bodyColor="#202124"
+          screen={screen}
+          // Restrained brightness for the dark cabin; a touch brighter on hover.
+          glow={hovered ? 0.95 : 0.78}
+          display={[...CAR_LAPTOP.display]}
+        >
+          <CarLaptopScreen />
+        </LaptopModel>
+      </group>
+    </Interactive>
   );
 }
 
@@ -150,9 +175,8 @@ function Interior() {
         <meshStandardMaterial color="#1d4fa3" roughness={0.5} />
       </mesh>
       {/* Diagnostic laptop, open on the driver seat, screen facing out of the door. */}
-      <group position={CAR.laptop} rotation-y={Math.PI}>
-        <LaptopModel width={0.34} depth={0.235} thickness={0.02} lidAngle={0.35} bodyColor="#202124" screen={laptopScreen} display={[0.94, 0.88]} />
-      </group>
+      {/* Laptop on the driver seat: selectable from the car-interior view; hosts the portfolio. */}
+      <CarLaptop screen={laptopScreen} />
     </group>
   );
 }
@@ -185,7 +209,8 @@ export function Tesla() {
 
   // Close the door once the visitor has left the car.
   useEffect(() => {
-    if (doorOpen && shot !== 'teslaLaptop' && !holdDoorOpen) {
+    // The door stays open while inside (interior or laptop) and closes once the visitor leaves the car.
+    if (doorOpen && shot !== 'teslaInterior' && shot !== 'teslaLaptop' && !holdDoorOpen) {
       const t = window.setTimeout(() => useExperience.getState().closeTeslaDoor(), 700);
       return () => window.clearTimeout(t);
     }

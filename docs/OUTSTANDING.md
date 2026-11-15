@@ -44,6 +44,8 @@ MacBook portfolio gaps (shown as "coming soon", never invented):
 - [ ] Decision on purchased vs. custom models (MacBook, iPad, Tesla, Vomero Plus). No purchases without approval.
 - [ ] Tesla: supply the GLBs of brandonleong28 and wintrez (PLAN.md §10) on a separate branch for inspection. tonielpro520 on hold (provenance). No purchase.
 - [x] Tesla: 2024+ Highland design confirmed (exact replica not required).
+- [ ] Tesla (blocking a convincing car + interior): no verified Highland asset available; see PLAN.md §17. Provisional car interior is a placeholder (boxes) and does not meet the interior requirement.
+- [ ] Automotive: SEAT location kept as "Greater Barcelona Metropolitan Area" (not in the latest list) — confirm. RFEDA title shown in English ("Technical Scrutineer") in both languages for consistency — confirm or prefer "Comisario técnico" in Spanish.
 - [ ] Tesla: download candidates for inspection — brandonleong28 (Sketchfab GLB) and MantangCG "2024 Tesla Model 3 with interior" (RenderHub, free with account; send the licence text too). Push to a separate branch, e.g. `assets-tesla`.
 - [ ] Nissan: keep the 2020 logo or switch to the 2001–2020 period mark (ASSETS.md).
 - [ ] Network access to a CC0 texture source (e.g. Poly Haven) — currently blocked in the build environment, so the prototype uses generated materials.

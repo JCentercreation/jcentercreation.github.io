@@ -384,3 +384,36 @@ exploration of the iOS career.
   author, factual line, first published, "Put the book back"); keyboard list of the three books (hidden until
   focused). Escape (Hud): book → shelf → garage. Phones: book held higher and centred, card at the bottom.
 - Camera: reuses the existing `bookshelf` shot (no new shots); the book follows the live camera.
+
+## 17. Tesla phase — interaction + automotive portfolio (model integration on hold)
+
+**Model status — not integrated (owner rule: stop if the asset can't be obtained/verified).**
+- No Tesla file exists in the repository or any branch (`main`, `cover`, `virtual_space`), nor in uploads.
+- Sketchfab now answers automated requests with an empty HTTP 202 challenge, so candidate pages could no longer be
+  re-read from this environment; downloads require a logged-in account in any case.
+- Candidates (all unverified at file level):
+  - brandonleong28, "Tesla model 3 2024" — CC BY 4.0, 179.7k tris, GLB 8.7 MB; Highland body per title; interior
+    and door separation unknown; provenance unclear (single upload, no credits).
+  - tonielpro520, "2024 Tesla Model 3 + Interior" — CC BY 4.0; on hold for provenance (game-rip naming).
+  - averageperson1124 (Sketchfab profile) — lists "Tesla Model 3 – Project Highland" variants; licence, interior and
+    door unknown (page not readable here). New lead.
+  - MantangCG (RenderHub) — "free 2024 Model 3 with interior", RenderHub licence agreement (not CC); terms unread.
+- To proceed, the owner downloads the GLB(s) manually and pushes them to a separate branch (e.g. `assets-tesla`,
+  `assets-source/tesla/<author>/` with the licence/credits text). Then: `node scripts/inspect-model.mjs <file>`,
+  door split in Blender if needed, test renders of door/interior/laptop shots — before any integration.
+
+**Implemented on the provisional car (model-independent; the final model plugs into the same contract):**
+- Navigation hierarchy: garage → driver door (opens) → `teslaInterior` shot (new, in the doorway) → select laptop →
+  `teslaLaptop` shot → portfolio. Escape: portfolio section → portfolio overview → interior → garage; the door closes
+  whenever the visitor leaves the car (interior/laptop). Places nav: "Car interior", "Automotive portfolio".
+- Laptop on the driver seat is its own `Interactive` (`carLaptop`), selectable from the interior view; restrained
+  screen brightness; `InteriorHint` gives an understated hint + keyboard route.
+- Automotive portfolio (`ui/automotive/AutoPortfolio.tsx`): restrained Windows-inspired desktop — maximised window,
+  blue task pane, content pane, taskbar. Sections: Overview (2010–2019 timeline of all 5 positions + 3 company cards),
+  Nissan, SEAT, RFEDA, Technologies. Real DOM on the laptop screen (`scene/tesla/CarLaptopScreen.tsx`) once the camera
+  arrives; full-screen sheet on phones/portrait (3D paused).
+- Content: owner-approved locations ("Barcelona, Spain", "Cranfield, United Kingdom"); RFEDA venues listed separately;
+  job titles in English in both languages (consistent with MacBook/iPad); Nissan has no description (none supplied).
+  Unit tests pin positions, periods, titles, locations, technologies, venues and events.
+- Contract for the final model: a `door` node pivoting on the front hinge (car-local −Z side), seat top ≈ 0.52 m,
+  `CAR.laptop` position, `teslaInterior`/`teslaLaptop` shots derived from `carLocalToWorld`.

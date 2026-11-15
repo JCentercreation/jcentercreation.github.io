@@ -158,3 +158,31 @@ describe('bookshelf catalogue', () => {
     ]);
   });
 });
+
+describe('approved automotive career data', () => {
+  it('positions, periods, English titles and locations match the approved list', () => {
+    const rows = automotivePositions.map((p) => {
+      const t = content.en.automotive.positions[p.id]!;
+      return `${p.companyId} ${p.period.start}→${p.period.end} ${t.title} @ ${t.location}`;
+    });
+    expect(rows).toEqual([
+      'nissan 2016-09→2017-02 Software Engineer – Powertrain ETB @ Barcelona, Spain',
+      'nissan 2017-02→2017-04 Software Engineer – Powertrain ETB @ Cranfield, United Kingdom',
+      'nissan 2017-04→2018-08 Software Engineer – Powertrain Performance @ Barcelona, Spain',
+      'seat 2018-10→2019-11 Software Engineer @ Greater Barcelona Metropolitan Area',
+      'rfea 2010-04→2012-06 Technical Scrutineer @ Circuito Ricardo Tormo and Valencia Street Circuit, Valencia',
+    ]);
+    for (const p of automotivePositions) expect(content.es.automotive.positions[p.id]?.title).toBe(content.en.automotive.positions[p.id]?.title);
+  });
+
+  it('technologies, venues and events are exactly the established ones', () => {
+    expect(Object.fromEntries(automotiveCompanies.map((c) => [c.id, c.technologies]))).toEqual({
+      nissan: ['C++', 'C'],
+      seat: ['Clean Coding', 'Git'],
+      rfea: [],
+    });
+    expect(content.en.automotive.portfolio.venues).toEqual(['Circuito Ricardo Tormo', 'Valencia Street Circuit']);
+    expect(content.en.automotive.highlights.rfea?.items).toHaveLength(5);
+    expect(content.en.automotive.companies.nissan?.description).toBeNull();
+  });
+});

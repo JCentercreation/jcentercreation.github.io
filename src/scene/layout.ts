@@ -191,6 +191,13 @@ export const SHOTS: Record<ShotId, Shot> = {
     fov: 46,
     parallax: true,
   },
+  teslaInterior: {
+    // Standing in the open doorway, looking down into the cabin: seat, laptop, wheel, dashboard.
+    position: carLocalToWorld(new Vector3(-0.15, 1.42, -1.55)),
+    target: carLocalToWorld(new Vector3(0.3, 0.62, -0.25)),
+    fov: 50,
+    parallax: true,
+  },
   teslaLaptop: {
     position: laptopScreen.clone().addScaledVector(laptopOut, 0.36),
     target: laptopScreen,

@@ -37,7 +37,7 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
   const full = tier === 'full';
   // While a full-screen sheet covers the scene (phones), stop rendering 3D entirely.
   const narrow = useNarrowViewport();
-  const sheetOpen = useExperience((s) => narrow && (s.shot === 'macbook' || s.shot === 'ipad') && s.arrivedShot === s.shot);
+  const sheetOpen = useExperience((s) => narrow && (s.shot === 'macbook' || s.shot === 'ipad' || s.shot === 'teslaLaptop') && s.arrivedShot === s.shot);
 
   return (
     <Canvas
