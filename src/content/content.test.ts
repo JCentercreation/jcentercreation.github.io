@@ -138,3 +138,23 @@ describe('iPad career data accuracy', () => {
     for (const co of appleCompanies) expect(content.es.apple.companies[co.id]?.role).toBe(content.en.apple.companies[co.id]?.role);
   });
 });
+
+describe('bookshelf catalogue', () => {
+  it('each book has its selected cover, subtitle, first-publication year and descriptions in both locales', async () => {
+    const files = Object.keys(import.meta.glob('/public/books/*'));
+    for (const b of books) {
+      expect(files, b.id).toContain(`/public/${b.cover}`);
+      expect(b.subtitle, b.id).toBeTruthy();
+      expect(b.firstPublished, b.id).toBeGreaterThan(1900);
+      for (const locale of LOCALES) expect(content[locale].books.descriptions[b.id], `${locale}:${b.id}`).toBeTruthy();
+    }
+  });
+
+  it('titles and authors are the original published ones', () => {
+    expect(books.map((b) => `${b.title}: ${b.subtitle} — ${b.author}`)).toEqual([
+      'Sapiens: A Brief History of Humankind — Yuval Noah Harari',
+      'The Rise and Fall of the Dinosaurs: A New History of Their Lost World — Steve Brusatte',
+      'The Emperor of All Maladies: A Biography of Cancer — Siddhartha Mukherjee',
+    ]);
+  });
+});

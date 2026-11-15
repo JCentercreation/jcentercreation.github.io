@@ -309,6 +309,15 @@ const en: LocaleContent = {
     byAuthor: 'by',
     close: 'Put the book back',
     coverPending: 'Cover image coming soon',
+    selectHint: 'Select a book to take it off the shelf.',
+    listLabel: 'Books on the shelf',
+    firstPublished: 'First published',
+    // Short factual summaries of each book's subject (see docs/OUTSTANDING.md — pending owner approval).
+    descriptions: {
+      sapiens: 'A history of humankind, from the emergence of Homo sapiens to the present day.',
+      dinosaurs: 'A history of the dinosaurs, from their origins to their extinction, based on fossil evidence.',
+      'emperor-maladies': 'A history of cancer, from its earliest descriptions to modern treatment and research.',
+    },
   },
 };
 

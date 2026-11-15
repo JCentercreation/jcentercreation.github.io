@@ -72,6 +72,14 @@ interface ExperienceState {
   setHovered: (id: InteractiveObjectId | null) => void;
   setHoveredBook: (id: string | null) => void;
 
+  /** Book taken off the shelf (null = all books in place). Independent of locale. */
+  selectedBook: string | null;
+  /** True once the selected book has finished turning towards the camera (info panel shows). */
+  bookHeld: boolean;
+  selectBook: (id: string) => void;
+  closeBook: () => void;
+  setBookHeld: (held: boolean) => void;
+
   teslaDoorOpen: boolean;
   /** Door click → door opens → camera flies to the laptop, as one sequence (spec §7.3). */
   openTeslaDoor: () => void;
@@ -84,6 +92,15 @@ interface ExperienceState {
   /** Returning visitors may skip the welcome sequence (spec §4). */
   hasVisited: boolean;
   markVisited: () => void;
+}
+
+/** Per-device entry rules when the camera goes to a shot (unchanged MacBook / iPad behaviour). */
+function goToState(s: ExperienceState, shot: ShotId): Partial<ExperienceState> {
+  // Entering the MacBook from elsewhere always starts on the welcome note.
+  if (shot === 'macbook' && s.shot !== 'macbook') return { shot, portfolio: { section: 'welcome', project: null, company: null } };
+  // Entering the iPad from elsewhere starts on its overview.
+  if (shot === 'ipad' && s.shot !== 'ipad') return { shot, ipad: { section: 'home', company: null } };
+  return { shot };
 }
 
 export const useExperience = create<ExperienceState>((set) => ({
@@ -107,13 +124,8 @@ export const useExperience = create<ExperienceState>((set) => ({
   setArrivedShot: (arrivedShot) => set({ arrivedShot }),
   goTo: (shot) =>
     set((s) =>
-      // Entering the MacBook from elsewhere always starts on the welcome note.
-      shot === 'macbook' && s.shot !== 'macbook'
-        ? { shot, portfolio: { section: 'welcome', project: null, company: null } }
-        : // Entering the iPad from elsewhere starts on its overview.
-          shot === 'ipad' && s.shot !== 'ipad'
-          ? { shot, ipad: { section: 'home', company: null } }
-          : { shot },
+      // Leaving the bookshelf always puts a taken book back.
+      shot !== 'bookshelf' && s.selectedBook ? { ...goToState(s, shot), selectedBook: null, bookHeld: false } : goToState(s, shot),
     ),
 
   portfolio: { section: 'welcome', project: null, company: null },
@@ -124,12 +136,20 @@ export const useExperience = create<ExperienceState>((set) => ({
   selectIPadCompany: (company) => set((s) => ({ ipad: { ...s.ipad, company } })),
   toggleCompany: (id) =>
     set((s) => ({ portfolio: { ...s.portfolio, company: s.portfolio.company === id ? null : id } })),
-  backToOverview: () => set({ shot: 'overview' }),
+  backToOverview: () => set({ shot: 'overview', selectedBook: null, bookHeld: false }),
 
   hovered: null,
   hoveredBook: null,
   setHovered: (hovered) => set({ hovered }),
   setHoveredBook: (hoveredBook) => set({ hoveredBook }),
+
+  selectedBook: null,
+  bookHeld: false,
+  // Only from the bookshelf view, one book at a time.
+  selectBook: (id) =>
+    set((s) => (s.shot === 'bookshelf' && s.arrivedShot === 'bookshelf' && !s.selectedBook ? { selectedBook: id, hoveredBook: null } : {})),
+  closeBook: () => set({ selectedBook: null, bookHeld: false }),
+  setBookHeld: (bookHeld) => set({ bookHeld }),
 
   teslaDoorOpen: holdDoorOpen,
   openTeslaDoor: () => {

@@ -1,5 +1,7 @@
-import { useLayoutEffect, useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import gsap from 'gsap';
+import { bookPose, readingPose } from './bookMotion';
 import { CanvasTexture, Color, TextureLoader, type Group, type InstancedMesh, Matrix4, MeshStandardMaterial, Quaternion, SRGBColorSpace, Euler, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import type { BookRecord } from '@/content';
@@ -190,7 +192,6 @@ function spineTexture(record: BookRecord) {
   return t;
 }
 
-/** A catalogue book: titled spine, hover pulls it out slightly (only once at the bookshelf). */
 /** Front cover image (Open Library), or the spine colour if none is supplied. */
 function useCover(record: BookRecord) {
   return useMemo(() => {
@@ -202,52 +203,106 @@ function useCover(record: BookRecord) {
   }, [record]);
 }
 
+// Review tooling only (`?capture=1`): screen positions + displacement of each catalogue book.
+const capture = new URLSearchParams(window.location.search).has('capture');
+const debugBooks: Record<string, { x: number; y: number; displaced: boolean; t: number }> = {};
+if (capture) (window as unknown as { __books: typeof debugBooks }).__books = debugBooks;
+
+/**
+ * A catalogue book: titled spine; hover slides it out a couple of centimetres; selecting it takes it
+ * off the shelf and turns the cover towards the camera (bookMotion.ts). Interactive only once the
+ * camera has arrived at the bookshelf.
+ */
 function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) {
+  const id = book.record.id;
   const coverMap = useCover(book.record);
   const ref = useRef<Group>(null);
-  const atShelf = useExperience((s) => s.shot === 'bookshelf' && s.phase === 'exploring');
+  const camera = useThree((s) => s.camera);
+  const size = useThree((s) => s.size);
+  const atShelf = useExperience((s) => s.shot === 'bookshelf' && s.arrivedShot === 'bookshelf' && s.phase === 'exploring');
+  const selected = useExperience((s) => s.selectedBook === id);
+  const reduced = useExperience((s) => s.reducedMotion);
+  const anim = useRef({ t: 0, hover: 0 });
+  const home = useMemo(() => new Vector3(book.x, book.y, book.z), [book]);
+  const pose = useMemo(() => ({ position: new Vector3(), quaternion: new Quaternion() }), []);
+
   const materials = useMemo(() => {
     const cover = new MeshStandardMaterial({ color: book.color, roughness: 0.6 });
-    // Front cover is the +z face (spine on the reader's left). Shown when the book is extracted.
-    const front = coverMap ? new MeshStandardMaterial({ map: coverMap, roughness: 0.55 }) : cover;
+    // Front cover is the +z face (spine on the reader's left). While held, a faint emissive copy of
+    // the cover keeps it legible in the dark room — no lights are added or changed.
+    const front = coverMap
+      ? new MeshStandardMaterial({ map: coverMap, emissiveMap: coverMap, emissive: '#ffffff', emissiveIntensity: 0, roughness: 0.55 })
+      : cover;
     const pages = new MeshStandardMaterial({ color: '#efe8d8', roughness: 0.9 });
     // The spine faces the room (-x). Its text runs bottom→top, rotated to read like a real spine.
     const spineMap = spineTexture(book.record);
     spineMap.center.set(0.5, 0.5);
     spineMap.rotation = Math.PI / 2;
-    const spine = new MeshStandardMaterial({ map: spineMap, roughness: 0.55 });
-    return [pages, spine, pages, pages, front, cover];
+    const spine = new MeshStandardMaterial({ map: spineMap, emissive: '#ffd9a8', emissiveIntensity: 0, roughness: 0.55 });
+    return { list: [pages, spine, pages, pages, front, cover], front, spine };
   }, [book, coverMap]);
+
+  // Take off / put back.
+  useEffect(() => {
+    const a = anim.current;
+    const set = useExperience.getState().setBookHeld;
+    if (!selected) set(false);
+    const tween = gsap.to(a, {
+      t: selected ? 1 : 0,
+      duration: reduced ? 0.35 : selected ? 1.5 : 1.15,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        if (selected) set(true);
+      },
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [selected, reduced]);
 
   useFrame((_, dt) => {
     const g = ref.current;
     if (!g) return;
-    const hovered = useExperience.getState().hoveredBook === book.record.id;
-    const target = hovered ? -0.06 : 0;
-    g.position.x += (target - g.position.x) * Math.min(1, dt * 10);
+    const a = anim.current;
+    const s = useExperience.getState();
+    const hovering = s.hoveredBook === id && !s.selectedBook;
+    a.hover += ((hovering ? 1 : 0) - a.hover) * Math.min(1, dt * 9);
+    if (a.t > 0) {
+      readingPose(camera, size.width < 900 || size.height > size.width, pose);
+      bookPose(a.t, home, book.w, pose, g.position, g.quaternion);
+    } else {
+      // In its slot; a subtle 2 cm slide towards the room on hover.
+      g.position.set(home.x - a.hover * 0.02, home.y, home.z);
+      g.quaternion.identity();
+    }
+    materials.spine.emissiveIntensity = a.hover * 0.07;
+    if (materials.front !== materials.list[5]) materials.front.emissiveIntensity = Math.max(0, (a.t - 0.5) * 2) * 0.2;
+    if (capture) {
+      const p = g.position.clone().project(camera);
+      debugBooks[id] = { x: ((p.x + 1) / 2) * size.width, y: ((1 - p.y) / 2) * size.height, displaced: a.t > 0.001 || g.position.distanceTo(home) > 0.001, t: a.t };
+    }
   });
 
-  const onOver = (e: { stopPropagation: () => void }) => {
-    if (!atShelf) return;
+  const onOver = (e: ThreeEvent<PointerEvent>) => {
+    if (!atShelf || useExperience.getState().selectedBook) return;
     e.stopPropagation();
-    useExperience.getState().setHoveredBook(book.record.id);
+    useExperience.getState().setHoveredBook(id);
     document.body.style.cursor = 'pointer';
   };
   const onOut = () => {
-    if (useExperience.getState().hoveredBook === book.record.id) useExperience.getState().setHoveredBook(null);
+    if (useExperience.getState().hoveredBook === id) useExperience.getState().setHoveredBook(null);
     document.body.style.cursor = '';
+  };
+  const onClick = (e: ThreeEvent<MouseEvent>) => {
+    if (!atShelf) return;
+    e.stopPropagation();
+    document.body.style.cursor = '';
+    useExperience.getState().selectBook(id);
   };
 
   return (
-    <group ref={ref}>
-      <mesh
-        position={[book.x, book.y, book.z]}
-        scale={[book.w, book.h, book.t]}
-        material={materials}
-        castShadow
-        onPointerOver={onOver}
-        onPointerOut={onOut}
-      >
+    <group ref={ref} position={home}>
+      <mesh scale={[book.w, book.h, book.t]} material={materials.list} castShadow onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
         <boxGeometry />
       </mesh>
     </group>

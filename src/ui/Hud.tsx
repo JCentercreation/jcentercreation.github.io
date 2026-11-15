@@ -24,6 +24,11 @@ export function Hud() {
     const onKey = (e: KeyboardEvent) => {
       const s = useExperience.getState();
       if (e.key !== 'Escape' || s.phase !== 'exploring') return;
+      // Bookshelf: a taken book goes back first; the camera stays on the shelf.
+      if (s.shot === 'bookshelf' && s.selectedBook) {
+        s.closeBook();
+        return;
+      }
       // Layered: inside a MacBook project, Escape first returns to the project list.
       if (s.shot === 'macbook' && s.portfolio.project) {
         s.openProject(null);

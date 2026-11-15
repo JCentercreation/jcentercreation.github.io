@@ -43,8 +43,13 @@ export interface PositionRecord {
 
 export interface BookRecord {
   id: string;
+  /** Original published title (never translated). */
   title: string;
+  /** Subtitle of the selected edition (Open Library record). */
+  subtitle?: string;
   author: string;
+  /** Year of first publication (Open Library work record). */
+  firstPublished?: number;
   /** Spine appearance in the 3D scene (stable between visits). */
   spine: { color: string; textColor: string; heightCm: number; thicknessCm: number };
   /** Path under /public. `null` until a cover image is supplied. */
@@ -252,6 +257,16 @@ export interface BooksContent {
   byAuthor: string;
   close: string;
   coverPending: string;
+  /** Understated hint shown at the bookshelf. */
+  selectHint: string;
+  /** Accessible label for the keyboard list of books. */
+  listLabel: string;
+  firstPublished: string;
+  /**
+   * Short factual description per book id (general summary of the book's subject — no opinions,
+   * nothing attributed to the owner). `null` = show title and author only.
+   */
+  descriptions: Record<string, string | null>;
 }
 
 export interface LocaleContent {

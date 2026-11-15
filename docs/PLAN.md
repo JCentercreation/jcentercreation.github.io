@@ -366,3 +366,21 @@ exploration of the iOS career.
   Overview. Escape (global, `Hud.tsx`): company detail → section → overview → garage. ↑/↓ in the sidebar.
 - Validation: unit tests pin the exact lists and check every leadership link against the approved descriptions;
   browser run (desktop + phone): 34 checks, all passing; MacBook (26) and garage navigation (13) regressions pass.
+
+## 16. Interactive bookshelf
+
+- Data: `content/shared/books.ts` (original title, edition subtitle, author, Open Library first-publish year, cover,
+  fixed shelf place). Text: `content/{en,es}` `books` (hint, labels, one-line factual descriptions). Titles/authors
+  are never translated.
+- State (`app/store.ts`): `selectedBook`, `bookHeld`; `selectBook` only from the arrived bookshelf view, one book at a
+  time; leaving the bookshelf (any `goTo`/`backToOverview`) puts the book back. MacBook/iPad entry rules moved
+  unchanged into `goToState`.
+- Motion (`scene/bookshelf/bookMotion.ts`): one pose function t ∈ [0, 1] — 0→0.3 slides straight out towards the room,
+  0.3→1 arcs (6 cm lift) to a reading pose in front of the live camera (cover facing the viewer, turned ~13°, tipped
+  back); put-back runs the same path in reverse, so the book always lands exactly in its slot (unit-tested).
+  Hover: 2 cm slide + faint warm spine tint. While held, a faint emissive copy of the cover keeps it legible in the
+  dark room — no lights added or changed.
+- UI (`ui/bookshelf/BookPanel.tsx`): understated hint at the shelf; info card beside the book (title, subtitle,
+  author, factual line, first published, "Put the book back"); keyboard list of the three books (hidden until
+  focused). Escape (Hud): book → shelf → garage. Phones: book held higher and centred, card at the bottom.
+- Camera: reuses the existing `bookshelf` shot (no new shots); the book follows the live camera.

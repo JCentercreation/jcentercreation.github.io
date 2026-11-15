@@ -36,7 +36,8 @@ MacBook portfolio gaps (shown as "coming soon", never invented):
 - [ ] Misfits Studio logo (owner's own studio) — please supply the file.
 - [ ] RFEDA logo — no SVG found; the official site's raster logo is on a CDN host not allowed here. Supply a file, or approve that host.
 - [x] Book covers from Open Library, verified title/author/edition — see docs/ASSETS.md.
-- [ ] Optional per-book description / personal reflection (owner-written only).
+- [ ] Book descriptions (EN/ES) are short factual summaries of each book's subject, written for the site — please approve or replace (`content/{en,es}` → `books.descriptions`; set to `null` to show title and author only).
+- [ ] Optional personal reflection per book (owner-written only).
 - [ ] Think Different poster reference image.
 - [ ] Tesla Model 3: model year/version; then a licensed 3D model.
 - [ ] OBD port location / diagnostic setup for that version.

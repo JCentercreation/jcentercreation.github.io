@@ -39,3 +39,34 @@ describe('camera', () => {
     }
   });
 });
+
+describe('book take-off motion', () => {
+  it('is exactly home at t = 0 and exactly the reading pose at t = 1', async () => {
+    const { bookPose } = await import('./bookshelf/bookMotion');
+    const { Quaternion, Vector3 } = await import('three');
+    const home = new Vector3(4.6, 1.4, -1.8);
+    const reading = { position: new Vector3(2.2, 1.6, -0.9), quaternion: new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 1.2) };
+    const p = new Vector3();
+    const q = new Quaternion();
+    bookPose(0, home, 0.16, reading, p, q);
+    expect(p.distanceTo(home)).toBeLessThan(1e-9);
+    expect(q.angleTo(new Quaternion())).toBeLessThan(1e-9);
+    bookPose(1, home, 0.16, reading, p, q);
+    expect(p.distanceTo(reading.position)).toBeLessThan(1e-9);
+    expect(q.angleTo(reading.quaternion)).toBeLessThan(1e-6);
+  });
+
+  it('first slides straight out towards the room (never sideways into neighbours)', async () => {
+    const { bookPose } = await import('./bookshelf/bookMotion');
+    const { Quaternion, Vector3 } = await import('three');
+    const home = new Vector3(4.6, 1.4, -1.8);
+    const reading = { position: new Vector3(2.2, 1.6, -0.9), quaternion: new Quaternion() };
+    const p = new Vector3();
+    const q = new Quaternion();
+    for (const t of [0.05, 0.15, 0.3]) {
+      bookPose(t, home, 0.16, reading, p, q);
+      expect(p.z).toBeCloseTo(home.z, 9);
+      expect(p.x).toBeLessThanOrEqual(home.x);
+    }
+  });
+});

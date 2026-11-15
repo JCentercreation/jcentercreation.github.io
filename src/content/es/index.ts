@@ -311,6 +311,15 @@ const es: LocaleContent = {
     byAuthor: 'de',
     close: 'Devolver el libro a la estantería',
     coverPending: 'Portada próximamente',
+    selectHint: 'Selecciona un libro para sacarlo de la estantería.',
+    listLabel: 'Libros de la estantería',
+    firstPublished: 'Primera edición',
+    // Resúmenes factuales del tema de cada libro (pendientes de aprobación — docs/OUTSTANDING.md).
+    descriptions: {
+      sapiens: 'Una historia de la humanidad, desde la aparición del Homo sapiens hasta la actualidad.',
+      dinosaurs: 'Una historia de los dinosaurios, desde sus orígenes hasta su extinción, basada en el registro fósil.',
+      'emperor-maladies': 'Una historia del cáncer, desde sus primeras descripciones hasta el tratamiento y la investigación actuales.',
+    },
   },
 };
 

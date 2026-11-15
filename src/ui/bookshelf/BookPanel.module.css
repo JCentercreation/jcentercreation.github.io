@@ -1,0 +1,150 @@
+/* Understated, glassy like the HUD — never a big panel. */
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  z-index: 20;
+  margin: 0;
+  max-width: min(520px, calc(100vw - 32px));
+  transform: translate(-50%, 6px);
+  padding: 8px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--fg-muted);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
+}
+
+.hint[data-visible='true'] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Keyboard / screen-reader list: invisible until focused. */
+.list {
+  position: fixed;
+  left: 50%;
+  bottom: 76px;
+  z-index: 21;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: calc(100vw - 32px);
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
+.list:focus-within {
+  clip-path: none;
+  pointer-events: auto;
+}
+
+.list button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.card {
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 58%;
+  width: min(320px, 32vw);
+  transform: translate(0, -50%) translateX(8px);
+  padding: 20px 22px;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  background: rgba(12, 14, 18, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--fg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms var(--ease-out), transform 450ms var(--ease-out);
+}
+
+.card[data-visible='true'] {
+  opacity: 1;
+  transform: translate(0, -50%);
+  pointer-events: auto;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--fg-muted);
+  font-size: 15px;
+}
+
+.author {
+  margin: 12px 0 0;
+  font-size: 15px;
+}
+
+.description {
+  margin: 14px 0 0;
+  color: #cfcac2;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.meta {
+  margin: 10px 0 0;
+  color: var(--fg-muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.close {
+  margin-top: 18px;
+  padding: 8px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Phones / portrait: book held higher and centred; the card sits below it. */
+@media (max-width: 899px), (orientation: portrait) {
+  .card {
+    top: auto;
+    left: 16px;
+    right: 16px;
+    bottom: max(76px, calc(env(safe-area-inset-bottom) + 64px));
+    width: auto;
+    transform: translateY(8px);
+    padding: 16px 18px;
+  }
+
+  .card[data-visible='true'] {
+    transform: none;
+  }
+
+  .card h2 {
+    font-size: 19px;
+  }
+}
