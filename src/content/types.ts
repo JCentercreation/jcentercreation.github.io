@@ -112,18 +112,55 @@ export interface WelcomeNote {
   discover: { heading: string; items: string[] };
 }
 
+/** Sections of the MacBook portfolio — each is one "note" in the Notes-style app. */
+export type PortfolioSection = 'welcome' | 'about' | 'experience' | 'skills' | 'projects';
+export const PORTFOLIO_SECTIONS: readonly PortfolioSection[] = ['welcome', 'about', 'experience', 'skills', 'projects'] as const;
+
+interface LabelledList {
+  label: string;
+  items: string[];
+}
+
 /** The MacBook runs a single Notes-style app; each note is one portfolio section. */
 export interface MacBookContent {
   appName: string;
   folder: string;
-  notes: {
-    welcome: string;
-    experience: string;
-    technologies: string;
-    leadership: string;
-    startups: string;
-    projects: string;
+  notes: Record<PortfolioSection, string>;
+  /** Accessible / UI labels for the portfolio chrome. */
+  labels: {
+    sections: string;
+    explore: string;
+    close: string;
+    backToWelcome: string;
+    backToProjects: string;
+    openLink: string;
+    opensInNewTab: string;
+    status: string;
+    links: string;
   };
+  about: {
+    heading: string;
+    combinesLabel: string;
+    combines: string[];
+    /** Owner's own words (previous site, /legacy/). */
+    paragraphs: string[];
+  };
+  experience: {
+    heading: string;
+    intro: string;
+    timeline: string;
+    role: string;
+    rolePending: string;
+    description: string;
+    showDetails: string;
+    hideDetails: string;
+  };
+  skills: {
+    heading: string;
+    groups: { languages: LabelledList; architecture: LabelledList; quality: LabelledList; practices: LabelledList };
+  };
+  projectsHeading: string;
+  projectsIntro: string;
   projects: Record<string, { description: string; status: string | null }>;
 }
 

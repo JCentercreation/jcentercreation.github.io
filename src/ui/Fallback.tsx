@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { appleCompanies, automotiveCompanies, automotivePositions, books } from '@/content';
+import { appleCompanies, automotiveCompanies, automotivePositions, books, projects } from '@/content';
 import { useExperience } from '@/app/store';
 import { useContent } from '@/app/useContent';
 import { formatPeriod } from '@/lib/format';
@@ -113,6 +113,21 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
               </article>
             );
           })}
+        </div>
+
+        <h2>{c.macbook.projectsHeading}</h2>
+        <div className={styles.cards}>
+          {projects.map((p) => (
+            <article key={p.id} className={styles.card}>
+              <h3>
+                <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>
+                  {p.name} ↗
+                </a>
+              </h3>
+              {c.macbook.projects[p.id]?.status && <p className={styles.meta}>{c.macbook.projects[p.id]?.status}</p>}
+              <p>{c.macbook.projects[p.id]?.description}</p>
+            </article>
+          ))}
         </div>
 
         <h2>{c.books.heading}</h2>

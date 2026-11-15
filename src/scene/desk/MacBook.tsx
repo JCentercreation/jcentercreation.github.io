@@ -4,6 +4,7 @@ import { Interactive, useIsHovered } from '../Interactive';
 import { useScreenTexture } from '../screens/screenTextures';
 import { LaptopModel } from './LaptopModel';
 import { macbookDeckTexture } from './deckTextures';
+import { MacBookScreen } from './MacBookScreen';
 
 /** MacBook Pro 14" (silver). Click → camera to the screen. */
 export function MacBook() {
@@ -24,7 +25,10 @@ export function MacBook() {
           display={[0.955, 0.9]}
           deck={macbookDeckTexture()}
           notch
-        />
+        >
+          {/* Interactive portfolio, mapped onto the display (children render inside the lid). */}
+          <MacBookScreen lidHeight={MACBOOK.depth * 0.985} displayWidth={0.955} />
+        </LaptopModel>
         {/* Screen glow spilling onto the keyboard and desk — keeps the MacBook the focal point. */}
         <group position={[0, 0.12, -0.06]}>
           {/* Rect lights emit along -z: turn to face the user, tilted down onto the keyboard. */}

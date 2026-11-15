@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
 import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace } from 'three';
 import { useExperience } from '@/app/store';
+import { useNarrowViewport } from '@/lib/useViewport';
 import { GarageScene } from './GarageScene';
 
 interface Props {
@@ -34,9 +35,13 @@ function ReadySignal({ onReady }: Pick<Props, 'onReady'>) {
 export default function GarageCanvas({ onProgress, onReady }: Props) {
   const tier = useExperience((s) => s.capabilities.tier);
   const full = tier === 'full';
+  // While a full-screen sheet covers the scene (phones), stop rendering 3D entirely.
+  const narrow = useNarrowViewport();
+  const sheetOpen = useExperience((s) => narrow && s.shot === 'macbook' && s.arrivedShot === 'macbook');
 
   return (
     <Canvas
+      frameloop={sheetOpen ? 'never' : 'always'}
       dpr={full ? [1, 1.75] : [1, 1.5]}
       shadows={full ? { type: PCFShadowMap } : false}
       // Full tier antialiases in the post-processing composer (MSAA); reduced tier uses the default buffer.

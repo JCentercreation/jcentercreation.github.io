@@ -163,7 +163,8 @@ export const SHOTS: Record<ShotId, Shot> = {
     parallax: true,
   },
   macbook: {
-    position: screen.centre.clone().addScaledVector(screen.normal, 0.36),
+    // Close enough that the interactive portfolio fills most of the view.
+    position: screen.centre.clone().addScaledVector(screen.normal, 0.31),
     target: screen.centre,
     fov: 40,
     parallax: false,

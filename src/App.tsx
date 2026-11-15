@@ -4,6 +4,7 @@ import { useDocumentLocale } from './app/useContent';
 import { Loader } from './ui/Loader';
 import { Hud } from './ui/Hud';
 import { Fallback } from './ui/Fallback';
+import { PortfolioSheet } from './ui/macbook/PortfolioSheet';
 
 // three.js + R3F live in their own chunk; nothing 3D is downloaded for the fallback path.
 const GarageCanvas = lazy(() => import('./scene/GarageCanvas'));
@@ -46,6 +47,7 @@ export function App() {
         <GarageCanvas onProgress={setSceneProgress} onReady={onReady} />
       </Suspense>
       <Hud />
+      <PortfolioSheet />
       <Loader progress={progress} done={phase !== 'loading'} />
     </>
   );

@@ -23,7 +23,13 @@ export function Hud() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const s = useExperience.getState();
-      if (e.key === 'Escape' && s.phase === 'exploring' && s.shot !== 'overview') backToOverview();
+      if (e.key !== 'Escape' || s.phase !== 'exploring') return;
+      // Layered: inside a MacBook project, Escape first returns to the project list.
+      if (s.shot === 'macbook' && s.portfolio.project) {
+        s.openProject(null);
+        return;
+      }
+      if (s.shot !== 'overview') backToOverview();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

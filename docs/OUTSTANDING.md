@@ -5,6 +5,13 @@ Kept up to date every phase (spec §16.11). Nothing below is invented in the app
 
 ## Content (owner)
 
+MacBook portfolio gaps (shown as "coming soon", never invented):
+- [ ] Job titles for Banc Sabadell, Misfits Studio, Inditex, Banco Santander.
+- [ ] Descriptions for those four roles.
+- [ ] Review the "About me" text (built from the previous site's wording) in EN and ES.
+- [ ] Optional: richer project details (platforms, tech used, App Store links for necktimer, screenshots).
+- [ ] Swift courses: confirm names and a one-line description of each course.
+
 - [x] Display name: **Javier Carrillo** (provisional, approved; change in `src/content/shared/owner.ts`).
 - [ ] Photo (optional).
 - [ ] Contact details / social links to show (old site had email, LinkedIn, GitHub).

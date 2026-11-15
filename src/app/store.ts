@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LOCALES, type InteractiveObjectId, type Locale, type ShotId } from '@/content';
+import { LOCALES, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 
@@ -48,6 +48,15 @@ interface ExperienceState {
 
   /** Current cinematic shot. Changing locale never touches this. */
   shot: ShotId;
+  /** The shot the camera has finished flying to (null while moving). Screens mount on arrival. */
+  arrivedShot: ShotId | null;
+  setArrivedShot: (shot: ShotId | null) => void;
+
+  /** MacBook portfolio navigation — independent of locale, so switching language keeps it. */
+  portfolio: { section: PortfolioSection; project: string | null; company: string | null };
+  openSection: (section: PortfolioSection) => void;
+  openProject: (id: string | null) => void;
+  toggleCompany: (id: string) => void;
   goTo: (shot: ShotId) => void;
   backToOverview: () => void;
 
@@ -89,7 +98,21 @@ export const useExperience = create<ExperienceState>((set) => ({
   setPhase: (phase) => set({ phase }),
 
   shot: 'macbookIntro',
-  goTo: (shot) => set({ shot }),
+  arrivedShot: null,
+  setArrivedShot: (arrivedShot) => set({ arrivedShot }),
+  goTo: (shot) =>
+    set((s) =>
+      // Entering the MacBook from elsewhere always starts on the welcome note.
+      shot === 'macbook' && s.shot !== 'macbook'
+        ? { shot, portfolio: { section: 'welcome', project: null, company: null } }
+        : { shot },
+    ),
+
+  portfolio: { section: 'welcome', project: null, company: null },
+  openSection: (section) => set({ portfolio: { section, project: null, company: null } }),
+  openProject: (project) => set((s) => ({ portfolio: { ...s.portfolio, section: 'projects', project } })),
+  toggleCompany: (id) =>
+    set((s) => ({ portfolio: { ...s.portfolio, company: s.portfolio.company === id ? null : id } })),
   backToOverview: () => set({ shot: 'overview' }),
 
   hovered: null,

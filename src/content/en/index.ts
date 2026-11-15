@@ -62,12 +62,65 @@ const en: LocaleContent = {
     folder: 'Javier',
     notes: {
       welcome: 'Welcome',
+      about: 'About me',
       experience: 'Experience',
-      technologies: 'Technologies & skills',
-      leadership: 'Architecture & leadership',
-      startups: 'Startups',
-      projects: 'Personal projects',
+      skills: 'Skills',
+      projects: 'Side projects',
     },
+    labels: {
+      sections: 'Portfolio sections',
+      explore: 'Explore my portfolio',
+      close: 'Close and return to the garage',
+      backToWelcome: 'Back to the welcome note',
+      backToProjects: 'All side projects',
+      openLink: 'Open',
+      opensInNewTab: 'opens in a new tab',
+      status: 'Status',
+      links: 'Links',
+    },
+    about: {
+      heading: 'About me',
+      combinesLabel: 'My profile combines',
+      combines: [
+        'iOS software engineering',
+        'Automotive software engineering',
+        'Technology and software architecture',
+        'The Apple ecosystem',
+      ],
+      paragraphs: [
+        'I started my career as a software engineer developing powertrain embedded software at companies like Nissan and SEAT.',
+        'I then moved to software engineering for Apple platforms, working for companies such as Banc Sabadell, Banco Santander and Inditex.',
+        'As a software engineer I am very focused on architecture, performance and security decisions. My job also involves conducting technical interviews, mentoring newcomers and serving as a technical reference.',
+        'I have also worked with startups developing MVPs, and I like to work on my own side projects.',
+      ],
+    },
+    experience: {
+      heading: 'Professional experience',
+      intro: 'Software development for Apple platforms.',
+      timeline: 'Career timeline',
+      role: 'Role',
+      rolePending: 'Role details coming soon.',
+      description: 'Description',
+      showDetails: 'Show details',
+      hideDetails: 'Hide details',
+    },
+    skills: {
+      heading: 'Technical skills',
+      groups: {
+        languages: { label: 'Languages & frameworks', items: ['Swift', 'Objective-C', 'UIKit', 'SwiftUI'] },
+        architecture: { label: 'Architecture', items: ['MVC', 'MVVM', 'MVP', 'VIPER', 'MV', 'TCA'] },
+        quality: {
+          label: 'Quality & delivery',
+          items: ['Unit testing', 'UI testing', 'End-to-end testing', 'Test coverage', 'App Store Connect', 'TestFlight', 'App Store releases'],
+        },
+        practices: {
+          label: 'Engineering practices',
+          items: ['Architecture and performance decisions', 'Security decisions', 'Technical interviews', 'Mentoring', 'iOS Technology Focal'],
+        },
+      },
+    },
+    projectsHeading: 'Side projects',
+    projectsIntro: 'Things I build on my own time. Select a project to see its details.',
     projects: {
       writingfree: {
         description:

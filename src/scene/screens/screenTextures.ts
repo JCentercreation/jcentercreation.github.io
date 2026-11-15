@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { CanvasTexture, SRGBColorSpace } from 'three';
-import { appleCompanies, automotiveCompanies, automotivePositions, type LocaleContent, type Locale } from '@/content';
+import { appleCompanies, automotiveCompanies, automotivePositions, projects, type LocaleContent, type Locale } from '@/content';
 import { useExperience } from '@/app/store';
 import { content } from '@/content';
 import { formatPeriod } from '@/lib/format';
@@ -65,17 +65,17 @@ function drawNotes(g: CanvasRenderingContext2D, c: LocaleContent) {
   g.fillText(c.macbook.folder, 40, 199);
   g.fillStyle = '#8e8e93';
   g.textAlign = 'right';
-  g.fillText('6', side - 40, 199);
+  g.fillText('5', side - 40, 199);
   g.textAlign = 'left';
 
   // Note list: each portfolio section is a note.
+  // Same notes, same order as the interactive portfolio (src/ui/macbook), so the hand-off is seamless.
   const notes = [
     [c.macbook.notes.welcome, c.welcome.body[0] ?? ''],
+    [c.macbook.notes.about, c.macbook.about.combines.join(' · ')],
     [c.macbook.notes.experience, appleCompanies.map((a) => a.name).join(', ')],
-    [c.macbook.notes.technologies, c.apple.profile.languages.items.concat(c.apple.profile.uiFrameworks.items).join(', ')],
-    [c.macbook.notes.leadership, c.apple.profile.leadership.items.slice(0, 3).join(', ')],
-    [c.macbook.notes.startups, c.apple.startups.intro],
-    [c.macbook.notes.projects, 'writingfree, necktimer, PROOF…'],
+    [c.macbook.notes.skills, c.macbook.skills.groups.languages.items.join(', ')],
+    [c.macbook.notes.projects, projects.map((p) => p.name).join(', ')],
   ] as const;
   notes.forEach(([title, preview], i) => {
     const y = 110 + i * 132;

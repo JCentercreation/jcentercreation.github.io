@@ -316,3 +316,25 @@ backdrops), without changing functionality.
 
 **Still provisional:** all models/textures (procedural), the Tesla (temporary approximation, not a Highland model),
 the photograph (procedural stand-in, needs a real image with rights), Misfits/RFEDA logos.
+
+## 14. Phase 2 — interactive MacBook portfolio
+
+How it works:
+- Clicking the MacBook (or the "MacBook" keyboard place) flies the camera to the `macbook` shot. When the
+  camera *arrives* (`arrivedShot` in the store, set by `CameraController`), a real DOM interface is mounted on the
+  display with drei `<Html transform>` inside the lid group (`scene/desk/MacBookScreen.tsx`) — 1280 × 841 CSS px,
+  scaled to the 298.5 × 196 mm display. Before arrival, and from a distance, the screen shows the matching canvas
+  texture, so the hand-off is seamless.
+- Phones / portrait screens (`lib/useViewport.ts`): the same interface opens as a full-screen sheet
+  (`ui/macbook/PortfolioSheet.tsx`) and 3D rendering pauses while it is open.
+- UI (`ui/macbook/Portfolio.tsx`, `notes.tsx`, `Portfolio.module.css`): a Notes-style app — folders · notes list ·
+  note. Notes: Welcome (existing welcome note + "Explore my portfolio"), About me, Experience (timeline 2020 → today,
+  expandable company entries with logos, anonymised startups card), Skills (4 groups), Side projects (cards →
+  detail with status and external links).
+- State (`app/store.ts`): `portfolio.{section, project, company}`. Independent of locale, so switching language keeps
+  the open note/project and the camera. Entering the MacBook from the garage always starts on Welcome.
+- Content (`content/{en,es}`, `content/shared/projects.ts`): `macbook.notes`, `labels`, `about`, `experience`,
+  `skills`, `projectsHeading`, `projects`. The canvas texture uses the same notes list.
+- Controls: mouse/touch; Tab; ↑/↓ in the notes list; Escape is layered (project → list, otherwise back to the
+  garage); red traffic light / ✕ = close; "Back to the welcome note" in the toolbar. External links open in a new tab.
+- Validation: scripted browser run (desktop 1440 × 810 + phone 390 × 844): 26 checks, all passing.

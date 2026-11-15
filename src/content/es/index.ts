@@ -62,12 +62,65 @@ const es: LocaleContent = {
     folder: 'Javier',
     notes: {
       welcome: 'Bienvenida',
+      about: 'Sobre mí',
       experience: 'Experiencia',
-      technologies: 'Tecnologías y habilidades',
-      leadership: 'Arquitectura y liderazgo',
-      startups: 'Startups',
+      skills: 'Habilidades',
       projects: 'Proyectos personales',
     },
+    labels: {
+      sections: 'Secciones del portfolio',
+      explore: 'Explorar mi portfolio',
+      close: 'Cerrar y volver al garaje',
+      backToWelcome: 'Volver a la nota de bienvenida',
+      backToProjects: 'Todos los proyectos',
+      openLink: 'Abrir',
+      opensInNewTab: 'se abre en una pestaña nueva',
+      status: 'Estado',
+      links: 'Enlaces',
+    },
+    about: {
+      heading: 'Sobre mí',
+      combinesLabel: 'Mi perfil combina',
+      combines: [
+        'Ingeniería de software iOS',
+        'Ingeniería de software de automoción',
+        'Tecnología y arquitectura de software',
+        'El ecosistema Apple',
+      ],
+      paragraphs: [
+        'Empecé mi carrera como ingeniero de software desarrollando software embebido de tren motriz en empresas como Nissan y SEAT.',
+        'Después me pasé a la ingeniería de software para plataformas Apple, trabajando para empresas como Banc Sabadell, Banco Santander e Inditex.',
+        'Como ingeniero de software me centro especialmente en las decisiones de arquitectura, rendimiento y seguridad. Mi trabajo también incluye hacer entrevistas técnicas, acompañar a las nuevas incorporaciones y ser referente técnico.',
+        'También he trabajado con startups desarrollando MVPs, y me gusta trabajar en mis propios proyectos personales.',
+      ],
+    },
+    experience: {
+      heading: 'Experiencia profesional',
+      intro: 'Desarrollo de software para plataformas Apple.',
+      timeline: 'Trayectoria',
+      role: 'Puesto',
+      rolePending: 'Detalles del puesto próximamente.',
+      description: 'Descripción',
+      showDetails: 'Ver detalles',
+      hideDetails: 'Ocultar detalles',
+    },
+    skills: {
+      heading: 'Habilidades técnicas',
+      groups: {
+        languages: { label: 'Lenguajes y frameworks', items: ['Swift', 'Objective-C', 'UIKit', 'SwiftUI'] },
+        architecture: { label: 'Arquitectura', items: ['MVC', 'MVVM', 'MVP', 'VIPER', 'MV', 'TCA'] },
+        quality: {
+          label: 'Calidad y entrega',
+          items: ['Tests unitarios', 'Tests de UI', 'Tests end-to-end', 'Cobertura de tests', 'App Store Connect', 'TestFlight', 'Publicaciones en App Store'],
+        },
+        practices: {
+          label: 'Prácticas de ingeniería',
+          items: ['Decisiones de arquitectura y rendimiento', 'Decisiones de seguridad', 'Entrevistas técnicas', 'Mentoría', 'iOS Technology Focal (referente técnico iOS)'],
+        },
+      },
+    },
+    projectsHeading: 'Proyectos personales',
+    projectsIntro: 'Cosas que construyo en mi tiempo libre. Selecciona un proyecto para ver sus detalles.',
     projects: {
       writingfree: {
         description:

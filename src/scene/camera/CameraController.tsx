@@ -55,6 +55,8 @@ export function CameraController() {
     const lift = reduced ? 0 : Math.min(0.35, dist * 0.05);
     const p = { t: 0 };
     tween.current?.kill();
+    useExperience.getState().setArrivedShot(null);
+    const done = opts.onComplete;
     tween.current = gsap.to(p, {
       t: 1,
       duration,
@@ -67,7 +69,10 @@ export function CameraController() {
         r.fov = MathUtils.lerp(fromFov, shot.fov, p.t);
         r.parallax = MathUtils.lerp(fromPar, shot.parallax ? 1 : 0, p.t);
       },
-      onComplete: opts.onComplete,
+      onComplete: () => {
+        useExperience.getState().setArrivedShot(id);
+        done?.();
+      },
     });
   };
 
@@ -84,6 +89,7 @@ export function CameraController() {
       if (prev.phase === 'loading' && state.phase !== 'loading') {
         const start = SHOTS[state.shot];
         rig.current = { pos: start.position.clone(), target: start.target.clone(), fov: start.fov, parallax: start.parallax ? 1 : 0 };
+        useExperience.getState().setArrivedShot(state.phase === 'intro' ? null : state.shot);
         if (cameraOverride) {
           rig.current = { pos: new Vector3(...cameraOverride.position), target: new Vector3(...cameraOverride.target), fov: cameraOverride.fov, parallax: 0 };
           return;
