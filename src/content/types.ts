@@ -97,8 +97,20 @@ export interface UiStrings {
   placesLabel: string;
   fallback: {
     title: string;
-    reason: string;
+    /** Why the simple version is shown — never claim incompatibility when the visitor chose it. */
+    reasons: {
+      /** Device/browser lacks what the 3D garage needs. */
+      unsupported: string;
+      /** The visitor chose the simple version. */
+      chosen: string;
+      /** The 3D garage failed to load. */
+      failed: string;
+    };
     viewAnyway: string;
+    /** Return to the 3D garage after choosing the simple version. */
+    open3D: string;
+    /** Try loading the 3D garage again after a failure. */
+    retry3D: string;
   };
   /** Accessible labels for interactive 3D objects. */
   objects: Record<InteractiveObjectId, string>;

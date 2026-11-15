@@ -130,6 +130,11 @@
 
 /* Phones / portrait: book held higher and centred; the card sits below it. */
 @media (max-width: 899px), (orientation: portrait) {
+  /* The centred hint would otherwise overlap "Back to the garage" (bottom-left): sit above that row. */
+  .hint {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 56px);
+  }
+
   .card {
     top: auto;
     left: 16px;

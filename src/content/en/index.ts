@@ -26,8 +26,14 @@ const en: LocaleContent = {
     placesLabel: 'Places in the garage',
     fallback: {
       title: "The Engineer's Garage",
-      reason: "Your browser or device can't run the 3D garage, so here's the essential content instead.",
+      reasons: {
+        unsupported: "Your browser or device can't run the 3D garage, so here's the essential content instead.",
+        chosen: "You're viewing the simple version: the essential content, without the 3D garage.",
+        failed: "The 3D garage couldn't load this time, so here's the essential content instead.",
+      },
       viewAnyway: 'Try the 3D version anyway',
+      open3D: 'Open the 3D garage',
+      retry3D: 'Try the 3D garage again',
     },
     objects: {
       macbook: 'MacBook Pro — read the welcome note',

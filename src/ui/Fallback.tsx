@@ -6,13 +6,26 @@ import { formatPeriod } from '@/lib/format';
 import styles from './Fallback.module.css';
 
 /**
- * Content-first 2D version for devices without WebGL2 (spec §13).
+ * Content-first 2D version (spec §13): shown for devices without WebGL2, when the visitor chooses
+ * it, or when the 3D scene fails to start. The notice states which of these applies.
  * Everything here comes from the content layer, so it stays in sync with the 3D screens.
  */
 export function Fallback({ canTry3D }: { canTry3D: boolean }) {
   const c = useContent();
   const locale = useExperience((s) => s.locale);
   const setForceScene = useExperience((s) => s.setForceScene);
+  const request = useExperience((s) => s.forceFallback);
+
+  const reason = request ? c.ui.fallback.reasons[request] : c.ui.fallback.reasons.unsupported;
+  // After a failure the browser keeps the failed module cached, so a real retry is a reload.
+  const action =
+    request === 'failed'
+      ? { label: c.ui.fallback.retry3D, run: () => window.location.reload() }
+      : request === 'chosen'
+        ? { label: c.ui.fallback.open3D, run: () => setForceScene(true) }
+        : canTry3D
+          ? { label: c.ui.fallback.viewAnyway, run: () => setForceScene(true) }
+          : null;
 
   useEffect(() => {
     document.body.classList.add('scrollable');
@@ -25,11 +38,11 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
     <main className={styles.page}>
       <div className={styles.inner}>
         <div className={styles.notice} role="note">
-          {c.ui.fallback.reason}
-          {canTry3D && (
+          {reason}
+          {action && (
             <div>
-              <button type="button" onClick={() => setForceScene(true)}>
-                {c.ui.fallback.viewAnyway}
+              <button type="button" onClick={action.run}>
+                {action.label}
               </button>
             </div>
           )}

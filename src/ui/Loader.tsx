@@ -46,7 +46,7 @@ export function Loader({ stage, progress, done }: Props) {
         {pct !== null && <div className={styles.percent}>{pct}%</div>}
         {slow && !done && (
           <p className={styles.slow}>
-            <button type="button" onClick={() => useExperience.getState().setForceFallback(true)}>
+            <button type="button" onClick={() => useExperience.getState().setForceFallback('chosen')}>
               {ui.loadError.continue2d}
             </button>
           </p>

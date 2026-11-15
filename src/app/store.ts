@@ -3,6 +3,8 @@ import { LOCALES, type AutoSection, type IPadSection, type InteractiveObjectId, 
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 
+export type FallbackRequest = 'chosen' | 'failed';
+
 const LANG_KEY = 'garage.lang';
 const VISITED_KEY = 'garage.visited';
 
@@ -40,9 +42,12 @@ interface ExperienceState {
   /** User chose to try 3D despite the fallback recommendation. */
   forceScene: boolean;
   setForceScene: (v: boolean) => void;
-  /** The 3D scene failed or the visitor chose the simple version. */
-  forceFallback: boolean;
-  setForceFallback: (v: boolean) => void;
+  /**
+   * Why the simple version was requested at runtime: the visitor chose it ('chosen') or the 3D
+   * scene failed to start ('failed'). null = not requested (device capability decides).
+   */
+  forceFallback: FallbackRequest | null;
+  setForceFallback: (v: FallbackRequest | null) => void;
   /** True once the intro's pull-back has started (the welcome caption fades out). */
   introRevealing: boolean;
 
@@ -123,8 +128,8 @@ export const useExperience = create<ExperienceState>((set) => ({
 
   capabilities: detectCapabilities(),
   forceScene: false,
-  setForceScene: (forceScene) => set({ forceScene, forceFallback: false }),
-  forceFallback: false,
+  setForceScene: (forceScene) => set({ forceScene, forceFallback: null }),
+  forceFallback: null,
   setForceFallback: (forceFallback) => set({ forceFallback }),
   introRevealing: false,
 

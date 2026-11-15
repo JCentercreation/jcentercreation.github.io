@@ -49,7 +49,7 @@ function ErrorPanel() {
           <button type="button" onClick={() => window.location.reload()}>
             {ui.loadError.retry}
           </button>
-          <button type="button" onClick={() => useExperience.getState().setForceFallback(true)}>
+          <button type="button" onClick={() => useExperience.getState().setForceFallback('failed')}>
             {ui.loadError.continue2d}
           </button>
         </div>

@@ -26,8 +26,14 @@ const es: LocaleContent = {
     placesLabel: 'Lugares del garaje',
     fallback: {
       title: 'El Garaje del Ingeniero',
-      reason: 'Tu navegador o dispositivo no puede ejecutar el garaje en 3D, así que aquí tienes el contenido esencial.',
+      reasons: {
+        unsupported: 'Tu navegador o dispositivo no puede ejecutar el garaje en 3D, así que aquí tienes el contenido esencial.',
+        chosen: 'Estás viendo la versión sencilla: el contenido esencial, sin el garaje en 3D.',
+        failed: 'El garaje en 3D no ha podido cargarse esta vez, así que aquí tienes el contenido esencial.',
+      },
       viewAnyway: 'Probar la versión 3D de todos modos',
+      open3D: 'Abrir el garaje en 3D',
+      retry3D: 'Volver a intentar el garaje en 3D',
     },
     objects: {
       macbook: 'MacBook Pro — leer la nota de bienvenida',

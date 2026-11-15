@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { CanvasTexture, CatmullRomCurve3, type Texture, DoubleSide, type Group, LatheGeometry, MeshPhysicalMaterial, Vector2, Vector3 } from 'three';
 import gsap from 'gsap';
 import { holdDoorOpen, useExperience } from '@/app/store';
@@ -68,12 +69,28 @@ function Wheel({ position, mirrored }: { position: [number, number, number]; mir
   );
 }
 
+// Review tooling only (`?capture=1`): the laptop's on-screen position, stamped with the frame it was
+// computed in (tools wait for a frame after the camera arrives — see the bookshelf equivalent).
+const capture = new URLSearchParams(window.location.search).has('capture');
+const debugLaptop = { x: 0, y: 0, frame: -1 };
+if (capture) (window as unknown as { __carLaptop: typeof debugLaptop }).__carLaptop = debugLaptop;
+
 function CarLaptop({ screen }: { screen: Texture }) {
   const shot = useExperience((s) => s.shot);
   const hovered = useIsHovered('carLaptop');
+  const ref = useRef<Group>(null);
+  const world = useMemo(() => new Vector3(), []);
+  useFrame((state) => {
+    if (!capture || !ref.current) return;
+    state.camera.updateMatrixWorld();
+    ref.current.getWorldPosition(world).project(state.camera);
+    debugLaptop.x = ((world.x + 1) / 2) * state.size.width;
+    debugLaptop.y = ((1 - world.y) / 2) * state.size.height;
+    debugLaptop.frame = state.clock.elapsedTime;
+  });
   return (
     <Interactive id="carLaptop" enabled={shot === 'teslaInterior'} onSelect={() => useExperience.getState().goTo('teslaLaptop')}>
-      <group position={CAR.laptop} rotation-y={Math.PI}>
+      <group ref={ref} position={CAR.laptop} rotation-y={Math.PI}>
         <LaptopModel
           width={CAR_LAPTOP.width}
           depth={CAR_LAPTOP.depth}

@@ -205,7 +205,9 @@ function useCover(record: BookRecord) {
 
 // Review tooling only (`?capture=1`): screen positions + displacement of each catalogue book.
 const capture = new URLSearchParams(window.location.search).has('capture');
-const debugBooks: Record<string, { x: number; y: number; displaced: boolean; t: number }> = {};
+// `frame` stamps when each position was computed: in slow (software-rendered) review runs a camera move
+// can finish between frames, so tools must wait for a frame computed after the camera arrived.
+const debugBooks: Record<string, { x: number; y: number; displaced: boolean; t: number; frame: number }> = {};
 if (capture) (window as unknown as { __books: typeof debugBooks }).__books = debugBooks;
 
 /**
@@ -260,7 +262,7 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
     };
   }, [selected, reduced]);
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     const g = ref.current;
     if (!g) return;
     const a = anim.current;
@@ -278,8 +280,9 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
     materials.spine.emissiveIntensity = a.hover * 0.07;
     if (materials.front !== materials.list[5]) materials.front.emissiveIntensity = Math.max(0, (a.t - 0.5) * 2) * 0.2;
     if (capture) {
+      camera.updateMatrixWorld();
       const p = g.position.clone().project(camera);
-      debugBooks[id] = { x: ((p.x + 1) / 2) * size.width, y: ((1 - p.y) / 2) * size.height, displaced: a.t > 0.001 || g.position.distanceTo(home) > 0.001, t: a.t };
+      debugBooks[id] = { x: ((p.x + 1) / 2) * size.width, y: ((1 - p.y) / 2) * size.height, displaced: a.t > 0.001 || g.position.distanceTo(home) > 0.001, t: a.t, frame: state.clock.elapsedTime };
     }
   });
 

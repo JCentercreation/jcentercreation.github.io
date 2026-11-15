@@ -185,4 +185,14 @@ describe('approved automotive career data', () => {
     expect(content.en.automotive.highlights.rfea?.items).toHaveLength(5);
     expect(content.en.automotive.companies.nissan?.description).toBeNull();
   });
+
+  it('simple-version notice only claims incompatibility when that is the actual reason', () => {
+    const incompatible = /can't run|no puede ejecutar/i;
+    for (const locale of LOCALES) {
+      const r = content[locale].ui.fallback.reasons;
+      expect(r.unsupported, locale).toMatch(incompatible);
+      expect(r.chosen, locale).not.toMatch(incompatible);
+      expect(r.failed, locale).not.toMatch(incompatible);
+    }
+  });
 });

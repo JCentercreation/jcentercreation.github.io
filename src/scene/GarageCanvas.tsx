@@ -67,7 +67,11 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
       // Full tier antialiases in the post-processing composer (MSAA); reduced tier uses the default buffer.
       gl={{ antialias: !full, powerPreference: 'high-performance', stencil: false }}
       camera={{ fov: 50, near: 0.02, far: 600, position: [0.3, 1.68, 4.35] }}
-      onCreated={({ gl }) => {
+      onCreated={(state) => {
+        const { gl } = state;
+        // Review tooling only (`?capture=1`, like __gsap/__store): lets browser tests read the camera,
+        // frame clock and raycaster. Nothing is collected or sent.
+        if (new URLSearchParams(window.location.search).has('capture')) (window as unknown as { __r3f: unknown }).__r3f = state;
         gl.toneMapping = ACESFilmicToneMapping;
         gl.outputColorSpace = SRGBColorSpace;
       }}
