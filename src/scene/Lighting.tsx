@@ -48,6 +48,8 @@ export function Lighting() {
       {/* Indirect light: LED cove on top of the beams washing the concrete soffit — a soft, warm
           bounce that keeps the room readable without any visible fixture. */}
       <rectAreaLight position={[-0.3, ROOM.height - 0.25, 0]} rotation-x={-Math.PI / 2} width={9} height={7} intensity={0.7} color="#ffdcb4" />
+      {/* Warm bounce from the floor onto the timber ceiling (keeps the beams and planks readable). */}
+      <rectAreaLight position={[-0.3, 1.2, 0.2]} rotation-x={Math.PI / 2} width={9} height={7} intensity={0.45} color="#ffd2a0" />
 
       {/* Cold glow of the stormy sky filling the room from the window. */}
       <rectAreaLight

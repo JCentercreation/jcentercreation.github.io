@@ -23,6 +23,14 @@ const params = new URLSearchParams(window.location.search);
 const shotParam = params.get('shot') as ShotId | null;
 export const initialShotOverride: ShotId | null = shotParam && SHOT_IDS.includes(shotParam) ? shotParam : null;
 export const forceIntro = params.get('intro') === '1';
+/** Review helper: `?door=open` opens the Tesla driver door and keeps it open. */
+export const holdDoorOpen = params.get('door') === 'open';
+/** Review helper: `?cam=x,y,z,tx,ty,tz[,fov]` frames an arbitrary still (no parallax). */
+const camParam = params.get('cam')?.split(',').map(Number);
+export const cameraOverride =
+  camParam && camParam.length >= 6 && camParam.every((n) => Number.isFinite(n))
+    ? { position: camParam.slice(0, 3) as [number, number, number], target: camParam.slice(3, 6) as [number, number, number], fov: camParam[6] ?? 50 }
+    : null;
 
 interface ExperienceState {
   locale: Locale;
@@ -89,7 +97,7 @@ export const useExperience = create<ExperienceState>((set) => ({
   setHovered: (hovered) => set({ hovered }),
   setHoveredBook: (hoveredBook) => set({ hoveredBook }),
 
-  teslaDoorOpen: false,
+  teslaDoorOpen: holdDoorOpen,
   openTeslaDoor: () => {
     set({ teslaDoorOpen: true });
     // Start the camera while the door is still swinging so it reads as one continuous move.

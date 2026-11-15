@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { MathUtils, type PerspectiveCamera, Vector3 } from 'three';
 import gsap from 'gsap';
 import type { ShotId } from '@/content';
-import { useExperience } from '@/app/store';
+import { cameraOverride, useExperience } from '@/app/store';
 import { SHOTS } from '../layout';
 import { responsiveFov } from './fov';
 
@@ -84,6 +84,10 @@ export function CameraController() {
       if (prev.phase === 'loading' && state.phase !== 'loading') {
         const start = SHOTS[state.shot];
         rig.current = { pos: start.position.clone(), target: start.target.clone(), fov: start.fov, parallax: start.parallax ? 1 : 0 };
+        if (cameraOverride) {
+          rig.current = { pos: new Vector3(...cameraOverride.position), target: new Vector3(...cameraOverride.target), fov: cameraOverride.fov, parallax: 0 };
+          return;
+        }
         if (state.phase === 'intro') {
           // Welcome sequence: hold on the note, then a slow pull-back revealing the garage (~6 s total).
           const reduced = state.reducedMotion;

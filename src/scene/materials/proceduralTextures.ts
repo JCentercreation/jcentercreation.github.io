@@ -293,3 +293,57 @@ export function pegboard(): Texture {
   cache.set(key, { map: t, roughnessMap: t, normalMap: t });
   return t;
 }
+
+/**
+ * Timber boards for the American-garage architecture (provisional, generated).
+ * `boards` boards per tile along v; grain runs along u. Each board gets its own tone so the
+ * cladding has the subtle variation of real timber, with a narrow shadow gap between boards.
+ */
+function boardsSample(seed: number, boards: number, base: [number, number, number], variation: number, gap: number) {
+  const { fbm, noise } = makeNoise(seed);
+  const rand = mulberry32(seed + 1);
+  const tones = Array.from({ length: boards }, () => (rand() - 0.5) * variation);
+  const offsets = Array.from({ length: boards }, () => rand() * 10);
+  return (u: number, v: number) => {
+    const b = Math.min(boards - 1, Math.floor(v * boards));
+    const bv = v * boards - b;
+    if (bv < gap) return { r: 0.08, g: 0.065, b: 0.05, rough: 1, height: 0 };
+    const o = offsets[b]!;
+    const warp = fbm(u * 0.8 + o, bv * 0.5, 3, 4) * 0.5;
+    const ring = Math.pow(Math.abs(Math.sin((bv * 3 + warp + o) * Math.PI * 4)), 0.7);
+    const pores = noise(u * 600 + o * 40, bv * 22);
+    const streak = fbm(u * 3 + o, bv * 2, 6, 3);
+    // Occasional small knot.
+    const kx = (o * 0.137) % 1;
+    const knot = Math.max(0, 1 - Math.hypot((u - kx) * 18, (bv - 0.5) * 3)) * (o > 6 ? 1 : 0);
+    const k = 1 + tones[b]! - ring * 0.06 + (pores - 0.5) * 0.06 + (streak - 0.5) * 0.1 - knot * 0.35;
+    const edge = Math.min(bv - gap, 1 - bv) < 0.02 ? 0.88 : 1;
+    return {
+      r: base[0] * k * edge,
+      g: base[1] * k * edge,
+      b: base[2] * k * edge,
+      rough: 0.62 + ring * 0.06 + knot * 0.1,
+      height: 0.6 + ring * 0.15 + pores * 0.1 - (edge < 1 ? 0.3 : 0),
+    };
+  };
+}
+
+/** Horizontal white-oak cladding: 16 boards of 15 cm per 2.4 m tile. */
+export function woodCladding(): TextureSet {
+  return build('woodCladding', 1024, boardsSample(81, 16, [0.63, 0.53, 0.41], 0.14, 0.022), 2.2);
+}
+
+/** Tongue-and-groove ceiling planks, slightly paler and narrower (24 per 2.4 m). */
+export function ceilingPlanks(): TextureSet {
+  return build('ceilingPlanks', 1024, boardsSample(91, 24, [0.66, 0.56, 0.44], 0.1, 0.03), 1.8);
+}
+
+/** Vertical boards for the carriage doors (same oak family, a little darker). */
+export function doorBoards(): TextureSet {
+  return build('doorBoards', 512, boardsSample(101, 8, [0.5, 0.36, 0.24], 0.12, 0.035), 2);
+}
+
+/** Glued-laminated timber (glulam) beam faces: visible lamination lines. One tile = 1 m × 0.4 m. */
+export function glulam(): TextureSet {
+  return build('glulam', 1024, boardsSample(111, 10, [0.52, 0.38, 0.25], 0.07, 0.008), 1.2, 512);
+}

@@ -80,7 +80,13 @@ export const CAR = {
   laptop: new Vector3(0.12, 0.525, -0.34),
 };
 
-export const POSTER = { position: new Vector3(-2.05, 1.72, ROOM.minZ + 0.012), width: 0.61, height: 0.91 };
+export const POSTER = { position: new Vector3(2.95, 1.72, ROOM.minZ + 0.012), width: 0.61, height: 0.91 };
+
+/** Carriage-style double garage doors in the window wall, behind the car. */
+export const GARAGE_DOOR = { centerX: -3.35, width: 2.7, height: 2.45 };
+
+/** Exposed timber structure: glulam beams spanning the room (z positions), joists between them. */
+export const TIMBER = { beamZ: [-3.1, -0.9, 1.3, 3.5], beamW: 0.18, beamH: 0.38, joistW: 0.07, joistH: 0.2, joistSpacing: 0.6 };
 
 // ---------------------------------------------------------------- shots
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { RoundedBox } from '@react-three/drei';
 import { CatmullRomCurve3, LatheGeometry, Object3D, Vector2, Vector3 } from 'three';
-import { ROOM, carLocalToWorld } from '../layout';
+import { ROOM, TIMBER, carLocalToWorld } from '../layout';
 import { pegboard } from '../materials/proceduralTextures';
 import { Rod } from '../primitives';
 
@@ -128,7 +128,8 @@ function TyreStack() {
 
 /** Wall charger on the back wall, cable to the charge port (rear left of the car). */
 function WallCharger() {
-  const mount = new Vector3(-4.6, 1.25, ROOM.minZ + 0.05);
+  // Between the garage doors and the window.
+  const mount = new Vector3(-1.72, 1.2, ROOM.minZ + 0.05);
   const port = carLocalToWorld(new Vector3(-2.05, 0.84, -0.86));
   const cable = useMemo(
     () =>
@@ -170,7 +171,8 @@ function TrackLights() {
       const onCar = carLocalToWorld(new Vector3(lx, 0.7, -0.15));
       // Track runs above the room side of the car, so light rakes the driver side.
       const pos = carLocalToWorld(new Vector3(lx, 0, -1.7));
-      pos.y = ROOM.height - 0.32;
+      // Hung just below the glulam beams.
+      pos.y = ROOM.height - TIMBER.joistH - TIMBER.beamH - 0.1;
       const aim = new Object3D();
       aim.position.copy(onCar);
       out.push({ pos, aim });

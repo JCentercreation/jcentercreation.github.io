@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { CanvasTexture, CatmullRomCurve3, DoubleSide, type Group, LatheGeometry, MeshPhysicalMaterial, Vector2, Vector3 } from 'three';
 import gsap from 'gsap';
-import { useExperience } from '@/app/store';
+import { holdDoorOpen, useExperience } from '@/app/store';
 import { CAR } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { LaptopModel } from '../desk/LaptopModel';
@@ -185,7 +185,7 @@ export function Tesla() {
 
   // Close the door once the visitor has left the car.
   useEffect(() => {
-    if (doorOpen && shot !== 'teslaLaptop') {
+    if (doorOpen && shot !== 'teslaLaptop' && !holdDoorOpen) {
       const t = window.setTimeout(() => useExperience.getState().closeTeslaDoor(), 700);
       return () => window.clearTimeout(t);
     }
@@ -206,12 +206,13 @@ export function Tesla() {
         {/* Light signatures (parked: lights off, tail lamps barely lit). */}
         {[-1, 1].map((s) => (
           <group key={s}>
-            <mesh position={[2.24, 0.63, s * 0.6]} rotation={[0, s * 0.45, -0.18]}>
-              <boxGeometry args={[0.02, 0.035, 0.36]} />
+            {/* 2024+ ("Highland") style: very slim headlamps set low in the nose. */}
+            <mesh position={[2.25, 0.6, s * 0.6]} rotation={[0, s * 0.45, -0.12]}>
+              <boxGeometry args={[0.02, 0.018, 0.34]} />
               <meshStandardMaterial color="#0a0a0a" emissive="#cfe0ff" emissiveIntensity={0.25} metalness={0.4} roughness={0.1} />
             </mesh>
-            <mesh position={[-2.3, 0.86, s * 0.56]} rotation={[0, -s * 0.5, 0]}>
-              <boxGeometry args={[0.03, 0.06, 0.34]} />
+            <mesh position={[-2.31, 0.88, s * 0.5]} rotation={[0, -s * 0.5, 0]}>
+              <boxGeometry args={[0.03, 0.03, 0.4]} />
               <meshStandardMaterial color="#3a0606" emissive="#ff1a1a" emissiveIntensity={0.6} roughness={0.15} />
             </mesh>
             <mesh position={[0.98, 0.99, s * 0.97]}>

@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { forceIntro, initialShotOverride, useExperience } from './app/store';
+import { forceIntro, holdDoorOpen, initialShotOverride, useExperience } from './app/store';
 import { useDocumentLocale } from './app/useContent';
 import { Loader } from './ui/Loader';
 import { Hud } from './ui/Hud';
@@ -24,7 +24,7 @@ export function App() {
   const onReady = useCallback(() => {
     const s = useExperience.getState();
     if (initialShotOverride && !forceIntro) {
-      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: initialShotOverride === 'teslaLaptop' });
+      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' });
     } else if (s.hasVisited && !forceIntro) {
       // Returning visitors skip the welcome sequence.
       useExperience.setState({ shot: 'overview', phase: 'exploring' });

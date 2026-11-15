@@ -257,3 +257,29 @@ of the door-open and laptop shots — before any integration.
 - Magic Keyboard + Magic Trackpad (`desk/Peripherals.tsx`) to the MacBook's right; iPad moved to the back right with its
   Pencil and USB-C cable; notebook + pen, iPhone, AirPods case, charger, lamp, mug. Headphones removed to avoid clutter.
 - All positions live in `layout.ts` (`STUDIO_DISPLAY`, `KEYBOARD`, `TRACKPAD`, `IPAD`); camera shots follow automatically.
+
+## 12. Direction change — modern American timber garage (owner, Nov 2026)
+
+Implemented as a provisional prototype within the existing modules (no rebuild):
+
+| Element | Module | Status |
+|---|---|---|
+| White-oak horizontal cladding (per-board tone variation, shadow gaps) on all walls | `environment/Room.tsx`, `woodCladding()` | Provisional (generated texture) |
+| Oak tongue-and-groove ceiling | `ceilingPlanks()` | Provisional |
+| Exposed glulam beams spanning the room + joists, black steel hangers, timber corner posts | `TimberStructure` (`TIMBER` in layout.ts) | Provisional geometry, layout intended final |
+| Carriage-style double garage doors (vertical oak boards, glass lites, black steel strap hinges, pulls, steel lintel/jambs) behind the car | `environment/GarageDoors.tsx` (`GARAGE_DOOR`) | Provisional |
+| Slim board-formed concrete plinth | `Plinth` | Provisional |
+| Polished concrete floor, black steel window, storm/sea/rain/lightning | unchanged | Storm intended final |
+| Brick wall, limewash, oak slat panel | removed (superseded by timber) | — |
+| Poster | moved right of the window, still placeholder | Placeholder |
+| Wall charger | between garage doors and window | Provisional |
+| Ceiling bounce light so the timber structure reads at night | `Lighting.tsx` | Tuning |
+
+Guard-rails for "contemporary, not rustic": pale, low-saturation white oak; straight, tight boards; glulam (not
+rough-sawn) beams; black steel details; no X-bracing, no barn hardware patterns, no distressing.
+
+Tesla: the in-scene car is still the **temporary code-built approximation**, now with slimmer 2024+-style light
+signatures — it is not a Highland model and is not presented as one. Highland candidates (free): brandonleong28
+(provenance unclear) and MantangCG on RenderHub (commercial studio offering a free 2024 Model 3 with interior; licence
+not readable from this environment). wintrez (pre-2024) is a fallback only and would not be presented as a Highland.
+Review helper: `?door=open` holds the driver door open.

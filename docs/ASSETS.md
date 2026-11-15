@@ -57,5 +57,6 @@ manually by the owner; licence and attribution to be confirmed from the download
 
 ## Generated in code (no third-party rights)
 
-Room, furniture, desk props, bookshelf, procedural Tesla stand-in, workshop, reading corner, running shoes,
+Room and timber structure, garage doors, furniture, Apple workstation stand-ins (Studio Display, MacBook, iPad,
+iPhone, Magic Keyboard/Trackpad), bookshelf, procedural Tesla stand-in, workshop, reading corner, running shoes,
 poster placeholder, all textures (`src/scene/materials/proceduralTextures.ts`), storm shaders.
