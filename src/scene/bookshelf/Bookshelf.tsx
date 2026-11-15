@@ -25,13 +25,6 @@ function Frame() {
             <boxGeometry args={[BOOKSHELF.depth, 0.03, LENGTH]} />
             <meshStandardMaterial {...oak} normalScale={[0.2, 0.2]} />
           </mesh>
-          {/* Warm LED strip under the front lip of each shelf above floor level. */}
-          {y > 0.3 && (
-            <mesh position={[FRONT_X + 0.03, y - 0.002, CENTER_Z]}>
-              <boxGeometry args={[0.012, 0.004, LENGTH - 0.04]} />
-              <meshStandardMaterial color="#000" emissive="#ffb35c" emissiveIntensity={3} toneMapped={false} />
-            </mesh>
-          )}
         </group>
       ))}
       {/* Black steel frame, floor to ceiling. */}

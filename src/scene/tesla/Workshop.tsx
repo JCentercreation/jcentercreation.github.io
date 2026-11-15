@@ -1,16 +1,13 @@
 import { useMemo } from 'react';
 import { RoundedBox } from '@react-three/drei';
-import { CatmullRomCurve3, LatheGeometry, Object3D, Vector2, Vector3 } from 'three';
-import { ROOM, TIMBER, carLocalToWorld } from '../layout';
+import { CatmullRomCurve3, Vector3 } from 'three';
+import { GARAGE_DOOR, ROOM, carLocalToWorld } from '../layout';
 import { pegboard } from '../materials/proceduralTextures';
-import { Rod } from '../primitives';
-
-const STEEL = { color: '#1a1b1d', metalness: 0.7, roughness: 0.45 };
 
 /** Rolling tool chest against the left wall. */
 function ToolChest() {
   return (
-    <group position={[ROOM.minX + 0.3, 0, -3.15]} rotation-y={Math.PI / 2}>
+    <group position={[ROOM.minX + 0.3, 0, -2.55]} rotation-y={Math.PI / 2}>
       <RoundedBox args={[0.78, 0.92, 0.46]} radius={0.012} position-y={0.52} castShadow receiveShadow>
         <meshStandardMaterial color="#7d1714" metalness={0.5} roughness={0.38} />
       </RoundedBox>
@@ -82,54 +79,10 @@ function Pegboard() {
   );
 }
 
-/** Mobile diagnostic station near the car's nose. */
-function DiagnosticCart() {
-  return (
-    <group position={[-5.0, 0, 1.55]} rotation-y={0.9}>
-      {[0.12, 0.55, 0.92].map((y) => (
-        <mesh key={y} position-y={y} castShadow receiveShadow>
-          <boxGeometry args={[0.6, 0.025, 0.42]} />
-          <meshStandardMaterial {...STEEL} />
-        </mesh>
-      ))}
-      {[-0.28, 0.28].map((x) =>
-        [-0.19, 0.19].map((z) => <Rod key={`${x}${z}`} from={[x, 0.06, z]} to={[x, 0.93, z]} radius={0.012} color="#1a1b1d" />),
-      )}
-      {/* Oscilloscope-style instrument with a lit screen. */}
-      <RoundedBox args={[0.38, 0.22, 0.26]} radius={0.01} position={[0, 1.045, 0]} castShadow>
-        <meshStandardMaterial color="#2c2e31" roughness={0.6} />
-      </RoundedBox>
-      <mesh position={[-0.05, 1.05, 0.131]}>
-        <planeGeometry args={[0.2, 0.13]} />
-        <meshStandardMaterial color="#000" emissive="#39c0a8" emissiveIntensity={1.4} />
-      </mesh>
-      <RoundedBox args={[0.32, 0.1, 0.24]} radius={0.01} position={[0, 0.62, 0]} castShadow>
-        <meshStandardMaterial color="#e3b100" roughness={0.5} />
-      </RoundedBox>
-    </group>
-  );
-}
-
-function TyreStack() {
-  const g = useMemo(() => {
-    const pts = [new Vector2(0.22, -0.11), new Vector2(0.32, -0.115), new Vector2(0.335, 0), new Vector2(0.32, 0.115), new Vector2(0.22, 0.11)];
-    return new LatheGeometry(pts, 36);
-  }, []);
-  return (
-    <group position={[ROOM.minX + 0.55, 0, ROOM.minZ + 0.5]}>
-      {[0, 1, 2, 3].map((i) => (
-        <mesh key={i} geometry={g} position={[(i % 2) * 0.02, 0.115 + i * 0.235, 0]} castShadow receiveShadow>
-          <meshStandardMaterial color="#121213" roughness={0.9} side={2} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
 /** Wall charger on the back wall, cable to the charge port (rear left of the car). */
 function WallCharger() {
   // Between the garage doors and the window.
-  const mount = new Vector3(-1.72, 1.2, ROOM.minZ + 0.05);
+  const mount = new Vector3(GARAGE_DOOR.centerX + GARAGE_DOOR.width / 2 + 0.17, 1.25, ROOM.minZ + 0.05);
   const port = carLocalToWorld(new Vector3(-2.05, 0.84, -0.86));
   const cable = useMemo(
     () =>
@@ -160,55 +113,6 @@ function WallCharger() {
   );
 }
 
-/**
- * Ceiling track with three small spots aimed at the car — natural, directional workshop light
- * instead of a glaring batten. Spots cast no shadows (cost), the lamp and window do.
- */
-function TrackLights() {
-  const heads = useMemo(() => {
-    const out: { pos: Vector3; aim: Object3D }[] = [];
-    for (const lx of [-1.3, 0.1, 1.4]) {
-      const onCar = carLocalToWorld(new Vector3(lx, 0.7, -0.15));
-      // Track runs above the room side of the car, so light rakes the driver side.
-      const pos = carLocalToWorld(new Vector3(lx, 0, -1.7));
-      // Hung just below the glulam beams.
-      pos.y = ROOM.height - TIMBER.joistH - TIMBER.beamH - 0.1;
-      const aim = new Object3D();
-      aim.position.copy(onCar);
-      out.push({ pos, aim });
-    }
-    return out;
-  }, []);
-  const a = heads[0]!.pos;
-  const b = heads[2]!.pos;
-  return (
-    <group>
-      <Rod from={[a.x, a.y + 0.05, a.z]} to={[b.x, b.y + 0.05, b.z]} radius={0.012} color="#111" castShadow={false} />
-      {heads.map(({ pos, aim }, i) => {
-        const q = new Object3D();
-        q.position.copy(pos);
-        q.lookAt(aim.position);
-        return (
-          <group key={i}>
-            <group position={pos} quaternion={q.quaternion}>
-              <mesh rotation-x={Math.PI / 2}>
-                <cylinderGeometry args={[0.035, 0.03, 0.12, 20]} />
-                <meshStandardMaterial color="#111" metalness={0.6} roughness={0.4} />
-              </mesh>
-              <mesh position-z={0.061}>
-                <circleGeometry args={[0.026, 20]} />
-                <meshStandardMaterial color="#000" emissive="#fff1dd" emissiveIntensity={2.2} toneMapped={false} />
-              </mesh>
-            </group>
-            <primitive object={aim} />
-            <spotLight position={pos} target={aim} angle={0.42} penumbra={0.9} intensity={26} decay={2} color="#ffe9cf" />
-          </group>
-        );
-      })}
-    </group>
-  );
-}
-
 /** A faint oil stain under the car: work happens here. */
 function FloorDetails() {
   return (
@@ -226,10 +130,7 @@ export function Workshop() {
     <group>
       <ToolChest />
       <Pegboard />
-      <DiagnosticCart />
-      <TyreStack />
       <WallCharger />
-      <TrackLights />
       <FloorDetails />
     </group>
   );

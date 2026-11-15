@@ -283,3 +283,36 @@ signatures — it is not a Highland model and is not presented as one. Highland 
 (provenance unclear) and MantangCG on RenderHub (commercial studio offering a free 2024 Model 3 with interior; licence
 not readable from this environment). wintrez (pre-2024) is a fallback only and would not be presented as a Highland.
 Review helper: `?door=open` holds the driver door open.
+
+## 13. Reference-render pass (owner's concept render, Nov 2026)
+
+Goal: bring the live 3D scene close to the owner's concept render with real geometry/lighting (no image
+backdrops), without changing functionality.
+
+**Diagnosis before the change**
+- Depth: the room was 10.6 × 9.3 m with the overview camera 8.8 m from the window wall → large, empty, deep.
+- Brightness: hemisphere 0.6 + soffit cove bounce + floor bounce + 3 × 26 cd track spots + shelf wash rect +
+  shelf LED strips + driver-side fill + arc floor lamp + environment 0.7 on every material.
+
+**Composition** (all in `layout.ts`)
+- Compact room 8.6 × 7.8 m, 3.3 m ceiling. Window (2.9 m, 4 × 2 lites) centred on the back wall with a timber
+  casing and header; the desk set sits directly beneath it and is placed as one unit via `DESK_OFFSET` (desk-
+  related shots follow automatically).
+- Car on the left, backed in through narrower carriage doors (two rows of glazed panes) on the left of the back
+  wall, nose to the viewer; wall charger between doors and window.
+- Bookshelf (3 bays) on the right wall; framed B/W photograph of a trail runner between window and bookshelf.
+- Heavy timber beams run front-to-back on black steel hangers at the back wall; plank ceiling above.
+- Overview: longer lens (vertical FOV 42°), eye height 1.55 m, desk/window as the centre, car nose cropped left.
+- Removed: reading corner (armchair, side table, arc lamp, plant, rug), Think-different placeholder (component kept,
+  unmounted), diagnostic cart, tyre stack, ceiling track lights. Added: desk drawer pedestals, cognac leather chair,
+  jute rug, desk plant, dark steel tool wall.
+
+**Lighting** (`Lighting.tsx`, desk lamp in `DeskArea.tsx`)
+- Key: desk lamp (warm, shadowed) + its soft spill. Cool fill: window rect light + storm directional with lightning.
+- Faint cool rim spot on the car from the window side; Studio Display and MacBook screen glows.
+- Ambient hemisphere 0.32 (was 0.6); environment 0.34, reflections only (window strip + faint lamp glow).
+- Removed: shelf LEDs and wash light, all ceiling lights over the car, soffit and floor bounce cards, driver fill.
+- Atmospheric fog for depth; deeper vignette; rain outside thinned so the sea reads.
+
+**Still provisional:** all models/textures (procedural), the Tesla (temporary approximation, not a Highland model),
+the photograph (procedural stand-in, needs a real image with rights), Misfits/RFEDA logos.

@@ -5,7 +5,8 @@ import { useExperience } from '@/app/store';
 import { DESK } from '../layout';
 import { oakDesk } from '../materials/proceduralTextures';
 import { lockScreenTexture } from './deckTextures';
-import { IPAD, MACBOOK, STUDIO_DISPLAY } from '../layout';
+import { DESK_OFFSET, IPAD, MACBOOK, STUDIO_DISPLAY } from '../layout';
+import { rugTexture } from '../decor/rug';
 import { StudioDisplay } from './StudioDisplay';
 import { MagicKeyboard, MagicTrackpad } from './Peripherals';
 import { Rod } from '../primitives';
@@ -15,37 +16,47 @@ import { IPad } from './IPad';
 
 const TOP = DESK.height;
 
-function Desk() {
-  // One texture spans the whole top: three glued oak boards, no repetition.
-  const oak = oakDesk();
-  const legX = DESK.width / 2 - 0.08;
+function Pedestal({ x }: { x: number }) {
+  const h = TOP - 0.06;
+  const d = DESK.depth - 0.08;
   return (
-    <group position={[DESK.x, 0, DESK.z]}>
-      <mesh position-y={TOP - 0.02} castShadow receiveShadow>
-        <boxGeometry args={[DESK.width, 0.04, DESK.depth]} />
-        <meshStandardMaterial {...oak} normalScale={[0.3, 0.3]} />
+    <group position={[x, 0, 0.02]}>
+      <mesh position-y={h / 2} castShadow receiveShadow>
+        <boxGeometry args={[0.46, h, d]} />
+        <meshStandardMaterial color="#141516" metalness={0.55} roughness={0.5} />
       </mesh>
-      {/* Black steel trestle legs. */}
-      {[-legX, legX].map((x) => (
-        <group key={x} position-x={x}>
-          {[-DESK.depth / 2 + 0.05, DESK.depth / 2 - 0.05].map((z) => (
-            <mesh key={z} position={[0, (TOP - 0.04) / 2, z]} castShadow>
-              <boxGeometry args={[0.04, TOP - 0.04, 0.04]} />
-              <meshStandardMaterial color="#121314" metalness={0.75} roughness={0.45} />
-            </mesh>
-          ))}
-          {[0.06, TOP - 0.07].map((y) => (
-            <mesh key={y} position={[0, y, 0]} castShadow>
-              <boxGeometry args={[0.04, 0.03, DESK.depth - 0.1]} />
-              <meshStandardMaterial color="#121314" metalness={0.75} roughness={0.45} />
-            </mesh>
-          ))}
+      {[0.2, 0.42, 0.6].map((y) => (
+        <group key={y}>
+          <mesh position={[0, y, d / 2 + 0.001]}>
+            <boxGeometry args={[0.44, 0.004, 0.002]} />
+            <meshStandardMaterial color="#050505" />
+          </mesh>
+          <mesh position={[0, y + 0.05, d / 2 + 0.008]}>
+            <boxGeometry args={[0.12, 0.012, 0.012]} />
+            <meshStandardMaterial color="#2a2b2d" metalness={0.8} roughness={0.3} />
+          </mesh>
         </group>
       ))}
+    </group>
+  );
+}
+
+function Desk() {
+  // One texture spans the whole top: three glued oak boards, no repetition. 6 cm thick slab.
+  const oak = oakDesk();
+  return (
+    <group position={[DESK.x, 0, DESK.z]}>
+      <mesh position-y={TOP - 0.03} castShadow receiveShadow>
+        <boxGeometry args={[DESK.width, 0.06, DESK.depth]} />
+        <meshStandardMaterial {...oak} normalScale={[0.3, 0.3]} />
+      </mesh>
+      {/* Black drawer pedestals at both ends, knee space in the middle. */}
+      <Pedestal x={-DESK.width / 2 + 0.26} />
+      <Pedestal x={DESK.width / 2 - 0.26} />
       {/* Felt desk pad under the laptop, keyboard and trackpad. */}
       <mesh position={[0.15, TOP + 0.0015, 0.12]} receiveShadow>
         <boxGeometry args={[1.08, 0.003, 0.4]} />
-        <meshStandardMaterial color="#3b3936" roughness={0.95} />
+        <meshStandardMaterial color="#2e2c2a" roughness={0.95} />
       </mesh>
     </group>
   );
@@ -103,16 +114,16 @@ function DeskLamp() {
         target={target}
         angle={0.85}
         penumbra={0.75}
-        intensity={9}
+        intensity={14}
         decay={2}
-        color="#ffb36b"
+        color="#ffae62"
         castShadow={full}
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0002}
         shadow-radius={4}
       />
       {/* Warm spill so the lamp's surroundings don't fall to black outside the cone. */}
-      <pointLight position={[head[0], head[1] + 0.05, head[2]]} intensity={1.6} distance={4} decay={2} color="#ffb36b" />
+      <pointLight position={[head[0], head[1] + 0.05, head[2]]} intensity={8} distance={10} decay={2} color="#ffae62" />
     </group>
   );
 }
@@ -174,7 +185,7 @@ function DeskProps() {
       </group>
 
       {/* AirPods Pro case. */}
-      <RoundedBox args={[0.06, 0.022, 0.045]} radius={0.01} smoothness={4} position={[-0.06, TOP + 0.011, -3.88]} rotation-y={-0.4} castShadow>
+      <RoundedBox args={[0.06, 0.022, 0.045]} radius={0.01} smoothness={4} position={[1.4, TOP + 0.011, -3.78]} rotation-y={-0.4} castShadow>
         <meshStandardMaterial color="#f4f4f2" roughness={0.3} />
       </RoundedBox>
 
@@ -256,27 +267,47 @@ function DeskProps() {
   );
 }
 
-/** Dark wool rug that anchors the office zone on the concrete. */
+/** Jute rug in front of the desk (reference): warm, woven, low contrast. */
 function Rug() {
+  const jute = rugTexture('jute', [150, 116, 78], [118, 88, 58]);
   return (
-    <mesh position={[DESK.x + 0.1, 0.004, DESK.z + 1.0]} rotation-x={-Math.PI / 2} receiveShadow>
-      <planeGeometry args={[2.7, 2.0]} />
-      <meshStandardMaterial color="#2e2a27" roughness={1} />
+    <mesh position={[DESK.x, 0.004, DESK.z + 1.25]} rotation-x={-Math.PI / 2} receiveShadow>
+      <planeGeometry args={[2.5, 1.7]} />
+      <meshStandardMaterial map={jute} roughness={1} />
     </mesh>
+  );
+}
+
+/** Small potted plant on the desk, left of the display. */
+function DeskPlant() {
+  return (
+    <group position={[-0.06, TOP, -4.0]}>
+      <mesh position-y={0.055} castShadow>
+        <cylinderGeometry args={[0.055, 0.045, 0.11, 24]} />
+        <meshStandardMaterial color="#d8d3c8" roughness={0.6} />
+      </mesh>
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <mesh key={i} position={[Math.cos(i * 0.9) * 0.05, 0.17 + (i % 3) * 0.03, Math.sin(i * 0.9) * 0.05]} rotation={[0.6 * Math.sin(i), i * 0.9, 0.5]} scale={[0.07, 0.008, 0.035]} castShadow>
+          <sphereGeometry args={[1, 10, 6]} />
+          <meshStandardMaterial color="#3f6a2e" roughness={0.55} />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
 function Chair() {
   const legs = [0, 1, 2, 3, 4].map((i) => (i / 5) * Math.PI * 2);
   return (
-    // Pushed back and turned aside, as if just stood up from — keeps the MacBook visible.
-    <group position={[1.05, 0, -2.85]} rotation-y={1.05}>
+    // Centred at the desk, facing the window (reference): we see its back from the overview.
+    <group position={[DESK.x + 0.05, 0, DESK.z + 0.78]} rotation-y={0.06}>
       <RoundedBox args={[0.5, 0.07, 0.48]} radius={0.02} position-y={0.48} castShadow>
-        <meshStandardMaterial color="#1b1b1d" roughness={0.9} />
+        <meshStandardMaterial color="#6e4024" roughness={0.55} />
       </RoundedBox>
-      <group position={[0, 0.82, 0.23]} rotation-x={-0.12}>
-        <RoundedBox args={[0.47, 0.55, 0.05]} radius={0.02} castShadow>
-          <meshStandardMaterial color="#1b1b1d" roughness={0.9} />
+      {/* Mid-back leather chair (reference): the back stays below the screens from the overview. */}
+      <group position={[0, 0.74, 0.23]} rotation-x={-0.12}>
+        <RoundedBox args={[0.47, 0.42, 0.06]} radius={0.025} castShadow>
+          <meshStandardMaterial color="#6e4024" roughness={0.55} />
         </RoundedBox>
       </group>
       <Rod from={[0, 0.1, 0]} to={[0, 0.45, 0]} radius={0.022} color="#2a2b2d" metalness={0.8} roughness={0.3} />
@@ -297,11 +328,13 @@ function Chair() {
 export function DeskArea() {
   const shot = useExperience((s) => s.shot);
   return (
-    <group>
+    // The desk set is authored in its own frame and placed under the window as one unit.
+    <group position={DESK_OFFSET}>
       <Interactive id="desk" enabled={shot === 'overview'} onSelect={() => useExperience.getState().goTo('desk')}>
         <Desk />
         <Chair />
         <Rug />
+        <DeskPlant />
       </Interactive>
       <DeskLamp />
       <DeskProps />

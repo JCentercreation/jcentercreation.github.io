@@ -27,25 +27,26 @@ function Leaf({ x, mirrored }: { x: number; mirrored: boolean }) {
   const w = GARAGE_DOOR.width / 2 - 0.01;
   const h = GARAGE_DOOR.height - 0.01;
   const hingeSide = mirrored ? w / 2 - 0.02 : -w / 2 + 0.02;
-  const lites = 3;
-  const liteW = (w - 0.2) / lites;
   return (
     <group position={[x, h / 2, 0]}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[w, h, 0.05]} />
         <meshStandardMaterial {...boards} normalScale={[0.8, 0.8]} />
       </mesh>
-      {/* Glass lites in the upper band. */}
-      {Array.from({ length: lites }, (_, i) => (
-        <group key={i} position={[-w / 2 + 0.1 + liteW * (i + 0.5), h / 2 - 0.32, 0.026]}>
-          <mesh>
-            <boxGeometry args={[liteW - 0.05, 0.36, 0.006]} />
-            <meshStandardMaterial color="#060a10" emissive="#16243a" emissiveIntensity={0.7} roughness={0.05} metalness={0.2} />
-          </mesh>
-        </group>
-      ))}
+      {/* Two rows of glass lites in the upper band, with black glazing bars. */}
+      {Array.from({ length: 2 }, (_, r) =>
+        Array.from({ length: 4 }, (_, i) => {
+          const lw = (w - 0.2) / 4;
+          return (
+            <mesh key={`${r}-${i}`} position={[-w / 2 + 0.1 + lw * (i + 0.5), h / 2 - 0.2 - r * 0.2, 0.026]}>
+              <boxGeometry args={[lw - 0.035, 0.165, 0.006]} />
+              <meshStandardMaterial color="#05080d" emissive="#1b2d48" emissiveIntensity={0.55} roughness={0.05} metalness={0.2} />
+            </mesh>
+          );
+        }),
+      )}
       {/* Oak rail under the glass band. */}
-      <mesh position={[0, h / 2 - 0.56, 0.028]}>
+      <mesh position={[0, h / 2 - 0.55, 0.028]}>
         <boxGeometry args={[w - 0.04, 0.07, 0.012]} />
         <meshStandardMaterial color="#6b4c30" roughness={0.6} />
       </mesh>

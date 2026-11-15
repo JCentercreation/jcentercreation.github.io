@@ -4,8 +4,7 @@ import { Effects } from './Effects';
 import { Lighting } from './Lighting';
 import { Bookshelf } from './bookshelf/Bookshelf';
 import { RunningShoes } from './decor/RunningShoes';
-import { Poster } from './decor/Poster';
-import { ReadingCorner } from './decor/ReadingCorner';
+import { FramedPhoto } from './decor/FramedPhoto';
 import { DeskArea } from './desk/DeskArea';
 import { Outside } from './environment/Outside';
 import { Room } from './environment/Room';
@@ -15,7 +14,7 @@ import { Tesla } from './tesla/Tesla';
 import { Workshop } from './tesla/Workshop';
 
 /**
- * The Engineer's Garage — Phase 2 visual prototype.
+ * The Engineer's Garage — visual prototype (reference-render pass: compact timber garage, dark cinematic lighting).
  * Each area is an independent module positioned from layout.ts, so any provisional model
  * can be swapped for a final GLB without touching the others.
  */
@@ -24,6 +23,7 @@ export function GarageScene() {
   return (
     <>
       <color attach="background" args={['#020305']} />
+      <fog attach="fog" args={['#050608', 7, 22]} />
       <StormController />
       <Lighting />
 
@@ -35,8 +35,7 @@ export function GarageScene() {
       <Bookshelf />
       <Tesla />
       <Workshop />
-      <Poster />
-      <ReadingCorner />
+      <FramedPhoto />
       <RunningShoes />
 
       <CameraController />

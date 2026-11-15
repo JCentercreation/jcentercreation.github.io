@@ -1,5 +1,5 @@
 import { books, type BookRecord } from '@/content';
-import { BOOKSHELF } from '../layout';
+import { BOOKSHELF, ROOM } from '../layout';
 import { mulberry32 } from '../materials/noise';
 
 /**
@@ -70,7 +70,7 @@ export function arrangeShelf(): { books: PlacedBook[]; bookends: Bookend[] } {
 
   for (let s = 0; s < heights.length; s++) {
     const shelfTop = heights[s]! + 0.03;
-    const clearance = (heights[s + 1] ?? 3.55) - shelfTop - 0.02;
+    const clearance = (heights[s + 1] ?? ROOM.height - 0.1) - shelfTop - 0.02;
     for (let b = 0; b < BOOKSHELF.bays; b++) {
       const z0 = BOOKSHELF.zStart + b * BOOKSHELF.bayWidth + 0.03;
       const z1 = z0 + BOOKSHELF.bayWidth - 0.06;

@@ -285,9 +285,10 @@ export function pegboard(): Texture {
   if (hit) return hit.map;
   const c = canvas(256);
   const g = c.getContext('2d')!;
-  g.fillStyle = '#6e5a43';
+  // Black steel tool wall (reference), not hardboard.
+  g.fillStyle = '#26272a';
   g.fillRect(0, 0, 256, 256);
-  g.fillStyle = '#1b1510';
+  g.fillStyle = '#0b0b0c';
   for (let y = 16; y < 256; y += 32) for (let x = 16; x < 256; x += 32) g.beginPath(), g.arc(x, y, 4, 0, Math.PI * 2), g.fill();
   const t = finish(c, true);
   cache.set(key, { map: t, roughnessMap: t, normalMap: t });

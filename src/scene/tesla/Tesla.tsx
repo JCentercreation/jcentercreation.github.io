@@ -209,7 +209,7 @@ export function Tesla() {
             {/* 2024+ ("Highland") style: very slim headlamps set low in the nose. */}
             <mesh position={[2.25, 0.6, s * 0.6]} rotation={[0, s * 0.45, -0.12]}>
               <boxGeometry args={[0.02, 0.018, 0.34]} />
-              <meshStandardMaterial color="#0a0a0a" emissive="#cfe0ff" emissiveIntensity={0.25} metalness={0.4} roughness={0.1} />
+              <meshStandardMaterial color="#0a0a0a" emissive="#e3ecff" emissiveIntensity={3.2} toneMapped={false} metalness={0.4} roughness={0.1} />
             </mesh>
             <mesh position={[-2.31, 0.88, s * 0.5]} rotation={[0, -s * 0.5, 0]}>
               <boxGeometry args={[0.03, 0.03, 0.4]} />

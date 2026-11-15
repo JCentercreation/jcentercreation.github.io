@@ -41,6 +41,8 @@ export function StudioDisplay() {
           <planeGeometry args={[0.5967, 0.3357]} />
           <meshBasicMaterial map={screen} toneMapped={false} color={[0.82, 0.82, 0.82]} />
         </mesh>
+        {/* Faint cool spill from the panel onto the desk. */}
+        <rectAreaLight position={[0, H / 2, 0.02]} rotation={[0, Math.PI, 0]} width={0.58} height={0.32} intensity={0.9} color="#c9d6ff" />
         {/* Camera. */}
         <mesh position={[0, H - 0.0065, 0.0012]}>
           <circleGeometry args={[0.0018, 12]} />

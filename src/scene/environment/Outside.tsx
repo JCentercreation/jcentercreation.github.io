@@ -154,7 +154,7 @@ function Rain({ count }: { count: number }) {
       fragmentShader: /* glsl */ `
         uniform float uFlash;
         varying float vEnd;
-        void main() { gl_FragColor = vec4(vec3(0.55, 0.62, 0.75) * (0.35 + uFlash * 1.5), 0.22 * (1.0 - vEnd * 0.6)); }`,
+        void main() { gl_FragColor = vec4(vec3(0.55, 0.62, 0.75) * (0.35 + uFlash * 1.5), 0.11 * (1.0 - vEnd * 0.6)); }`,
       transparent: true,
       depthWrite: false,
     });

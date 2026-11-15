@@ -50,7 +50,7 @@ export function WindowGlass() {
             vec2 uv = vec2(vUv.x * uAspect, vUv.y);
             float d = beads(uv, 30.0) * 0.7 + beads(uv + 0.37, 58.0) * 0.45 + sliders(vec2(uv.x, -uv.y), 18.0 * uAspect);
             float streaks = smoothstep(0.62, 0.75, vnoise(vec2(uv.x * 140.0, uv.y * 6.0 + uTime * 0.6))) * 0.12;
-            float a = 0.015 + d * (0.22 + uFlash * 0.5) + streaks * 0.25;
+            float a = 0.008 + d * (0.14 + uFlash * 0.5) + streaks * 0.12;
             vec3 col = mix(vec3(0.45, 0.55, 0.7), vec3(1.0), uFlash) * (0.55 + d * 0.6);
             gl_FragColor = vec4(col, a);
           }`,

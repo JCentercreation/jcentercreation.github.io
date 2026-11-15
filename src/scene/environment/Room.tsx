@@ -83,59 +83,78 @@ function WindowFrame() {
   );
 }
 
-/** Glulam beams spanning the room on black steel hangers, joists above, oak plank ceiling. */
+/**
+ * Heavy timber beams running front-to-back under the plank ceiling, each landing on a black
+ * steel hanger at the window wall (as in the reference), plus timber corner posts.
+ */
 function TimberStructure() {
   const lam = glulam();
-  const joistsX = useMemo(() => {
-    const xs: number[] = [];
-    for (let x = ROOM.minX + 0.35; x < ROOM.maxX - 0.2; x += TIMBER.joistSpacing) xs.push(x);
-    return xs;
-  }, []);
-  const beamY = H - TIMBER.joistH - TIMBER.beamH / 2;
+  const beamY = H - TIMBER.beamH / 2;
   return (
     <group>
-      {TIMBER.beamZ.map((z) => (
-        <group key={z}>
-          <mesh position={[(ROOM.minX + ROOM.maxX) / 2, beamY, z]} castShadow receiveShadow>
-            <boxGeometry args={[W, TIMBER.beamH, TIMBER.beamW]} />
-            <meshStandardMaterial {...lam} normalScale={[0.4, 0.4]} />
+      {TIMBER.beamX.map((x) => (
+        <group key={x}>
+          <mesh position={[x, beamY, (ROOM.minZ + ROOM.maxZ) / 2]} castShadow receiveShadow>
+            <boxGeometry args={[TIMBER.beamW, TIMBER.beamH, D]} />
+            <meshStandardMaterial {...lam} normalScale={[0.5, 0.5]} />
           </mesh>
-          {/* Black steel hangers where the beam meets each side wall. */}
-          {[ROOM.minX + 0.012, ROOM.maxX - 0.012].map((x) => (
-            <group key={x}>
-              {[-1, 1].map((side) => (
-                <mesh key={side} position={[x + (x < 0 ? 0.11 : -0.11), beamY, z + side * (TIMBER.beamW / 2 + 0.004)]} castShadow>
-                  <boxGeometry args={[0.22, TIMBER.beamH + 0.06, 0.008]} />
-                  <meshStandardMaterial {...STEEL} />
-                </mesh>
-              ))}
-              {[-0.1, 0.1].map((dy) => (
-                <mesh key={dy} position={[x + (x < 0 ? 0.12 : -0.12), beamY + dy, z + TIMBER.beamW / 2 + 0.01]} rotation-x={Math.PI / 2}>
-                  <cylinderGeometry args={[0.012, 0.012, 0.012, 12]} />
-                  <meshStandardMaterial {...STEEL} />
-                </mesh>
-              ))}
-            </group>
+          {/* Black steel hanger: side plates + bottom strap where the beam meets the wall. */}
+          {[-1, 1].map((side) => (
+            <mesh key={side} position={[x + side * (TIMBER.beamW / 2 + 0.004), beamY - 0.02, ROOM.minZ + 0.13]} castShadow>
+              <boxGeometry args={[0.008, TIMBER.beamH + 0.08, 0.26]} />
+              <meshStandardMaterial {...STEEL} />
+            </mesh>
+          ))}
+          <mesh position={[x, beamY - TIMBER.beamH / 2 - 0.02, ROOM.minZ + 0.13]} castShadow>
+            <boxGeometry args={[TIMBER.beamW + 0.02, 0.008, 0.26]} />
+            <meshStandardMaterial {...STEEL} />
+          </mesh>
+          <mesh position={[x, beamY - TIMBER.beamH / 2 - 0.12, ROOM.minZ + 0.012]}>
+            <boxGeometry args={[TIMBER.beamW + 0.08, 0.2, 0.012]} />
+            <meshStandardMaterial {...STEEL} />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <mesh key={`b${side}`} position={[x + side * (TIMBER.beamW / 2 + 0.01), beamY, ROOM.minZ + 0.2]} rotation-z={Math.PI / 2}>
+              <cylinderGeometry args={[0.014, 0.014, 0.01, 12]} />
+              <meshStandardMaterial {...STEEL} />
+            </mesh>
           ))}
         </group>
       ))}
-      {/* Joists running front-to-back on top of the beams. */}
-      {joistsX.map((x) => (
-        <mesh key={x} position={[x, H - TIMBER.joistH / 2, (ROOM.minZ + ROOM.maxZ) / 2]} castShadow>
-          <boxGeometry args={[TIMBER.joistW, TIMBER.joistH, D]} />
-          <meshStandardMaterial {...lam} normalScale={[0.3, 0.3]} />
-        </mesh>
-      ))}
-      {/* Timber posts in the corners. */}
+      {/* Timber corner posts. */}
       {[
         [ROOM.minX + 0.09, ROOM.minZ + 0.09],
         [ROOM.maxX - 0.09, ROOM.minZ + 0.09],
-        [ROOM.minX + 0.09, ROOM.maxZ - 0.09],
-        [ROOM.maxX - 0.09, ROOM.maxZ - 0.09],
       ].map(([x, z]) => (
         <mesh key={`${x}${z}`} position={[x!, H / 2, z!]} castShadow>
           <boxGeometry args={[0.18, H, 0.18]} />
           <meshStandardMaterial {...lam} normalScale={[0.3, 0.3]} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** Timber casing and header around the window: the window and desk read as one framed focal point. */
+function WindowCasing() {
+  const lam = glulam();
+  const x0 = WINDOW.centerX - WINDOW.width / 2;
+  const x1 = WINDOW.centerX + WINDOW.width / 2;
+  const y0 = WINDOW.sill;
+  const y1 = WINDOW.sill + WINDOW.height;
+  const z = ROOM.minZ + 0.03;
+  const t = 0.11;
+  return (
+    <group>
+      {/* Header beam. */}
+      <mesh position={[WINDOW.centerX, y1 + 0.09, z + 0.01]} castShadow>
+        <boxGeometry args={[WINDOW.width + 0.5, 0.18, 0.08]} />
+        <meshStandardMaterial {...lam} normalScale={[0.4, 0.4]} />
+      </mesh>
+      {[x0 - t / 2, x1 + t / 2].map((x) => (
+        <mesh key={x} position={[x, (y0 + y1) / 2, z]} castShadow>
+          <boxGeometry args={[t, WINDOW.height + 0.02, 0.05]} />
+          <meshStandardMaterial {...lam} normalScale={[0.4, 0.4]} />
         </mesh>
       ))}
     </group>
@@ -200,6 +219,7 @@ export function Room() {
 
       <Plinth />
       <TimberStructure />
+      <WindowCasing />
       <WindowFrame />
       <GarageDoors />
     </group>

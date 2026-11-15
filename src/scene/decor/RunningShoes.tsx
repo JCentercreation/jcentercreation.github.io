@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { ExtrudeGeometry, Shape } from 'three';
-import { CORNER } from './ReadingCorner';
 
 /**
  * PROVISIONAL orange max-cushion road-running shoes (Vomero Plus–inspired: thick foam midsole
@@ -112,10 +111,10 @@ function Shoe({ position, rotation }: { position: [number, number, number]; rota
   );
 }
 
-/** Kicked off next to the reading chair, catching the floor lamp's light. */
+/** Kicked off by the wall below the photograph, out of the way of the bookshelf. */
 export function RunningShoes() {
   return (
-    <group position={[CORNER.x - 0.85, 0, CORNER.z + 0.85]}>
+    <group position={[2.35, 0, -2.75]}>
       <Shoe position={[0, 0, 0]} rotation={0.55} />
       <Shoe position={[0.06, 0, 0.16]} rotation={0.2} />
     </group>

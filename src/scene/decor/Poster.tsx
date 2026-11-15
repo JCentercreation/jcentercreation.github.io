@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { Object3D } from 'three';
 import { CanvasTexture, SRGBColorSpace } from 'three';
-import { POSTER } from '../layout';
+import { Vector3 } from 'three';
+import { ROOM } from '../layout';
+
+/** Not mounted in the reference composition (the framed photograph took its place); concept kept for later. */
+const POSTER = { position: new Vector3(2.75, 1.72, ROOM.minZ + 0.012), width: 0.61, height: 0.91 };
 
 /**
  * PLACEHOLDER for the Apple "Think different." Einstein poster.

@@ -6,7 +6,7 @@ export function Effects() {
   return (
     <EffectComposer multisampling={4}>
       <Bloom mipmapBlur intensity={0.65} luminanceThreshold={1} luminanceSmoothing={0.25} />
-      <Vignette offset={0.28} darkness={0.62} />
+      <Vignette offset={0.22} darkness={0.75} />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
     </EffectComposer>
   );
