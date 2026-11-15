@@ -100,6 +100,7 @@ const en: LocaleContent = {
       timeline: 'Career timeline',
       role: 'Role',
       rolePending: 'Role details coming soon.',
+      period: 'Period',
       description: 'Description',
       showDetails: 'Show details',
       hideDetails: 'Hide details',
@@ -154,10 +155,26 @@ const en: LocaleContent = {
       startups: 'Startups & Independent Projects',
     },
     companies: {
-      sabadell: { description: null },
-      misfits: { description: null },
-      inditex: { description: null },
-      santander: { description: null },
+      // Owner-approved roles and descriptions (source of truth — do not edit wording).
+      sabadell: {
+        role: 'iOS Software Engineer',
+        description:
+          "Developed new features for the bank's iOS application. Also participated in technical interviews for engineering candidates and mentored new team members joining the team.",
+      },
+      misfits: {
+        role: 'Founder & iOS Engineer',
+        description:
+          'Founded and lead Misfits Studio, managing and developing projects from the ground up for startups and small businesses. I take on both Product Manager and Software Engineer responsibilities, overseeing the product development process from initial concept to implementation.',
+      },
+      inditex: {
+        role: 'iOS Engineer',
+        description:
+          "Developed new features for the company's iOS applications while acting as the iOS technical reference, providing technical guidance and supporting engineering decisions on the iOS side.",
+      },
+      santander: {
+        role: 'iOS Software Engineer',
+        description: "Developed new features for the bank's iOS application and mentored new team members joining the team.",
+      },
     },
     startups: {
       heading: 'Startups & Independent Projects',

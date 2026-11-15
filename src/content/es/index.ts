@@ -100,6 +100,7 @@ const es: LocaleContent = {
       timeline: 'Trayectoria',
       role: 'Puesto',
       rolePending: 'Detalles del puesto próximamente.',
+      period: 'Periodo',
       description: 'Descripción',
       showDetails: 'Ver detalles',
       hideDetails: 'Ocultar detalles',
@@ -154,10 +155,28 @@ const es: LocaleContent = {
       startups: 'Startups y proyectos independientes',
     },
     companies: {
-      sabadell: { description: null },
-      misfits: { description: null },
-      inditex: { description: null },
-      santander: { description: null },
+      // Roles y descripciones aprobados por el propietario (fuente de verdad — no editar).
+      // Los títulos de puesto se mantienen en inglés, tal como los facilitó el propietario.
+      sabadell: {
+        role: 'iOS Software Engineer',
+        description:
+          'Desarrollo de nuevas funcionalidades para la aplicación iOS del banco. También participé en entrevistas técnicas a candidatos y en la mentoría y acompañamiento de nuevas incorporaciones al equipo.',
+      },
+      misfits: {
+        role: 'Founder & iOS Engineer',
+        description:
+          'Fundador de Misfits Studio, donde gestiono y desarrollo proyectos desde cero para startups y pequeños negocios. Asumo tanto las responsabilidades de Product Manager como de Software Engineer, participando en todo el proceso de desarrollo del producto, desde la definición inicial hasta su implementación.',
+      },
+      inditex: {
+        role: 'iOS Engineer',
+        description:
+          'Desarrollo de nuevas funcionalidades para las aplicaciones iOS de la compañía, desempeñando además el papel de referente técnico del área iOS, proporcionando orientación técnica y participando en las decisiones de ingeniería.',
+      },
+      santander: {
+        role: 'iOS Software Engineer',
+        description:
+          'Desarrollo de nuevas funcionalidades para la aplicación iOS del banco y mentoría y acompañamiento de nuevas incorporaciones al equipo.',
+      },
     },
     startups: {
       heading: 'Startups y proyectos independientes',

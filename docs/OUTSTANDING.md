@@ -6,11 +6,13 @@ Kept up to date every phase (spec §16.11). Nothing below is invented in the app
 ## Content (owner)
 
 MacBook portfolio gaps (shown as "coming soon", never invented):
-- [ ] Job titles for Banc Sabadell, Misfits Studio, Inditex, Banco Santander.
-- [ ] Descriptions for those four roles.
-- [ ] Review the "About me" text (built from the previous site's wording) in EN and ES.
-- [ ] Optional: richer project details (platforms, tech used, App Store links for necktimer, screenshots).
-- [ ] Swift courses: confirm names and a one-line description of each course.
+- [x] Job titles and descriptions for Banc Sabadell, Misfits Studio, Inditex, Banco Santander (owner-approved, EN/ES; pinned by tests).
+- [x] "About me" approved as is (EN/ES; pinned by tests).
+- [ ] Spanish job titles: kept in English as supplied ("iOS Software Engineer", etc.) — confirm, or supply Spanish titles.
+- [ ] PROOF: "The beta-tester community is growing" — supported by the previous site's wording; confirm it is still current or remove.
+- [ ] Swift courses: names "Swift Concurrency Explained" / "Swift Security Course" are PROVISIONAL (previous site linked both as "this"; `provisionalNames` in projects.ts). Confirm exact names.
+- [ ] Swift courses description "Learning resources for the developer community" paraphrases "contribute to the developers community" — confirm or supply wording.
+- [ ] Optional: richer project details (platforms, tech used, App Store links, screenshots).
 
 - [x] Display name: **Javier Carrillo** (provisional, approved; change in `src/content/shared/owner.ts`).
 - [ ] Photo (optional).

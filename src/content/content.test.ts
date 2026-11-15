@@ -42,3 +42,48 @@ describe('projects', () => {
       for (const p of projects) expect(content[locale].macbook.projects[p.id], `${locale}:${p.id}`).toBeDefined();
   });
 });
+
+describe('approved MacBook portfolio content (source of truth)', () => {
+  const roles: Record<string, string> = {
+    sabadell: 'iOS Software Engineer',
+    misfits: 'Founder & iOS Engineer',
+    inditex: 'iOS Engineer',
+    santander: 'iOS Software Engineer',
+  };
+
+  it('every Apple-platforms company has the approved role and a description in both locales', () => {
+    for (const locale of LOCALES)
+      for (const co of appleCompanies) {
+        const text = content[locale].apple.companies[co.id];
+        expect(text?.role, `${locale}:${co.id}`).toBe(roles[co.id]);
+        expect(text?.description, `${locale}:${co.id}`).toBeTruthy();
+      }
+  });
+
+  it('periods match the approved dates', () => {
+    const periods = Object.fromEntries(appleCompanies.map((c) => [c.id, `${c.period.start}–${c.period.end ?? 'present'}`]));
+    expect(periods).toEqual({ sabadell: '2020–2021', misfits: '2020–present', inditex: '2023–2024', santander: '2024–2025' });
+  });
+
+  it('descriptions are exactly the approved wording', () => {
+    expect(content.en.apple.companies.santander?.description).toBe(
+      "Developed new features for the bank's iOS application and mentored new team members joining the team.",
+    );
+    expect(content.es.apple.companies.santander?.description).toBe(
+      'Desarrollo de nuevas funcionalidades para la aplicación iOS del banco y mentoría y acompañamiento de nuevas incorporaciones al equipo.',
+    );
+    expect(content.en.apple.companies.inditex?.description).toContain('acting as the iOS technical reference');
+    expect(content.es.apple.companies.misfits?.description).toMatch(/^Fundador de Misfits Studio/);
+  });
+
+  it('About me keeps its approved wording', () => {
+    expect(content.en.macbook.about.paragraphs[0]).toBe(
+      'I started my career as a software engineer developing powertrain embedded software at companies like Nissan and SEAT.',
+    );
+    expect(content.es.macbook.about.paragraphs[0]).toBe(
+      'Empecé mi carrera como ingeniero de software desarrollando software embebido de tren motriz en empresas como Nissan y SEAT.',
+    );
+    expect(content.en.macbook.about.paragraphs).toHaveLength(4);
+    expect(content.es.macbook.about.paragraphs).toHaveLength(4);
+  });
+});

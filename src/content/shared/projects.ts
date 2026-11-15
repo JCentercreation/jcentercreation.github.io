@@ -15,6 +15,9 @@ export const projects: ProjectRecord[] = [
   {
     id: 'swift-courses',
     name: 'Swift courses',
+    // PROVISIONAL course titles: inferred from the URLs; the previous site linked them only as "this".
+    // Awaiting confirmation of the exact names from the owner (docs/OUTSTANDING.md).
+    provisionalNames: true,
     url: 'https://www.swiftconcurrencyexplained.com',
     links: [
       { name: 'Swift Concurrency Explained', url: 'https://www.swiftconcurrencyexplained.com' },

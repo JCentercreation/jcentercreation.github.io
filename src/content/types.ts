@@ -62,6 +62,8 @@ export interface ProjectRecord {
   url: string;
   /** Extra links (e.g. the two Swift courses). */
   links?: { name: string; url: string }[];
+  /** Link/course names not yet verified by the owner (kept, but tracked as provisional). */
+  provisionalNames?: boolean;
 }
 
 // ---------- localized ----------
@@ -151,6 +153,7 @@ export interface MacBookContent {
     timeline: string;
     role: string;
     rolePending: string;
+    period: string;
     description: string;
     showDetails: string;
     hideDetails: string;
@@ -171,6 +174,8 @@ export interface WindowsChrome {
 }
 
 export interface CompanyText {
+  /** Job title as supplied by the owner (source of truth). `null`/absent = not supplied yet. */
+  role?: string | null;
   /** `null` = description pending from the owner. */
   description: string | null;
 }

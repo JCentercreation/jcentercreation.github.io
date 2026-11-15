@@ -107,14 +107,17 @@ export function ExperienceNote() {
       <ul className={styles.companies}>
         {appleCompanies.map((co) => {
           const expanded = open === co.id;
-          const desc = c.apple.companies[co.id]?.description;
+          const text = c.apple.companies[co.id];
+          const desc = text?.description;
+          const role = text?.role;
+          const period = formatPeriod(co.period, locale, c.ui.present);
           return (
             <li key={co.id}>
               <button type="button" className={styles.company} aria-expanded={expanded} aria-controls={`co-${co.id}`} onClick={() => toggle(co.id)}>
                 <Logo company={co} />
                 <span className={styles.companyText}>
                   <strong>{co.name}</strong>
-                  <span>{formatPeriod(co.period, locale, c.ui.present)}</span>
+                  <span>{role ? `${role} · ${period}` : period}</span>
                 </span>
                 <span className={styles.chevron} aria-hidden="true">
                   {expanded ? '−' : '+'}
@@ -124,7 +127,9 @@ export function ExperienceNote() {
               {expanded && (
                 <dl id={`co-${co.id}`} className={styles.companyDetail}>
                   <dt>{e.role}</dt>
-                  <dd className={styles.pending}>{e.rolePending}</dd>
+                  <dd className={role ? undefined : styles.pending}>{role ?? e.rolePending}</dd>
+                  <dt>{e.period}</dt>
+                  <dd>{period}</dd>
                   <dt>{e.description}</dt>
                   <dd className={desc ? undefined : styles.pending}>{desc ?? c.ui.pendingContent}</dd>
                 </dl>
