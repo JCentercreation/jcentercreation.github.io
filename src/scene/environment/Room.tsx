@@ -75,8 +75,9 @@ function WindowFrame() {
         </mesh>
       ))}
       {/* Oak sill. */}
-      <mesh position={[WINDOW.centerX, y0 - 0.02, ROOM.minZ + 0.04]} receiveShadow castShadow>
-        <boxGeometry args={[WINDOW.width + 0.14, 0.04, T + 0.1]} />
+      {/* Flush with the cladding (the Studio Display stands just in front of it). */}
+      <mesh position={[WINDOW.centerX, y0 - 0.02, ROOM.minZ - T / 2 + 0.015]} receiveShadow castShadow>
+        <boxGeometry args={[WINDOW.width + 0.14, 0.04, T + 0.03]} />
         <meshStandardMaterial color="#8a6a49" roughness={0.55} />
       </mesh>
     </group>

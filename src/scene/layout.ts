@@ -184,7 +184,8 @@ export const SHOTS: Record<ShotId, Shot> = {
     parallax: true,
   },
   tesla: {
-    position: new Vector3(0.1, 1.55, 1.9),
+    // Far enough back that the opening door stays in frame.
+    position: new Vector3(1.0, 1.75, 3.0),
     target: carCentre,
     fov: 46,
     parallax: true,
