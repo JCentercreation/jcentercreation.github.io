@@ -11,8 +11,9 @@ export function Effects() {
     <EffectComposer multisampling={4}>
       {/* Bloom only above HDR 1.0 (bulb, lightning, bright screens); restrained so the lamp keeps a small glow. */}
       {OPTIONAL_POST && <Bloom mipmapBlur intensity={0.5} luminanceThreshold={1} luminanceSmoothing={0.25} />}
-      {/* A very subtle lens falloff in the outer corners only. */}
-      {OPTIONAL_POST && <Vignette offset={0.3} darkness={0.55} />}
+      {/* The approved Phase D vignette, unchanged: softening it (tested: darkness 0.55, offset 0.3) brightened
+          the frame edges by ~12% and pulled attention from the desk — it carries the composition. */}
+      {OPTIONAL_POST && <Vignette offset={0.22} darkness={0.75} />}
       <ToneMapping mode={EFFECT_TONE_MAPPING[TONE_MAPPING]} />
     </EffectComposer>
   );
