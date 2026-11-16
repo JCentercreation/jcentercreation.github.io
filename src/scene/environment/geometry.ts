@@ -66,8 +66,8 @@ export function tiledBox(width: number, height: number, depth: number, tile: num
  * A box with small bevelled (eased) edges, same outer dimensions as the box it replaces.
  * Real joinery and steel sections are never knife-sharp: an eased edge catches a thin line of light
  * and reads as a solid object instead of a CG primitive. `bevel` is the size of the ease in metres;
- * `segments` (2 by default) rounds it slightly. Normals are smooth across the bevel and crisp on
- * the flat faces (creased at ~35°). World-scale UVs as tiledBox. About 50–100 triangles.
+ * `segments` (2 by default) makes it a soft two-facet chamfer. Flat faces keep their exact normals
+ * (creased at ~16°), so lighting on the faces is identical to the plain box. World-scale UVs as tiledBox. About 50–100 triangles.
  */
 export function bevelledBox(
   width: number,
@@ -93,7 +93,10 @@ export function bevelledBox(
   const extruded = new ExtrudeGeometry(s, { depth: core, bevelEnabled: true, bevelThickness: b, bevelSize: b, bevelSegments: segments, curveSegments: 1 });
   extruded.translate(0, 0, -core / 2);
   extruded.rotateX(-Math.PI / 2);
-  const g = toCreasedNormals(extruded, Math.PI * 0.2);
+  // Crease below the bevel's facet angle (~22° with 2 segments): flat faces keep their true normal.
+  // (Smoothing a flat face into its bevel tilts the whole face — every vertex of a box face is on its
+  // rim — and visibly changes how long, thin pieces like the window casing catch the light.)
+  const g = toCreasedNormals(extruded, Math.PI * 0.09);
   if (g !== extruded) extruded.dispose();
   applyWorldUVs(g, [width, height, depth], tile, grain, offsetFaces);
   g.computeBoundingBox();

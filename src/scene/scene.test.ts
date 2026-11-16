@@ -139,6 +139,20 @@ describe('bevelled boxes', () => {
     expect(maxV).toBeLessThanOrEqual(1 + 1e-6);
   });
 
+  it('keeps flat faces lit exactly like the plain box (true face normals)', () => {
+    const g = bevelledBox(3.4, 0.18, 0.08, 0.004, 1); // window header
+    const pos = g.attributes.position!;
+    const nrm = g.attributes.normal!;
+    // Every triangle lying in the front face plane (z = +0.04) must have the exact +z normal.
+    let checked = 0;
+    for (let t = 0; t < pos.count; t += 3) {
+      if (![0, 1, 2].every((k) => Math.abs(pos.getZ(t + k) - 0.04) < 1e-6)) continue;
+      for (let k = 0; k < 3; k++) expect(nrm.getZ(t + k)).toBeCloseTo(1, 6);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+
   it('stays cheap (modest triangle count)', () => {
     const g = bevelledBox(2.6, 0.06, 0.78, 0.004, 1);
     expect(g.attributes.position!.count / 3).toBeLessThan(120);
