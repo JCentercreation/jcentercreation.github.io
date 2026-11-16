@@ -11,6 +11,7 @@ const en: LocaleContent = {
       preparing: 'Preparing your space…',
       ready: 'Ready',
       stepOf: '{n} of {total}',
+      slow: 'This is taking longer than usual on this device. You can keep waiting, or open the simple version now.',
       steps: {
         engine: 'Starting the 3D engine',
         room: 'Building the garage',

@@ -145,25 +145,33 @@ export function Hud() {
       </div>
 
       <div className={styles.bottomRight}>
-        <button
-          ref={skipRef}
-          type="button"
-          className={styles.back}
-          hidden={!showSkip}
-          onFocus={() => (skipHadFocus.current = true)}
-          // Only a deliberate move elsewhere clears it (hiding the button also blurs it, with no relatedTarget).
-          onBlur={(e) => {
-            if (e.relatedTarget) skipHadFocus.current = false;
-          }}
-          onClick={() => useExperience.getState().requestSkipIntro()}
-        >
-          {ui.skipIntro}
-        </button>
         {slow && (
-          <button type="button" className={styles.back} onClick={() => useExperience.getState().setForceFallback('chosen')}>
-            {ui.loadError.continue2d}
-          </button>
+          // Loading continues (the real progress stays on the MacBook); this only explains the option below.
+          <p className={styles.slowNote} role="status">
+            {ui.boot.slow}
+          </p>
         )}
+        <div className={styles.actions}>
+          <button
+            ref={skipRef}
+            type="button"
+            className={styles.back}
+            hidden={!showSkip}
+            onFocus={() => (skipHadFocus.current = true)}
+            // Only a deliberate move elsewhere clears it (hiding the button also blurs it, with no relatedTarget).
+            onBlur={(e) => {
+              if (e.relatedTarget) skipHadFocus.current = false;
+            }}
+            onClick={() => useExperience.getState().requestSkipIntro()}
+          >
+            {ui.skipIntro}
+          </button>
+          {slow && (
+            <button type="button" className={styles.back} onClick={() => useExperience.getState().setForceFallback('chosen')}>
+              {ui.loadError.continue2d}
+            </button>
+          )}
+        </div>
       </div>
 
       <p className={styles.hint} data-visible={hintVisible && shot === 'overview'} aria-live="polite">

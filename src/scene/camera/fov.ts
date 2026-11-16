@@ -23,3 +23,17 @@ export function fitDistanceFactor(fov: number, aspect: number) {
   const gotH = Math.atan(Math.tan(MathUtils.degToRad(vfov) / 2) * aspect);
   return Math.max(1, Math.tan(wantH) / Math.tan(gotH));
 }
+
+/** Phone landscape: little height, plenty of width (CSS px). */
+const SHORT_VIEWPORT = 500;
+
+/**
+ * Phone landscape only (wide and short viewport): the factor by which to move back from a close-up so an
+ * object extending `halfExtent` above/below the target fits the frame height with `margin` (fraction of the
+ * height) to spare. 1 elsewhere — desktop and portrait framings are unchanged.
+ */
+export function landscapeFitFactor(fov: number, distance: number, halfExtent: number, aspect: number, heightPx: number, margin = 0.06) {
+  if (aspect <= REF_ASPECT || heightPx > SHORT_VIEWPORT) return 1;
+  const halfView = distance * Math.tan(MathUtils.degToRad(fov) / 2);
+  return Math.max(1, halfExtent / ((1 - 2 * margin) * halfView));
+}

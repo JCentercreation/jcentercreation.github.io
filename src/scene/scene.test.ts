@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { books } from '@/content';
 import { arrangeShelf } from './bookshelf/arrangement';
-import { responsiveFov } from './camera/fov';
-import { BOOKSHELF, DESK, ROOM, SHOTS } from './layout';
+import { fitDistanceFactor, landscapeFitFactor, responsiveFov } from './camera/fov';
+import { BOOKSHELF, DESK, MACBOOK_LID_TOP_FROM_CENTRE, ROOM, SHOTS } from './layout';
 import { bevelledBox, tiledBox } from './environment/geometry';
 
 describe('bookshelf arrangement', () => {
@@ -156,5 +156,30 @@ describe('bevelled boxes', () => {
   it('stays cheap (modest triangle count)', () => {
     const g = bevelledBox(2.6, 0.06, 0.78, 0.004, 1);
     expect(g.attributes.position!.count / 3).toBeLessThan(120);
+  });
+});
+
+describe('MacBook close-up framing', () => {
+  const intro = SHOTS.macbookIntro;
+  const d = intro.position.distanceTo(intro.target);
+  const fit = (w: number, h: number) =>
+    Math.max(fitDistanceFactor(intro.fov, w / h), landscapeFitFactor(intro.fov, d, MACBOOK_LID_TOP_FROM_CENTRE, w / h, h));
+
+  it('keeps the approved desktop framing', () => {
+    expect(fit(1440, 810)).toBe(1);
+    expect(fit(1920, 1080)).toBe(1);
+  });
+
+  it('fits the whole lid with a margin in phone landscape', () => {
+    const k = fit(863, 360);
+    const halfView = k * d * Math.tan((intro.fov * Math.PI) / 360);
+    // Lid top edge sits inside the frame, with 4–8 % of the height to spare above it.
+    const margin = (1 - MACBOOK_LID_TOP_FROM_CENTRE / halfView) / 2;
+    expect(margin).toBeGreaterThan(0.04);
+    expect(margin).toBeLessThan(0.08);
+  });
+
+  it('leaves portrait phones on their own (width) fit', () => {
+    expect(landscapeFitFactor(intro.fov, d, MACBOOK_LID_TOP_FROM_CENTRE, 412 / 839, 839)).toBe(1);
   });
 });

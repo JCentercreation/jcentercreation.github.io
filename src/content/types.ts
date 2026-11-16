@@ -85,6 +85,8 @@ export interface UiStrings {
     ready: string;
     /** "{n} of {total}" */
     stepOf: string;
+    /** Shown beside the simple-version option when loading takes unusually long. */
+    slow: string;
     steps: { engine: string; room: string; workspace: string; library: string; car: string; storm: string; materials: string; reflections: string };
   };
   /** Shown if the 3D scene cannot start (WebGL or download failure). */

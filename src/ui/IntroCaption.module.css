@@ -18,7 +18,7 @@
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
-  animation: captionIn 900ms 500ms var(--ease-out) forwards;
+  animation: captionIn 700ms 150ms var(--ease-out) forwards;
 }
 
 .caption p {
@@ -35,16 +35,36 @@
 }
 
 .caption[data-visible='false'] {
+  pointer-events: none;
+}
+
+/* Pull-back: the note stays while the camera eases out of the close-up, then fades (~1.4 s into the move). */
+.caption[data-visible='false'][data-leaving='reveal'] {
+  animation: captionOut 700ms 1400ms var(--ease-out) both;
+}
+
+/* Skip: gone at once. */
+.caption[data-visible='false'][data-leaving='skip'] {
   animation: none;
   opacity: 0;
   transform: translateY(8px);
-  pointer-events: none;
 }
 
 @keyframes captionIn {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes captionOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 

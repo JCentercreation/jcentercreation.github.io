@@ -11,6 +11,7 @@ const es: LocaleContent = {
       preparing: 'Preparando tu espacio…',
       ready: 'Listo',
       stepOf: '{n} de {total}',
+      slow: 'Está tardando más de lo habitual en este dispositivo. Puedes seguir esperando o abrir ya la versión sencilla.',
       steps: {
         engine: 'Iniciando el motor 3D',
         room: 'Construyendo el garaje',

@@ -112,12 +112,17 @@ export interface Shot {
 
 const D = DESK_OFFSET;
 
+/** Distance along the lid from the hinge to the centre of the display (the close-up's target). */
+const SCREEN_CENTRE_ON_LID = 0.103;
+/** From the close-up target (display centre) up to the top edge of the lid, bezel included. */
+export const MACBOOK_LID_TOP_FROM_CENTRE = MACBOOK.depth * 0.985 - SCREEN_CENTRE_ON_LID;
+
 function macbookScreen() {
   const m = MACBOOK;
   const hinge = new Vector3(0, m.baseThickness, -m.depth / 2);
   const up = new Vector3(0, Math.cos(m.lidAngle), -Math.sin(m.lidAngle));
   const normal = new Vector3(0, Math.sin(m.lidAngle), Math.cos(m.lidAngle));
-  const centre = hinge.clone().addScaledVector(up, 0.103);
+  const centre = hinge.clone().addScaledVector(up, SCREEN_CENTRE_ON_LID);
   const rot = new Matrix4().makeRotationY(m.rotationY);
   return {
     centre: centre.applyMatrix4(rot).add(m.position).add(D),
