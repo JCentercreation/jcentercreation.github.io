@@ -6,7 +6,7 @@ import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
 import { GarageScene } from './GarageScene';
 import { EXPOSURE, RENDERER_TONE_MAPPING, TONE_MAPPING } from './renderConfig';
-import { captureRoomEnvironment } from './environment/roomEnvironment';
+import { captureRoomEnvironment, seedEnvironment } from './environment/roomEnvironment';
 
 interface Props {
   /** Real asset progress, or null when the loading manager has nothing in flight. */
@@ -38,6 +38,8 @@ function ReadySignal({ onReady, envResolution }: Pick<Props, 'onReady'> & { envR
     let cancelled = false;
     // Wait one frame so effects-composer passes and lazily created materials exist.
     const id = requestAnimationFrame(() => {
+      // Seed reflections first, so shaders compile once with the final environment configuration.
+      seedEnvironment(gl, scene, envResolution);
       gl.compileAsync(scene, camera)
         .catch(() => undefined) // a compile warm-up failure must never block the visitor
         .finally(() => {

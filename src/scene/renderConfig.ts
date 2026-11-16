@@ -40,5 +40,9 @@ export const EFFECT_TONE_MAPPING: Record<ToneMappingName, ToneMappingMode> = {
 /** Room-capture reflection strength (scene.environmentIntensity once the room has been captured). */
 export const ENV_INTENSITY = num('env') ?? 1.0;
 
-/** Strength of the window's light card during the room capture (1 = the window light's own radiance). */
-export const ENV_WINDOW_GLOW = num('envglow') ?? 1.0;
+/**
+ * Strength of an optional window light card during the room capture (1 = the window light's own
+ * radiance). Off by default: the window's rect-area light already provides both its diffuse light and
+ * its specular highlights, so putting it in the environment too would count the window twice.
+ */
+export const ENV_WINDOW_GLOW = num('envglow') ?? 0;

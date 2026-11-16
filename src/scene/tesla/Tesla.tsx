@@ -16,13 +16,16 @@ import { AXLE_X, BODY_HALF, TRACK_HALF, WHEEL_RADIUS, WHEEL_Y, buildCarGeometry 
 function usePaint() {
   return useMemo(
     () =>
-      new MeshPhysicalMaterial({
+      Object.assign(new MeshPhysicalMaterial({
         color: '#53575d',
         metalness: 0.6,
         roughness: 0.36,
         clearcoat: 1,
         clearcoatRoughness: 0.06,
       }),
+      // The garage reflections are a capture of the real (dark) room: the clear coat gets a stronger
+      // reflection so the window, lamp and timber trace the body lines (applied by roomEnvironment.ts).
+      { userData: { envMapIntensity: 2.2 } }),
     [],
   );
 }

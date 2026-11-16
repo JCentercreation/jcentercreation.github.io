@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Environment, Lightformer } from '@react-three/drei';
 import { type DirectionalLight, Object3D, type RectAreaLight } from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { useExperience } from '@/app/store';
@@ -94,12 +93,7 @@ export function Lighting() {
         color="#7f9ccc"
       />
 
-      {/* Reflections only: dim strips so paint, glass and concrete catch highlights. */}
-      <Environment resolution={256} frames={1} environmentIntensity={0.34}>
-        <Lightformer form="rect" intensity={2.2} color="#7f9cc9" position={[0, 2, -6]} scale={[6, 2, 1]} />
-        <Lightformer form="circle" intensity={2.4} color="#ffb067" position={[0.5, 1.6, -3]} scale={0.8} />
-        <Lightformer form="rect" intensity={0.5} color="#e9d8c2" position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[4, 2, 1]} />
-      </Environment>
+      {/* Reflections: environment/roomEnvironment.ts (seeded by light cards, then a one-off capture of the room). */}
     </>
   );
 }

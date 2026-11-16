@@ -18,11 +18,13 @@ import { makeNoise } from './noise';
 
 const cache = new Map<string, MeshStandardMaterial>();
 
-function shared(key: string, make: () => MeshStandardMaterial): MeshStandardMaterial {
+/** `userData.envMapIntensity` = this material's own reflection strength (see roomEnvironment.ts). */
+function shared(key: string, make: () => MeshStandardMaterial, userData?: { envMapIntensity?: number }): MeshStandardMaterial {
   let m = cache.get(key);
   if (!m) {
     m = make();
     m.name = key;
+    if (userData) Object.assign(m.userData, userData);
     cache.set(key, m);
   }
   return m;
@@ -100,7 +102,7 @@ export const mat = {
   // --------------------------------------------------------------- concrete
   /** Polished concrete floor, 3 m tiles. */
   concreteFloor: () =>
-    shared('concreteFloor', () => new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.35, 0.35), metalness: 0.05, envMapIntensity: 1.1 })),
+    shared('concreteFloor', () => new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.35, 0.35), metalness: 0.05 }), { envMapIntensity: 0.8 }),
   /** Board-formed concrete plinth, 2.4 m tiles. */
   concretePlinth: () => shared('concretePlinth', () => new MeshStandardMaterial({ ...concretePanels(), color: '#b9b6b0' })),
 };
