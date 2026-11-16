@@ -242,13 +242,13 @@ function timber(key: string, s: TimberStyle, normalStrength: number): TextureSet
         k *= 1 - kn * 0.35;
         knotH = kn * 0.2;
       }
-      const shade = (0.82 + 0.18 * edge) * (0.8 + 0.2 * jointEase) * (joint ? 0.55 : 1);
+      const shade = (0.82 + 0.18 * edge) * (0.9 + 0.1 * jointEase) * (joint ? 0.75 : 1);
       return {
         r: s.base[0] * k * shade * (1 + seg.warm),
         g: s.base[1] * k * shade,
         b: s.base[2] * k * shade * (1 - seg.warm),
         rough: s.rough + seg.rough + band * 0.05 + (1 - edge) * 0.08 + (fibre - 0.5) * 0.04,
-        height: 0.25 + 0.75 * edge * jointEase + band * 0.05 + fibre * 0.03 - knotH,
+        height: 0.25 + 0.75 * edge * (0.6 + 0.4 * jointEase) + band * 0.05 + fibre * 0.03 - knotH,
       };
     },
     normalStrength,
