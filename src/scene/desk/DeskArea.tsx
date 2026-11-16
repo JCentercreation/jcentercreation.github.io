@@ -4,7 +4,8 @@ import { type SpotLight, Object3D, CatmullRomCurve3, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import { DESK } from '../layout';
 import { flat, mat } from '../materials/library';
-import { tiledBox } from '../environment/geometry';
+import { bevelledBox } from '../environment/geometry';
+import { cushionGeometry, pipingGeometry } from './chairGeometry';
 
 /** The lamp shade is open, so its inside must render too (double-sided variant of the hardware finish). */
 let shade: ReturnType<typeof mat.blackHardware> | null = null;
@@ -27,15 +28,18 @@ import { IPad } from './IPad';
 
 const TOP = DESK.height;
 
+const PEDESTAL_H = TOP - 0.06;
+const PEDESTAL_D = DESK.depth - 0.08;
+let pedestalGeometry: ReturnType<typeof bevelledBox> | null = null;
+
 function Pedestal({ x }: { x: number }) {
-  const h = TOP - 0.06;
-  const d = DESK.depth - 0.08;
+  const h = PEDESTAL_H;
+  const d = PEDESTAL_D;
+  // Folded-steel cabinet: 3 mm eased edges (shared by both pedestals).
+  pedestalGeometry ??= bevelledBox(0.46, h, d, 0.003, 0.5);
   return (
     <group position={[x, 0, 0.02]}>
-      <mesh position-y={h / 2} castShadow receiveShadow>
-        <boxGeometry args={[0.46, h, d]} />
-        <primitive object={mat.steel()} attach="material" />
-      </mesh>
+      <mesh position-y={h / 2} geometry={pedestalGeometry} material={mat.steel()} castShadow receiveShadow />
       {[0.2, 0.42, 0.6].map((y) => (
         <group key={y}>
           <mesh position={[0, y, d / 2 + 0.001]}>
@@ -55,7 +59,8 @@ function Pedestal({ x }: { x: number }) {
 function Desk() {
   // One texture spans the whole top: three glued oak boards, no repetition. 6 cm thick slab; the
   // edges now show a thin slice at the same scale instead of the whole top squeezed into 6 cm.
-  const slab = useMemo(() => tiledBox(DESK.width, 0.06, DESK.depth, [DESK.width, DESK.depth], 'x', false), []);
+  // A 4 mm eased edge: the slab's perimeter catches a thin line of the lamp light.
+  const slab = useMemo(() => bevelledBox(DESK.width, 0.06, DESK.depth, 0.004, [DESK.width, DESK.depth], 'x', false), []);
   return (
     <group position={[DESK.x, 0, DESK.z]}>
       <mesh position-y={TOP - 0.03} geometry={slab} material={mat.oakDesk()} castShadow receiveShadow />
@@ -309,22 +314,57 @@ function DeskPlant() {
   );
 }
 
+/**
+ * Chair upholstery geometry, built once (shared). Same envelopes as the previous slabs:
+ * seat 0.50 × 0.07 × 0.48 m (r 2 cm), backrest 0.47 × 0.42 × 0.06 m (r 2.5 cm).
+ */
+let chairParts: {
+  seat: ReturnType<typeof cushionGeometry>;
+  back: ReturnType<typeof cushionGeometry>;
+  seatPiping: ReturnType<typeof pipingGeometry>;
+  backPiping: ReturnType<typeof pipingGeometry>;
+  shell: ReturnType<typeof bevelledBox>;
+} | null = null;
+function useChairParts() {
+  if (!chairParts) {
+    const s45 = Math.SQRT1_2;
+    // Seat: 8 mm crown on top. Piping follows the top rim at the 45° point of the rounded edge.
+    const seatR = 0.02;
+    const seatTop = 0.07 / 2 - 0.008; // base top (local) after centring the envelope
+    // Backrest: 10 mm crown on the front face (towards the sitter).
+    const backR = 0.025;
+    const backFront = -(0.06 - 0.01) / 2 + 0.005; // base front (local)
+    chairParts = {
+      seat: cushionGeometry(0.5, 0.07, 0.48, seatR, 0.008, 'top'),
+      back: cushionGeometry(0.47, 0.42, 0.06, backR, 0.01, 'front'),
+      seatPiping: pipingGeometry(0.25 - seatR + seatR * s45, 0.24 - seatR + seatR * s45, seatR * s45, seatTop - seatR * (1 - s45), 'xz'),
+      backPiping: pipingGeometry(0.235 - backR + backR * s45, 0.21 - backR + backR * s45, backR * s45, backFront + backR * (1 - s45), 'xy'),
+      // Thin moulded shell under the seat cushion: where the column and back support meet the seat.
+      shell: bevelledBox(0.46, 0.012, 0.44, 0.003, 0.5),
+    };
+  }
+  return chairParts;
+}
+
 function Chair() {
   const legs = [0, 1, 2, 3, 4].map((i) => (i / 5) * Math.PI * 2);
+  const parts = useChairParts();
   return (
     // Centred at the desk, facing the window (reference): we see its back from the overview.
     <group position={[DESK.x + 0.05, 0, DESK.z + 0.78]} rotation-y={0.06}>
-      <RoundedBox args={[0.5, 0.07, 0.48]} radius={0.02} position-y={0.48} castShadow>
-        <primitive object={mat.leatherSeat()} attach="material" />
-      </RoundedBox>
+      {/* Seat cushion (same 0.50 × 0.07 × 0.48 m envelope as before) with a piped top edge. */}
+      <group position-y={0.48}>
+        <mesh geometry={parts.seat} material={mat.leatherSeat()} castShadow receiveShadow />
+        <mesh geometry={parts.seatPiping} material={mat.leatherSeat()} castShadow />
+      </group>
+      <mesh position-y={0.445 - 0.006} geometry={parts.shell} material={mat.blackHardware()} castShadow />
       {/* Mid-back leather chair (reference): the back stays below the screens from the overview. */}
       <group position={[0, 0.74, 0.23]} rotation-x={-0.12}>
-        <RoundedBox args={[0.47, 0.42, 0.06]} radius={0.025} castShadow>
-          <primitive object={mat.leatherBack()} attach="material" />
-        </RoundedBox>
+        <mesh geometry={parts.back} material={mat.leatherBack()} castShadow receiveShadow />
+        <mesh geometry={parts.backPiping} material={mat.leatherBack()} castShadow />
       </group>
-      <Rod from={[0, 0.1, 0]} to={[0, 0.45, 0]} radius={0.022} material={mat.chrome()} />
-      <Rod from={[0, 0.45, 0.2]} to={[0, 0.62, 0.24]} radius={0.015} color="#2a2b2d" metalness={0.8} roughness={0.3} />
+      <Rod from={[0, 0.1, 0]} to={[0, 0.435, 0]} radius={0.022} material={mat.chrome()} />
+      <Rod from={[0, 0.433, 0.2]} to={[0, 0.62, 0.24]} radius={0.015} color="#2a2b2d" metalness={0.8} roughness={0.3} />
       {legs.map((a) => (
         <group key={a} rotation-y={a}>
           <Rod from={[0, 0.1, 0]} to={[0.3, 0.06, 0]} radius={0.016} color="#141415" metalness={0.6} roughness={0.4} />

@@ -7,7 +7,7 @@ import { useExperience } from '@/app/store';
 import type { BookRecord } from '@/content';
 import { BOOKSHELF, ROOM } from '../layout';
 import { mat, TILE } from '../materials/library';
-import { tiledBox } from '../environment/geometry';
+import { bevelledBox } from '../environment/geometry';
 import { markShadowsDirty } from '../shadows';
 import { Interactive } from '../Interactive';
 import { PLAIN_SPINE, SPINE_DESIGNS, arrangeShelf, type Bookend, type PlacedBook } from './arrangement';
@@ -19,7 +19,9 @@ const FRONT_X = BOOKSHELF.x - BOOKSHELF.depth;
 
 function Frame() {
   // World-scale UVs: oak boards keep a 1 m tile along the 2.88 m shelves instead of stretching.
-  const shelf = useMemo(() => tiledBox(BOOKSHELF.depth, 0.03, LENGTH, TILE.oak, 'z'), []);
+  const shelf = useMemo(() => bevelledBox(BOOKSHELF.depth, 0.03, LENGTH, 0.002, TILE.oak, 'z'), []);
+  // Square steel tube uprights with the slightly rounded edges of a real section.
+  const upright = useMemo(() => bevelledBox(0.03, ROOM.height, 0.03, 0.0015, 0.5, 'y'), []);
   const uprights: number[] = [];
   for (let b = 0; b <= BOOKSHELF.bays; b++) uprights.push(BOOKSHELF.zStart + b * BOOKSHELF.bayWidth);
   return (
@@ -32,9 +34,7 @@ function Frame() {
       {/* Black steel frame, floor to ceiling. */}
       {uprights.map((z) =>
         [FRONT_X + 0.015, BOOKSHELF.x - 0.015].map((x) => (
-          <mesh key={`${z}-${x}`} position={[x, ROOM.height / 2, z]} material={mat.steel()} castShadow>
-            <boxGeometry args={[0.03, ROOM.height, 0.03]} />
-          </mesh>
+          <mesh key={`${z}-${x}`} position={[x, ROOM.height / 2, z]} geometry={upright} material={mat.steel()} castShadow />
         )),
       )}
     </group>

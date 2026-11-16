@@ -3,7 +3,7 @@ import { books } from '@/content';
 import { arrangeShelf } from './bookshelf/arrangement';
 import { responsiveFov } from './camera/fov';
 import { BOOKSHELF, DESK, ROOM, SHOTS } from './layout';
-import { tiledBox } from './environment/geometry';
+import { bevelledBox, tiledBox } from './environment/geometry';
 
 describe('bookshelf arrangement', () => {
   it('is deterministic, so positions are stable between visits', () => {
@@ -104,5 +104,43 @@ describe('world-scale box UVs', () => {
     expect(Math.max(...top.map((t) => t[0]!))).toBeCloseTo(1);
     expect(Math.min(...top.map((t) => t[1]!))).toBeCloseTo(0);
     expect(Math.max(...top.map((t) => t[1]!))).toBeCloseTo(1);
+  });
+});
+
+describe('bevelled boxes', () => {
+  it('keep the exact outer dimensions of the box they replace (nothing moves or grows)', () => {
+    for (const [w, h, d, b] of [
+      [2.6, 0.06, 0.78, 0.004], // desk top
+      [0.36, 0.03, 2.88, 0.002], // shelf
+      [0.2, 0.32, 7.8, 0.008], // beam
+    ] as const) {
+      const g = bevelledBox(w, h, d, b, 1);
+      const bb = g.boundingBox!;
+      expect(bb.max.x - bb.min.x).toBeCloseTo(w, 5);
+      expect(bb.max.y - bb.min.y).toBeCloseTo(h, 5);
+      expect(bb.max.z - bb.min.z).toBeCloseTo(d, 5);
+      expect(bb.min.y).toBeCloseTo(-h / 2, 5); // still centred
+    }
+  });
+
+  it('maps the desk top exactly once, as before', () => {
+    const g = bevelledBox(DESK.width, 0.06, DESK.depth, 0.004, [DESK.width, DESK.depth], 'x', false);
+    const uv = g.attributes.uv!;
+    const nrm = g.attributes.normal!;
+    let minU = 9, maxU = -9, minV = 9, maxV = -9;
+    for (let i = 0; i < uv.count; i++) {
+      if (nrm.getY(i) < 0.99) continue; // flat top face only
+      minU = Math.min(minU, uv.getX(i)); maxU = Math.max(maxU, uv.getX(i));
+      minV = Math.min(minV, uv.getY(i)); maxV = Math.max(maxV, uv.getY(i));
+    }
+    expect(minU).toBeGreaterThanOrEqual(-1e-6);
+    expect(maxU).toBeLessThanOrEqual(1 + 1e-6);
+    expect(minV).toBeGreaterThanOrEqual(-1e-6);
+    expect(maxV).toBeLessThanOrEqual(1 + 1e-6);
+  });
+
+  it('stays cheap (modest triangle count)', () => {
+    const g = bevelledBox(2.6, 0.06, 0.78, 0.004, 1);
+    expect(g.attributes.position!.count / 3).toBeLessThan(120);
   });
 });

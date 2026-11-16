@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { ExtrudeGeometry, Path, Shape } from 'three';
 import { GARAGE_DOOR, ROOM, TIMBER, WINDOW } from '../layout';
 import { mat, TILE } from '../materials/library';
-import { tiledBox, tiledPlane } from './geometry';
+import { bevelledBox, tiledBox, tiledPlane } from './geometry';
 import { GarageDoors } from './GarageDoors';
 
 /**
@@ -54,7 +54,7 @@ function useBackWallGeometry() {
 }
 
 function WindowFrame() {
-  const sill = useMemo(() => tiledBox(WINDOW.width + 0.14, 0.04, T + 0.03, TILE.oak, 'x'), []);
+  const sill = useMemo(() => bevelledBox(WINDOW.width + 0.14, 0.04, T + 0.03, 0.003, TILE.oak, 'x'), []);
   const x0 = WINDOW.centerX - WINDOW.width / 2;
   const y0 = WINDOW.sill;
   const z = ROOM.minZ - T * 0.45;
@@ -86,8 +86,9 @@ function WindowFrame() {
  */
 function TimberStructure() {
   // World-scale UVs: the glulam keeps its 1 m × 0.4 m tile along the 7.8 m beams and 3.3 m posts.
-  const beam = useMemo(() => tiledBox(TIMBER.beamW, TIMBER.beamH, D, TILE.glulam, 'z'), []);
-  const post = useMemo(() => tiledBox(0.18, H, 0.18, TILE.glulam, 'y'), []);
+  // Glulam is supplied with eased arrises: 8 mm on the beams, 6 mm on the posts.
+  const beam = useMemo(() => bevelledBox(TIMBER.beamW, TIMBER.beamH, D, 0.008, TILE.glulam, 'z'), []);
+  const post = useMemo(() => bevelledBox(0.18, H, 0.18, 0.006, TILE.glulam, 'y'), []);
   const beamY = H - TIMBER.beamH / 2;
   return (
     <group>
@@ -132,8 +133,8 @@ function WindowCasing() {
   const y1 = WINDOW.sill + WINDOW.height;
   const z = ROOM.minZ + 0.03;
   const t = 0.11;
-  const header = useMemo(() => tiledBox(WINDOW.width + 0.5, 0.18, 0.08, TILE.glulam, 'x'), []);
-  const jamb = useMemo(() => tiledBox(t, WINDOW.height + 0.02, 0.05, TILE.glulam, 'y'), []);
+  const header = useMemo(() => bevelledBox(WINDOW.width + 0.5, 0.18, 0.08, 0.004, TILE.glulam, 'x'), []);
+  const jamb = useMemo(() => bevelledBox(t, WINDOW.height + 0.02, 0.05, 0.004, TILE.glulam, 'y'), []);
   return (
     <group>
       {/* Header beam. */}
