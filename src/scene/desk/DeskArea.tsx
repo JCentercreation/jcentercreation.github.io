@@ -3,7 +3,19 @@ import { RoundedBox } from '@react-three/drei';
 import { type SpotLight, Object3D, CatmullRomCurve3, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import { DESK } from '../layout';
-import { oakDesk } from '../materials/proceduralTextures';
+import { flat, mat } from '../materials/library';
+import { tiledBox } from '../environment/geometry';
+
+/** The lamp shade is open, so its inside must render too (double-sided variant of the hardware finish). */
+let shade: ReturnType<typeof mat.blackHardware> | null = null;
+function lampShade() {
+  if (!shade) {
+    shade = mat.blackHardware().clone();
+    shade.side = 2;
+    shade.name = 'blackHardwareDoubleSided';
+  }
+  return shade;
+}
 import { lockScreenTexture } from './deckTextures';
 import { DESK_OFFSET, IPAD, MACBOOK, STUDIO_DISPLAY } from '../layout';
 import { rugTexture } from '../decor/rug';
@@ -23,17 +35,17 @@ function Pedestal({ x }: { x: number }) {
     <group position={[x, 0, 0.02]}>
       <mesh position-y={h / 2} castShadow receiveShadow>
         <boxGeometry args={[0.46, h, d]} />
-        <meshStandardMaterial color="#141516" metalness={0.55} roughness={0.5} />
+        <primitive object={mat.steel()} attach="material" />
       </mesh>
       {[0.2, 0.42, 0.6].map((y) => (
         <group key={y}>
           <mesh position={[0, y, d / 2 + 0.001]}>
             <boxGeometry args={[0.44, 0.004, 0.002]} />
-            <meshStandardMaterial color="#050505" />
+            <primitive object={flat({ color: '#050505' })} attach="material" />
           </mesh>
           <mesh position={[0, y + 0.05, d / 2 + 0.008]}>
             <boxGeometry args={[0.12, 0.012, 0.012]} />
-            <meshStandardMaterial color="#2a2b2d" metalness={0.8} roughness={0.3} />
+            <primitive object={mat.darkChrome()} attach="material" />
           </mesh>
         </group>
       ))}
@@ -42,14 +54,12 @@ function Pedestal({ x }: { x: number }) {
 }
 
 function Desk() {
-  // One texture spans the whole top: three glued oak boards, no repetition. 6 cm thick slab.
-  const oak = oakDesk();
+  // One texture spans the whole top: three glued oak boards, no repetition. 6 cm thick slab; the
+  // edges now show a thin slice at the same scale instead of the whole top squeezed into 6 cm.
+  const slab = useMemo(() => tiledBox(DESK.width, 0.06, DESK.depth, [DESK.width, DESK.depth], 'x', false), []);
   return (
     <group position={[DESK.x, 0, DESK.z]}>
-      <mesh position-y={TOP - 0.03} castShadow receiveShadow>
-        <boxGeometry args={[DESK.width, 0.06, DESK.depth]} />
-        <meshStandardMaterial {...oak} normalScale={[0.3, 0.3]} />
-      </mesh>
+      <mesh position-y={TOP - 0.03} geometry={slab} material={mat.oakDesk()} castShadow receiveShadow />
       {/* Black drawer pedestals at both ends, knee space in the middle. */}
       <Pedestal x={-DESK.width / 2 + 0.26} />
       <Pedestal x={DESK.width / 2 - 0.26} />
@@ -88,18 +98,18 @@ function DeskLamp() {
     <group>
       <mesh position={[base[0], TOP + 0.008, base[2]]} castShadow receiveShadow>
         <cylinderGeometry args={[0.075, 0.08, 0.016, 32]} />
-        <meshStandardMaterial color="#0f0f10" metalness={0.6} roughness={0.35} />
+        <primitive object={mat.blackHardware()} attach="material" />
       </mesh>
       <Rod from={base} to={elbow} radius={0.007} />
       <Rod from={elbow} to={head} radius={0.007} />
       <mesh position={elbow}>
         <sphereGeometry args={[0.013, 16, 12]} />
-        <meshStandardMaterial color="#0f0f10" metalness={0.6} roughness={0.35} />
+        <primitive object={mat.blackHardware()} attach="material" />
       </mesh>
       <group position={head} quaternion={shadeQuat}>
         <mesh castShadow>
           <cylinderGeometry args={[0.025, 0.07, 0.12, 32, 1, true]} />
-          <meshStandardMaterial color="#0f0f10" metalness={0.5} roughness={0.4} side={2} />
+          <primitive object={lampShade()} attach="material" />
         </mesh>
         {/* Bulb: HDR emissive so it blooms. */}
         <mesh position-y={-0.025}>
@@ -118,9 +128,14 @@ function DeskLamp() {
         decay={2}
         color="#ffae62"
         castShadow={full}
-        shadow-mapSize={[1024, 1024]}
-        shadow-bias={-0.0002}
-        shadow-radius={4}
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0001}
+        shadow-normalBias={0.008}
+        shadow-radius={6}
+        // Default near plane (0.5 m) clipped the display, MacBook and desk top out of the lamp's
+        // shadow camera; a tight near/far also improves depth precision (less acne).
+        shadow-camera-near={0.05}
+        shadow-camera-far={6}
       />
       {/* Warm spill so the lamp's surroundings don't fall to black outside the cone. */}
       <pointLight position={[head[0], head[1] + 0.05, head[2]]} intensity={8} distance={10} decay={2} color="#ffae62" />
@@ -193,11 +208,11 @@ function DeskProps() {
       <group position={[1.3, TOP, -3.5]}>
         <mesh position-y={0.048} castShadow>
           <cylinderGeometry args={[0.042, 0.04, 0.096, 32]} />
-          <meshStandardMaterial color="#2b2b2b" roughness={0.45} />
+          <primitive object={flat({ color: '#2b2b2b', roughness: 0.45 })} attach="material" />
         </mesh>
         <mesh position={[0.046, 0.05, 0]} rotation-x={Math.PI / 2}>
           <torusGeometry args={[0.022, 0.006, 8, 16, Math.PI]} />
-          <meshStandardMaterial color="#2b2b2b" roughness={0.45} />
+          <primitive object={flat({ color: '#2b2b2b', roughness: 0.45 })} attach="material" />
         </mesh>
       </group>
 
@@ -289,7 +304,7 @@ function DeskPlant() {
       {[0, 1, 2, 3, 4, 5, 6].map((i) => (
         <mesh key={i} position={[Math.cos(i * 0.9) * 0.05, 0.17 + (i % 3) * 0.03, Math.sin(i * 0.9) * 0.05]} rotation={[0.6 * Math.sin(i), i * 0.9, 0.5]} scale={[0.07, 0.008, 0.035]} castShadow>
           <sphereGeometry args={[1, 10, 6]} />
-          <meshStandardMaterial color="#3f6a2e" roughness={0.55} />
+          <primitive object={flat({ color: '#3f6a2e', roughness: 0.55 })} attach="material" />
         </mesh>
       ))}
     </group>
@@ -302,12 +317,12 @@ function Chair() {
     // Centred at the desk, facing the window (reference): we see its back from the overview.
     <group position={[DESK.x + 0.05, 0, DESK.z + 0.78]} rotation-y={0.06}>
       <RoundedBox args={[0.5, 0.07, 0.48]} radius={0.02} position-y={0.48} castShadow>
-        <meshStandardMaterial color="#6e4024" roughness={0.55} />
+        <primitive object={mat.leatherTan()} attach="material" />
       </RoundedBox>
       {/* Mid-back leather chair (reference): the back stays below the screens from the overview. */}
       <group position={[0, 0.74, 0.23]} rotation-x={-0.12}>
         <RoundedBox args={[0.47, 0.42, 0.06]} radius={0.025} castShadow>
-          <meshStandardMaterial color="#6e4024" roughness={0.55} />
+          <primitive object={mat.leatherTan()} attach="material" />
         </RoundedBox>
       </group>
       <Rod from={[0, 0.1, 0]} to={[0, 0.45, 0]} radius={0.022} color="#2a2b2d" metalness={0.8} roughness={0.3} />
@@ -317,7 +332,7 @@ function Chair() {
           <Rod from={[0, 0.1, 0]} to={[0.3, 0.06, 0]} radius={0.016} color="#141415" metalness={0.6} roughness={0.4} />
           <mesh position={[0.3, 0.03, 0]}>
             <sphereGeometry args={[0.028, 12, 10]} />
-            <meshStandardMaterial color="#0d0d0e" roughness={0.6} />
+            <primitive object={flat({ color: '#0d0d0e', roughness: 0.6 })} attach="material" />
           </mesh>
         </group>
       ))}

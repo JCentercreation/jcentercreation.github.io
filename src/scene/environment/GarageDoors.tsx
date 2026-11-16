@@ -2,12 +2,12 @@ import { useMemo } from 'react';
 import type { Texture } from 'three';
 import { GARAGE_DOOR, ROOM } from '../layout';
 import { doorBoards } from '../materials/proceduralTextures';
+import { mat } from '../materials/library';
 
 /**
  * PROVISIONAL carriage-style double garage doors: vertical oak boards, a band of glass lites,
  * black steel strap hinges, pulls and a steel lintel. Contemporary proportions, no rustic X-bracing.
  */
-const STEEL = { color: '#121314', metalness: 0.75, roughness: 0.4 } as const;
 
 function verticalBoards(): { map: Texture; roughnessMap: Texture; normalMap: Texture } {
   const src = doorBoards();
@@ -53,22 +53,19 @@ function Leaf({ x, mirrored }: { x: number; mirrored: boolean }) {
       {/* Strap hinges. */}
       {[-0.85, 0.05, 0.75].map((y) => (
         <group key={y} position={[hingeSide + (mirrored ? -0.26 : 0.26), y, 0.03]}>
-          <mesh>
+          <mesh material={mat.steel()}>
             <boxGeometry args={[0.55, 0.045, 0.008]} />
-            <meshStandardMaterial {...STEEL} />
           </mesh>
           {[-0.2, 0, 0.2].map((dx) => (
-            <mesh key={dx} position={[dx, 0, 0.006]} rotation-x={Math.PI / 2}>
+            <mesh key={dx} position={[dx, 0, 0.006]} rotation-x={Math.PI / 2} material={mat.steel()}>
               <cylinderGeometry args={[0.008, 0.008, 0.006, 10]} />
-              <meshStandardMaterial {...STEEL} />
             </mesh>
           ))}
         </group>
       ))}
       {/* Vertical pull near the meeting stiles. */}
-      <mesh position={[mirrored ? -w / 2 + 0.09 : w / 2 - 0.09, 0, 0.06]} castShadow>
+      <mesh position={[mirrored ? -w / 2 + 0.09 : w / 2 - 0.09, 0, 0.06]} castShadow material={mat.steel()}>
         <boxGeometry args={[0.022, 0.42, 0.022]} />
-        <meshStandardMaterial {...STEEL} />
       </mesh>
     </group>
   );
@@ -82,14 +79,12 @@ export function GarageDoors() {
       <Leaf x={centerX - width / 4} mirrored={false} />
       <Leaf x={centerX + width / 4} mirrored />
       {/* Black steel lintel and jambs. */}
-      <mesh position={[centerX, height + 0.06, ROOM.wallThickness * 0.5 + 0.02]} castShadow>
+      <mesh position={[centerX, height + 0.06, ROOM.wallThickness * 0.5 + 0.02]} castShadow material={mat.steel()}>
         <boxGeometry args={[width + 0.24, 0.12, 0.05]} />
-        <meshStandardMaterial {...STEEL} />
       </mesh>
       {[-1, 1].map((s) => (
-        <mesh key={s} position={[centerX + s * (width / 2 + 0.06), height / 2, ROOM.wallThickness * 0.5 + 0.02]} castShadow>
+        <mesh key={s} position={[centerX + s * (width / 2 + 0.06), height / 2, ROOM.wallThickness * 0.5 + 0.02]} castShadow material={mat.steel()}>
           <boxGeometry args={[0.12, height, 0.05]} />
-          <meshStandardMaterial {...STEEL} />
         </mesh>
       ))}
     </group>

@@ -1,8 +1,9 @@
 import { RoundedBox } from '@react-three/drei';
 import { STUDIO_DISPLAY } from '../layout';
 import { useScreenTexture } from '../screens/screenTextures';
+import { mat } from '../materials/library';
 
-const ALU = { color: '#c9cbce', metalness: 0.85, roughness: 0.3 } as const;
+
 
 /**
  * PROVISIONAL Apple Studio Display (27"), silver, on the tilt-adjustable stand.
@@ -18,18 +19,18 @@ export function StudioDisplay() {
     <group position={[position.x, position.y, position.z]}>
       {/* Foot: a flat aluminium plate under the display. */}
       <RoundedBox args={[standW, 0.006, footDepth]} radius={0.002} position={[0, 0.003, -0.02]} castShadow receiveShadow>
-        <meshStandardMaterial {...ALU} />
+        <primitive object={mat.aluminium()} attach="material" />
       </RoundedBox>
       {/* Arm: rises from the back of the foot to the hinge behind the display. */}
       <group position={[0, 0.005, -0.1]} rotation-x={-0.16}>
         <RoundedBox args={[standW, 0.3, 0.006]} radius={0.002} position-y={0.15} castShadow>
-          <meshStandardMaterial {...ALU} />
+          <primitive object={mat.aluminium()} attach="material" />
         </RoundedBox>
       </group>
       {/* Display enclosure, tilted back slightly around its lower edge. */}
       <group position={[0, lift, 0]} rotation-x={-tilt}>
         <RoundedBox args={[W, H, D]} radius={0.006} smoothness={4} position={[0, H / 2, -D / 2]} castShadow>
-          <meshStandardMaterial {...ALU} />
+          <primitive object={mat.aluminium()} attach="material" />
         </RoundedBox>
         {/* Front glass with uniform black border. */}
         <mesh position={[0, H / 2, 0.0006]}>

@@ -9,6 +9,7 @@ import { LaptopModel } from '../desk/LaptopModel';
 import { useScreenTexture } from '../screens/screenTextures';
 import { CAR_LAPTOP, CarLaptopScreen } from './CarLaptopScreen';
 import { Rod } from '../primitives';
+import { markShadowsDirty } from '../shadows';
 import { AXLE_X, BODY_HALF, TRACK_HALF, WHEEL_RADIUS, WHEEL_Y, buildCarGeometry } from './carGeometry';
 
 /** Midnight-silver style dark metallic grey, clear-coated. */
@@ -218,7 +219,14 @@ export function Tesla() {
   useEffect(() => {
     const d = doorRef.current;
     if (!d) return;
-    const tween = gsap.to(d.rotation, { y: doorOpen ? -1.08 : 0, duration: reduced ? 0.2 : 1.25, ease: doorOpen ? 'power2.out' : 'power2.inOut' });
+    const tween = gsap.to(d.rotation, {
+      y: doorOpen ? -1.08 : 0,
+      duration: reduced ? 0.2 : 1.25,
+      ease: doorOpen ? 'power2.out' : 'power2.inOut',
+      // Static shadow maps: re-render them while the door swings.
+      onUpdate: () => markShadowsDirty(2),
+      onComplete: () => markShadowsDirty(2),
+    });
     return () => {
       tween.kill();
     };

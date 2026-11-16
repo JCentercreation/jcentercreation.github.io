@@ -1,16 +1,20 @@
 import { Suspense, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
-import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace } from 'three';
+import { PCFShadowMap, SRGBColorSpace } from 'three';
 import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
 import { GarageScene } from './GarageScene';
+import { EXPOSURE, RENDERER_TONE_MAPPING, TONE_MAPPING } from './renderConfig';
+import { captureRoomEnvironment } from './environment/roomEnvironment';
 
 interface Props {
   /** Real asset progress, or null when the loading manager has nothing in flight. */
   onProgress: (pct: number | null) => void;
   onReady: () => void;
 }
+
+const capture = new URLSearchParams(window.location.search).has('capture');
 
 /** Bridges drei's loading manager progress out to the DOM loader. */
 function ProgressReporter({ onProgress }: Pick<Props, 'onProgress'>) {
@@ -26,7 +30,7 @@ function ProgressReporter({ onProgress }: Pick<Props, 'onProgress'>) {
  * scene, compile every material's shader while the loader is still visible — otherwise each material
  * compiles on its first appearance, and the intro's pull-back hitches as new objects come into view.
  */
-function ReadySignal({ onReady }: Pick<Props, 'onReady'>) {
+function ReadySignal({ onReady, envResolution }: Pick<Props, 'onReady'> & { envResolution: number }) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
   const camera = useThree((s) => s.camera);
@@ -37,14 +41,24 @@ function ReadySignal({ onReady }: Pick<Props, 'onReady'>) {
       gl.compileAsync(scene, camera)
         .catch(() => undefined) // a compile warm-up failure must never block the visitor
         .finally(() => {
-          if (!cancelled) onReady();
+          if (cancelled) return;
+          // Reflections of the real room, captured once while the loader is still up.
+          try {
+            if (new URLSearchParams(window.location.search).has('noroomenv')) throw new Error('disabled by ?noroomenv');
+            const { ms } = captureRoomEnvironment(gl, scene, envResolution);
+            scene.userData.roomEnvironment = true;
+            if (capture) (window as unknown as { __envCaptureMs: number }).__envCaptureMs = ms;
+          } catch (e) {
+            console.warn('Room environment capture failed; keeping the light-card environment.', e);
+          }
+          onReady();
         });
     });
     return () => {
       cancelled = true;
       cancelAnimationFrame(id);
     };
-  }, [gl, scene, camera, onReady]);
+  }, [gl, scene, camera, onReady, envResolution]);
   return null;
 }
 
@@ -63,7 +77,8 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
     <Canvas
       frameloop={sheetOpen ? 'never' : 'always'}
       dpr={full ? [1, 1.75] : [1, 1.5]}
-      shadows={full ? { type: PCFShadowMap } : false}
+      // Static shadow maps: re-rendered only when a shadow caster moves (see shadows.ts).
+      shadows={full ? { type: PCFShadowMap, autoUpdate: false } : false}
       // Full tier antialiases in the post-processing composer (MSAA); reduced tier uses the default buffer.
       gl={{ antialias: !full, powerPreference: 'high-performance', stencil: false }}
       camera={{ fov: 50, near: 0.02, far: 600, position: [0.3, 1.68, 4.35] }}
@@ -72,7 +87,9 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
         // Review tooling only (`?capture=1`, like __gsap/__store): lets browser tests read the camera,
         // frame clock and raycaster. Nothing is collected or sent.
         if (new URLSearchParams(window.location.search).has('capture')) (window as unknown as { __r3f: unknown }).__r3f = state;
-        gl.toneMapping = ACESFilmicToneMapping;
+        // Same operator and exposure on both tiers (full tier applies them in post — Effects.tsx).
+        gl.toneMapping = RENDERER_TONE_MAPPING[TONE_MAPPING];
+        gl.toneMappingExposure = EXPOSURE;
         gl.outputColorSpace = SRGBColorSpace;
       }}
       style={{ position: 'fixed', inset: 0 }}
@@ -80,7 +97,7 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
       <ProgressReporter onProgress={onProgress} />
       <Suspense fallback={null}>
         <GarageScene />
-        <ReadySignal onReady={onReady} />
+        <ReadySignal onReady={onReady} envResolution={full ? 256 : 128} />
       </Suspense>
     </Canvas>
   );

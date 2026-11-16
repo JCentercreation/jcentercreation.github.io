@@ -6,7 +6,9 @@ import { CanvasTexture, Color, TextureLoader, type Group, type InstancedMesh, Ma
 import { useExperience } from '@/app/store';
 import type { BookRecord } from '@/content';
 import { BOOKSHELF, ROOM } from '../layout';
-import { oakWood } from '../materials/proceduralTextures';
+import { mat, TILE } from '../materials/library';
+import { tiledBox } from '../environment/geometry';
+import { markShadowsDirty } from '../shadows';
 import { Interactive } from '../Interactive';
 import { PLAIN_SPINE, SPINE_DESIGNS, arrangeShelf, type Bookend, type PlacedBook } from './arrangement';
 import { SYSTEM_FONT } from '../screens/draw';
@@ -16,25 +18,22 @@ const CENTER_Z = BOOKSHELF.zStart + LENGTH / 2;
 const FRONT_X = BOOKSHELF.x - BOOKSHELF.depth;
 
 function Frame() {
-  const oak = oakWood();
+  // World-scale UVs: oak boards keep a 1 m tile along the 2.88 m shelves instead of stretching.
+  const shelf = useMemo(() => tiledBox(BOOKSHELF.depth, 0.03, LENGTH, TILE.oak, 'z'), []);
   const uprights: number[] = [];
   for (let b = 0; b <= BOOKSHELF.bays; b++) uprights.push(BOOKSHELF.zStart + b * BOOKSHELF.bayWidth);
   return (
     <group>
       {BOOKSHELF.shelfHeights.map((y) => (
         <group key={y}>
-          <mesh position={[BOOKSHELF.x - BOOKSHELF.depth / 2, y + 0.015, CENTER_Z]} castShadow receiveShadow>
-            <boxGeometry args={[BOOKSHELF.depth, 0.03, LENGTH]} />
-            <meshStandardMaterial {...oak} normalScale={[0.2, 0.2]} />
-          </mesh>
+          <mesh position={[BOOKSHELF.x - BOOKSHELF.depth / 2, y + 0.015, CENTER_Z]} geometry={shelf} material={mat.oak()} castShadow receiveShadow />
         </group>
       ))}
       {/* Black steel frame, floor to ceiling. */}
       {uprights.map((z) =>
         [FRONT_X + 0.015, BOOKSHELF.x - 0.015].map((x) => (
-          <mesh key={`${z}-${x}`} position={[x, ROOM.height / 2, z]} castShadow>
+          <mesh key={`${z}-${x}`} position={[x, ROOM.height / 2, z]} material={mat.steel()} castShadow>
             <boxGeometry args={[0.03, ROOM.height, 0.03]} />
-            <meshStandardMaterial color="#111213" metalness={0.75} roughness={0.42} />
           </mesh>
         )),
       )}
@@ -154,11 +153,11 @@ function Bookends({ items }: { items: Bookend[] }) {
         <group key={i} position={[e.x, e.y, e.z]}>
           <mesh position={[0, 0.07, 0.002]} castShadow>
             <boxGeometry args={[0.12, 0.14, 0.004]} />
-            <meshStandardMaterial color="#141414" metalness={0.7} roughness={0.4} />
+            <primitive object={mat.steel()} attach="material" />
           </mesh>
           <mesh position={[0, 0.002, 0.04]}>
             <boxGeometry args={[0.12, 0.004, 0.08]} />
-            <meshStandardMaterial color="#141414" metalness={0.7} roughness={0.4} />
+            <primitive object={mat.steel()} attach="material" />
           </mesh>
         </group>
       ))}
@@ -225,6 +224,7 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
   const selected = useExperience((s) => s.selectedBook === id);
   const reduced = useExperience((s) => s.reducedMotion);
   const anim = useRef({ t: 0, hover: 0 });
+  const lastPose = useRef({ x: 0, y: 0, z: 0, qw: 1, qx: 0, qy: 0 });
   const home = useMemo(() => new Vector3(book.x, book.y, book.z), [book]);
   const pose = useMemo(() => ({ position: new Vector3(), quaternion: new Quaternion() }), []);
 
@@ -276,6 +276,17 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
       // In its slot; a subtle 2 cm slide towards the room on hover.
       g.position.set(home.x - a.hover * 0.02, home.y, home.z);
       g.quaternion.identity();
+    }
+    // Static shadow maps: re-render them while this book moves (hover slide, extraction, return).
+    const last = lastPose.current;
+    if (Math.abs(last.x - g.position.x) + Math.abs(last.y - g.position.y) + Math.abs(last.z - g.position.z) > 1e-5 || Math.abs(last.qw - g.quaternion.w) + Math.abs(last.qx - g.quaternion.x) + Math.abs(last.qy - g.quaternion.y) > 1e-6) {
+      markShadowsDirty(2);
+      last.x = g.position.x;
+      last.y = g.position.y;
+      last.z = g.position.z;
+      last.qw = g.quaternion.w;
+      last.qx = g.quaternion.x;
+      last.qy = g.quaternion.y;
     }
     materials.spine.emissiveIntensity = a.hover * 0.07;
     if (materials.front !== materials.list[5]) materials.front.emissiveIntensity = Math.max(0, (a.t - 0.5) * 2) * 0.2;

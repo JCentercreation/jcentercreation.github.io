@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Quaternion, Vector3 } from 'three';
+import { flat } from './materials/library';
 
 /** A cylinder spanning two points — used for lamp arms, chair legs, tool handles. */
 export function Rod({
@@ -27,9 +28,8 @@ export function Rod({
     return { position: a.add(b).multiplyScalar(0.5), quaternion: q, length: dir.length() };
   }, [from, to]);
   return (
-    <mesh position={position} quaternion={quaternion} castShadow={castShadow}>
+    <mesh position={position} quaternion={quaternion} castShadow={castShadow} material={flat({ color, metalness, roughness })}>
       <cylinderGeometry args={[radius, radius, length, 12]} />
-      <meshStandardMaterial color={color} metalness={metalness} roughness={roughness} />
     </mesh>
   );
 }

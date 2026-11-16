@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { books } from '@/content';
 import { arrangeShelf } from './bookshelf/arrangement';
 import { responsiveFov } from './camera/fov';
-import { BOOKSHELF, ROOM, SHOTS } from './layout';
+import { BOOKSHELF, DESK, ROOM, SHOTS } from './layout';
+import { tiledBox } from './environment/geometry';
 
 describe('bookshelf arrangement', () => {
   it('is deterministic, so positions are stable between visits', () => {
@@ -68,5 +69,40 @@ describe('book take-off motion', () => {
       expect(p.z).toBeCloseTo(home.z, 9);
       expect(p.x).toBeLessThanOrEqual(home.x);
     }
+  });
+});
+
+/** UV extent (max - min) per face of a 1-segment box: 6 faces × 4 vertices. */
+function faceExtents(g: ReturnType<typeof tiledBox>) {
+  const uv = g.attributes.uv!;
+  return Array.from({ length: 6 }, (_, f) => {
+    const us = [0, 1, 2, 3].map((k) => uv.getX(f * 4 + k));
+    const vs = [0, 1, 2, 3].map((k) => uv.getY(f * 4 + k));
+    return [Math.max(...us) - Math.min(...us), Math.max(...vs) - Math.min(...vs)] as const;
+  });
+}
+
+describe('world-scale box UVs', () => {
+  it('keeps the texture at its physical size along a 7.8 m beam (no stretching)', () => {
+    // Beam 0.2 × 0.32 × 7.8 m, glulam tile 1 m along the grain × 0.4 m across.
+    const e = faceExtents(tiledBox(0.2, 0.32, 7.8, [1, 0.4], 'z'));
+    // Sides (x faces): 7.8 tiles along the grain, 0.32/0.4 across.
+    expect(e[0]![0]).toBeCloseTo(7.8);
+    expect(e[0]![1]).toBeCloseTo(0.8);
+    // Top/bottom (y faces): grain still along the beam, 0.2/0.4 across.
+    expect(e[2]![0]).toBeCloseTo(7.8);
+    expect(e[2]![1]).toBeCloseTo(0.5);
+    // End grain (z faces): the 0.32 m side along u.
+    expect(e[4]![0]).toBeCloseTo(0.8 * 0.4);
+  });
+
+  it('maps the single-span desk top exactly once', () => {
+    const g = tiledBox(DESK.width, 0.06, DESK.depth, [DESK.width, DESK.depth], 'x', false);
+    const uv = g.attributes.uv!;
+    const top = [8, 9, 10, 11].map((i) => [uv.getX(i), uv.getY(i)]);
+    expect(Math.min(...top.map((t) => t[0]!))).toBeCloseTo(0);
+    expect(Math.max(...top.map((t) => t[0]!))).toBeCloseTo(1);
+    expect(Math.min(...top.map((t) => t[1]!))).toBeCloseTo(0);
+    expect(Math.max(...top.map((t) => t[1]!))).toBeCloseTo(1);
   });
 });

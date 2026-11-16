@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
 import { type DirectionalLight, Object3D, type RectAreaLight } from 'three';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { useExperience } from '@/app/store';
 import { CAR, ROOM, WINDOW } from './layout';
 import { storm } from './environment/storm';
+import { ENV_INTENSITY } from './renderConfig';
 
 RectAreaLightUniformsLib.init();
 
@@ -37,8 +38,11 @@ export function Lighting() {
 
   useEffect(() => windowLight.current?.lookAt(WINDOW.centerX, winY - 0.5, 2), [winY]);
 
+  const scene = useThree((s) => s.scene);
   useFrame(() => {
     const f = storm.flash;
+    // Lightning brightens the captured room reflections instead of re-capturing them.
+    if (scene.userData.roomEnvironment) scene.environmentIntensity = ENV_INTENSITY * (1 + f * 1.2);
     if (windowLight.current) windowLight.current.intensity = 2.4 + f * 34;
     if (stormLight.current) stormLight.current.intensity = 0.12 + f * 8;
   });
@@ -64,8 +68,12 @@ export function Lighting() {
         target={stormTarget}
         color="#a9bcff"
         castShadow={full}
-        shadow-mapSize={[1024, 1024]}
-        shadow-bias={-0.0004}
+        // 2048 px over the 10 m frustum (~5 mm per texel) keeps the window-grid shadow crisp; the map is
+        // static, so the higher resolution costs memory, not per-frame rendering.
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0002}
+        shadow-normalBias={0.02}
+        shadow-radius={1.5}
         shadow-camera-left={-5}
         shadow-camera-right={5}
         shadow-camera-top={5}

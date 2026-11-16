@@ -13,7 +13,9 @@ export const storm = {
   time: 0,
 };
 
-let nextStrike = 4;
+// Review tooling only: `?calm=1` suppresses lightning so before/after captures are comparable.
+const calm = new URLSearchParams(window.location.search).has('calm');
+let nextStrike = calm ? Infinity : 4;
 let pulses: { at: number; strength: number }[] = [];
 
 /**

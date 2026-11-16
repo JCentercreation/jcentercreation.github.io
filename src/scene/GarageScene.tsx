@@ -1,5 +1,7 @@
 import { useExperience } from '@/app/store';
 import { CameraController } from './camera/CameraController';
+import { ShadowUpdater } from './shadows';
+import { GroundContact } from './environment/GroundContact';
 import { Effects } from './Effects';
 import { Lighting } from './Lighting';
 import { Bookshelf } from './bookshelf/Bookshelf';
@@ -26,6 +28,7 @@ export function GarageScene() {
       <fog attach="fog" args={['#050608', 7, 22]} />
       <StormController />
       <Lighting />
+      <ShadowUpdater />
 
       <Room />
       <Outside />
@@ -37,6 +40,7 @@ export function GarageScene() {
       <Workshop />
       <FramedPhoto />
       <RunningShoes />
+      <GroundContact />
 
       <CameraController />
       {full && <Effects />}
