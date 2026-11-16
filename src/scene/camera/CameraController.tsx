@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import type { ShotId } from '@/content';
 import { cameraOverride, useExperience } from '@/app/store';
 import { SHOTS } from '../layout';
-import { responsiveFov } from './fov';
+import { fitDistanceFactor, responsiveFov } from './fov';
 
 // Review tooling only: `?capture=1` exposes the animation clock so a recorder can step the
 // welcome sequence frame by frame (software-rendered review captures can't run in real time).
@@ -159,6 +159,15 @@ export function CameraController() {
     offset.current.copy(right.current).multiplyScalar(pt.sx * 0.09);
     offset.current.y += -pt.sy * 0.045;
     camera.position.copy(r.pos).add(offset.current);
+    // MacBook close-up on portrait phones: the FOV cap can't keep the display's full width in frame, so
+    // move back along the view direction just enough to fit it. Fades out within the first 60 cm of the
+    // pull-back, so the transition and every other shot keep their approved framing.
+    const intro = SHOTS.macbookIntro;
+    const w = 1 - MathUtils.smoothstep(r.pos.distanceTo(intro.position), 0, 0.6);
+    if (w > 0) {
+      const k = fitDistanceFactor(intro.fov, state.size.width / state.size.height);
+      if (k > 1) camera.position.sub(r.target).multiplyScalar(1 + (k - 1) * w).add(r.target);
+    }
     camera.lookAt(r.target);
 
     const fov = responsiveFov(r.fov, state.size.width / state.size.height);
