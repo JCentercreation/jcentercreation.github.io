@@ -4,6 +4,7 @@ import { ShaderMaterial } from 'three';
 import { ROOM, WINDOW } from '../layout';
 import { noiseGLSL } from './glsl';
 import { storm } from './storm';
+import { mat as library } from '../materials/library';
 
 /**
  * Rain on the glass: static beads plus drops that slide down and leave trails.
@@ -63,9 +64,16 @@ export function WindowGlass() {
     mat.uniforms.uTime!.value = storm.time;
     mat.uniforms.uFlash!.value = storm.flash;
   });
+  const z = ROOM.minZ - ROOM.wallThickness * 0.45;
   return (
-    <mesh position={[WINDOW.centerX, WINDOW.sill + WINDOW.height / 2, ROOM.minZ - ROOM.wallThickness * 0.45]} material={mat}>
-      <planeGeometry args={[WINDOW.width, WINDOW.height]} />
-    </mesh>
+    <group position={[WINDOW.centerX, WINDOW.sill + WINDOW.height / 2, 0]}>
+      <mesh position-z={z} material={mat}>
+        <planeGeometry args={[WINDOW.width, WINDOW.height]} />
+      </mesh>
+      {/* The pane: Fresnel reflections of the room and the lamp, added on top of the storm (never darkening it). */}
+      <mesh position-z={z + 0.004} material={library.windowGlass()}>
+        <planeGeometry args={[WINDOW.width, WINDOW.height]} />
+      </mesh>
+    </group>
   );
 }

@@ -107,7 +107,7 @@ function inkOverTint(m: MeshStandardMaterial) {
 /** Anonymous books: one instanced mesh per spine design (8 draw calls for ~800 books). */
 function FillerBooks({ items }: { items: PlacedBook[] }) {
   const groups = useMemo(() => {
-    const pages = untinted(new MeshStandardMaterial({ color: '#ece4d2', roughness: 0.9 }));
+    const pages = untinted(new MeshStandardMaterial({ map: mat.pageEdges(), roughness: 0.9 }));
     const cover = new MeshStandardMaterial({ roughness: 0.72 });
     return Array.from({ length: PLAIN_SPINE + 1 }, (_, d) => {
       const spine = d === PLAIN_SPINE ? cover : inkOverTint(new MeshStandardMaterial({ map: spineDesign(d), roughness: 0.62 }));
@@ -235,7 +235,7 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
     const front = coverMap
       ? new MeshStandardMaterial({ map: coverMap, emissiveMap: coverMap, emissive: '#ffffff', emissiveIntensity: 0, roughness: 0.55 })
       : cover;
-    const pages = new MeshStandardMaterial({ color: '#efe8d8', roughness: 0.9 });
+    const pages = new MeshStandardMaterial({ map: mat.pageEdges(), roughness: 0.9 });
     // The spine faces the room (-x). Its text runs bottom→top, rotated to read like a real spine.
     const spineMap = spineTexture(book.record);
     spineMap.center.set(0.5, 0.5);

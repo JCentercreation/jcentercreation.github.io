@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { RoundedBox } from '@react-three/drei';
 import type { Texture } from 'three';
+import { mat } from '../materials/library';
 
 export interface LaptopProps {
   width: number;
@@ -42,7 +43,7 @@ export function LaptopModel({
   return (
     <group>
       <RoundedBox args={[width, thickness, depth]} radius={thickness * 0.45} smoothness={3} position-y={thickness / 2} castShadow receiveShadow>
-        <meshStandardMaterial color={bodyColor} metalness={0.85} roughness={0.32} />
+        <primitive object={mat.aluminium(bodyColor, 1)} attach="material" />
       </RoundedBox>
       {deck ? (
         <mesh position={[0, thickness + 0.0003, 0]} rotation-x={-Math.PI / 2}>
@@ -66,7 +67,7 @@ export function LaptopModel({
       {/* Lid hinged at the back edge. */}
       <group position={[0, thickness, -depth / 2]} rotation-x={-lidAngle}>
         <RoundedBox args={[width, lidH, 0.006]} radius={0.0028} smoothness={3} position={[0, lidH / 2, -0.003]} castShadow>
-          <meshStandardMaterial color={bodyColor} metalness={0.85} roughness={0.32} />
+          <primitive object={mat.aluminium(bodyColor, 1)} attach="material" />
         </RoundedBox>
         <mesh position={[0, lidH / 2, 0.0002]}>
           <planeGeometry args={[width * 0.985, lidH * 0.98]} />
@@ -82,6 +83,10 @@ export function LaptopModel({
             <meshBasicMaterial color="#000" />
           </mesh>
         )}
+        {/* Reflection-only glass over the display (the live screen and DOM overlay are untouched). */}
+        <mesh position={[0, lidH / 2, 0.001]} material={mat.screenGlass()}>
+          <planeGeometry args={[width * 0.985, lidH * 0.98]} />
+        </mesh>
         {children}
       </group>
     </group>

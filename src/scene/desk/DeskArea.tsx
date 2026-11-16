@@ -18,7 +18,6 @@ function lampShade() {
 }
 import { lockScreenTexture } from './deckTextures';
 import { DESK_OFFSET, IPAD, MACBOOK, STUDIO_DISPLAY } from '../layout';
-import { rugTexture } from '../decor/rug';
 import { StudioDisplay } from './StudioDisplay';
 import { MagicKeyboard, MagicTrackpad } from './Peripherals';
 import { Rod } from '../primitives';
@@ -64,9 +63,8 @@ function Desk() {
       <Pedestal x={-DESK.width / 2 + 0.26} />
       <Pedestal x={DESK.width / 2 - 0.26} />
       {/* Felt desk pad under the laptop, keyboard and trackpad. */}
-      <mesh position={[0.15, TOP + 0.0015, 0.12]} receiveShadow>
+      <mesh position={[0.15, TOP + 0.0015, 0.12]} material={mat.felt()} receiveShadow>
         <boxGeometry args={[1.08, 0.003, 0.4]} />
-        <meshStandardMaterial color="#2e2c2a" roughness={0.95} />
       </mesh>
     </group>
   );
@@ -187,7 +185,7 @@ function DeskProps() {
       {/* iPhone face up on the desk pad, lock screen dimly lit. */}
       <group position={[0.06, TOP + 0.003, -3.5]} rotation-y={0.32}>
         <RoundedBox args={[0.0716, 0.0083, 0.1476]} radius={0.0035} smoothness={3} position-y={0.0042} castShadow>
-          <meshStandardMaterial color="#5a5c60" metalness={0.85} roughness={0.3} />
+          <primitive object={mat.aluminium('#5a5c60', 1)} attach="material" />
         </RoundedBox>
         <mesh position-y={0.0085} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[0.0685, 0.1445]} />
@@ -196,6 +194,9 @@ function DeskProps() {
         <mesh position-y={0.0087} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[0.066, 0.142]} />
           <meshBasicMaterial map={lock} toneMapped={false} color={[0.55, 0.55, 0.55]} />
+        </mesh>
+        <mesh position-y={0.0089} rotation-x={-Math.PI / 2} material={mat.screenGlass()}>
+          <planeGeometry args={[0.0685, 0.1445]} />
         </mesh>
       </group>
 
@@ -208,11 +209,11 @@ function DeskProps() {
       <group position={[1.3, TOP, -3.5]}>
         <mesh position-y={0.048} castShadow>
           <cylinderGeometry args={[0.042, 0.04, 0.096, 32]} />
-          <primitive object={flat({ color: '#2b2b2b', roughness: 0.45 })} attach="material" />
+          <primitive object={mat.glazedCeramic()} attach="material" />
         </mesh>
         <mesh position={[0.046, 0.05, 0]} rotation-x={Math.PI / 2}>
           <torusGeometry args={[0.022, 0.006, 8, 16, Math.PI]} />
-          <primitive object={flat({ color: '#2b2b2b', roughness: 0.45 })} attach="material" />
+          <primitive object={mat.glazedCeramic()} attach="material" />
         </mesh>
       </group>
 
@@ -284,11 +285,9 @@ function DeskProps() {
 
 /** Jute rug in front of the desk (reference): warm, woven, low contrast. */
 function Rug() {
-  const jute = rugTexture('jute', [150, 116, 78], [118, 88, 58]);
   return (
-    <mesh position={[DESK.x, 0.004, DESK.z + 1.25]} rotation-x={-Math.PI / 2} receiveShadow>
+    <mesh position={[DESK.x, 0.004, DESK.z + 1.25]} rotation-x={-Math.PI / 2} material={mat.rug()} receiveShadow>
       <planeGeometry args={[2.5, 1.7]} />
-      <meshStandardMaterial map={jute} roughness={1} />
     </mesh>
   );
 }
@@ -297,9 +296,8 @@ function Rug() {
 function DeskPlant() {
   return (
     <group position={[-0.06, TOP, -4.0]}>
-      <mesh position-y={0.055} castShadow>
+      <mesh position-y={0.055} material={mat.matteCeramic()} castShadow>
         <cylinderGeometry args={[0.055, 0.045, 0.11, 24]} />
-        <meshStandardMaterial color="#d8d3c8" roughness={0.6} />
       </mesh>
       {[0, 1, 2, 3, 4, 5, 6].map((i) => (
         <mesh key={i} position={[Math.cos(i * 0.9) * 0.05, 0.17 + (i % 3) * 0.03, Math.sin(i * 0.9) * 0.05]} rotation={[0.6 * Math.sin(i), i * 0.9, 0.5]} scale={[0.07, 0.008, 0.035]} castShadow>
@@ -317,15 +315,15 @@ function Chair() {
     // Centred at the desk, facing the window (reference): we see its back from the overview.
     <group position={[DESK.x + 0.05, 0, DESK.z + 0.78]} rotation-y={0.06}>
       <RoundedBox args={[0.5, 0.07, 0.48]} radius={0.02} position-y={0.48} castShadow>
-        <primitive object={mat.leatherTan()} attach="material" />
+        <primitive object={mat.leatherSeat()} attach="material" />
       </RoundedBox>
       {/* Mid-back leather chair (reference): the back stays below the screens from the overview. */}
       <group position={[0, 0.74, 0.23]} rotation-x={-0.12}>
         <RoundedBox args={[0.47, 0.42, 0.06]} radius={0.025} castShadow>
-          <primitive object={mat.leatherTan()} attach="material" />
+          <primitive object={mat.leatherBack()} attach="material" />
         </RoundedBox>
       </group>
-      <Rod from={[0, 0.1, 0]} to={[0, 0.45, 0]} radius={0.022} color="#2a2b2d" metalness={0.8} roughness={0.3} />
+      <Rod from={[0, 0.1, 0]} to={[0, 0.45, 0]} radius={0.022} material={mat.chrome()} />
       <Rod from={[0, 0.45, 0.2]} to={[0, 0.62, 0.24]} radius={0.015} color="#2a2b2d" metalness={0.8} roughness={0.3} />
       {legs.map((a) => (
         <group key={a} rotation-y={a}>

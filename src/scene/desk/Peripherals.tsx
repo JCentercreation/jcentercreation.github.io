@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { CanvasTexture, SRGBColorSpace } from 'three';
 import { KEYBOARD, TRACKPAD } from '../layout';
 import { roundRect } from '../screens/draw';
+import { mat } from '../materials/library';
 
 /** Magic Keyboard top: white keys on silver. Generated, provisional. */
 function keyboardTexture() {
@@ -46,7 +47,7 @@ function Wedge({ w, d, front, back, color, map }: { w: number; d: number; front:
     <group>
       <mesh position-y={h / 2} castShadow receiveShadow>
         <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial color="#c9cbce" metalness={0.8} roughness={0.32} />
+<primitive object={mat.aluminium()} attach="material" />
       </mesh>
       <mesh position={[0, h + 0.0004, 0]} rotation-x={-Math.PI / 2 + angle}>
         <planeGeometry args={[w - 0.002, d / Math.cos(angle) - 0.002]} />

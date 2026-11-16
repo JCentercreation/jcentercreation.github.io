@@ -19,11 +19,14 @@ const num = (k: string) => {
   return params.has(k) && Number.isFinite(v) && v > 0 ? v : null;
 };
 
-/** Current operator. Kept at ACES until a comparison-based decision is approved. */
-export const TONE_MAPPING: ToneMappingName = tmParam === 'agx' || tmParam === 'neutral' || tmParam === 'aces' ? tmParam : 'aces';
+/** AgX (approved after the Phase A comparison): natural timber, graceful lamp roll-off. */
+export const TONE_MAPPING: ToneMappingName = tmParam === 'agx' || tmParam === 'neutral' || tmParam === 'aces' ? tmParam : 'agx';
 
-/** Explicit exposure (previously implicit 1.0 on both tiers). */
-export const EXPOSURE = num('exposure') ?? 1.0;
+/**
+ * Explicit exposure, both tiers. 0.8 with AgX keeps the night-time darkness of the approved ACES look
+ * (overall level within ~20%) while AgX's softer toe keeps shadows readable.
+ */
+export const EXPOSURE = num('exposure') ?? 0.8;
 
 export const RENDERER_TONE_MAPPING: Record<ToneMappingName, ToneMapping> = {
   aces: ACESFilmicToneMapping,

@@ -4,6 +4,7 @@ import { IPAD } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { useScreenTexture } from '../screens/screenTextures';
 import { IPadScreen } from './IPadScreen';
+import { mat } from '../materials/library';
 
 /** iPad Pro 13", flat on the desk in landscape, screen on. Click → camera above, near-perpendicular. */
 export function IPad() {
@@ -15,7 +16,7 @@ export function IPad() {
     <Interactive id="ipad" enabled={shot !== 'ipad'} onSelect={() => useExperience.getState().goTo('ipad')}>
       <group position={IPAD.position} rotation-y={IPAD.rotationY}>
         <RoundedBox args={[IPAD.width, IPAD.thickness, IPAD.depth]} radius={0.0024} smoothness={3} position-y={IPAD.thickness / 2} castShadow receiveShadow>
-          <meshStandardMaterial color="#3a3b3e" metalness={0.85} roughness={0.35} />
+<primitive object={mat.aluminium('#3a3b3e', 1)} attach="material" />
         </RoundedBox>
         <mesh position-y={IPAD.thickness + 0.0002} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[IPAD.width - 0.004, IPAD.depth - 0.004]} />
@@ -24,6 +25,9 @@ export function IPad() {
         <mesh position-y={IPAD.thickness + 0.0005} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[IPAD.width - 0.016, IPAD.depth - 0.016]} />
           <meshBasicMaterial map={screen} toneMapped={false} color={[glow, glow, glow]} />
+        </mesh>
+        <mesh position-y={IPAD.thickness + 0.0008} rotation-x={-Math.PI / 2} material={mat.screenGlass()}>
+          <planeGeometry args={[IPAD.width - 0.004, IPAD.depth - 0.004]} />
         </mesh>
         {/* Interactive career app, mapped onto the display once the camera arrives. */}
         <IPadScreen />
