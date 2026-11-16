@@ -7,6 +7,21 @@ const es: LocaleContent = {
     loading: 'Abriendo el garaje',
     loadingHint: 'Cargando el taller…',
     loadingStages: { engine: 'Cargando el motor 3D…', scene: 'Preparando el garaje…', ready: 'Abriendo el garaje' },
+    boot: {
+      preparing: 'Preparando tu espacio…',
+      ready: 'Listo',
+      stepOf: '{n} de {total}',
+      steps: {
+        engine: 'Iniciando el motor 3D',
+        room: 'Construyendo el garaje',
+        workspace: 'Preparando el escritorio',
+        library: 'Ordenando la biblioteca',
+        car: 'Aparcando el coche',
+        storm: 'Dejando entrar la tormenta',
+        materials: 'Preparando los materiales',
+        reflections: 'Capturando los reflejos',
+      },
+    },
     loadError: {
       title: 'No se ha podido abrir el garaje',
       body: 'Algo ha fallado al iniciar la escena 3D. Puedes volver a intentarlo o leerlo todo en la versión sencilla.',

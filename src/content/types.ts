@@ -79,6 +79,14 @@ export interface UiStrings {
   loadingHint: string;
   /** Real loading stages (no invented percentages). */
   loadingStages: { engine: string; scene: string; ready: string };
+  /** The loading screen drawn on the MacBook display (one label per real boot milestone, see scene/boot.ts). */
+  boot: {
+    preparing: string;
+    ready: string;
+    /** "{n} of {total}" */
+    stepOf: string;
+    steps: { engine: string; room: string; workspace: string; library: string; car: string; storm: string; materials: string; reflections: string };
+  };
   /** Shown if the 3D scene cannot start (WebGL or download failure). */
   loadError: { title: string; body: string; retry: string; continue2d: string };
   /** Accessible label for the welcome caption region during the intro. */

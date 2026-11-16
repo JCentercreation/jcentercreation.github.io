@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { LOCALES, type AutoSection, type IPadSection, type InteractiveObjectId, type Locale, type PortfolioSection, type ShotId } from '@/content';
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
+import type { BootStep } from '@/scene/boot';
 
 export type FallbackRequest = 'chosen' | 'failed';
 
@@ -100,6 +101,11 @@ interface ExperienceState {
   openAutoSection: (section: AutoSection) => void;
 
   /** Set by the Skip button; the camera controller consumes it. */
+  /** Boot milestones completed (scene/boot.ts) and the one in progress. */
+  boot: { step: number; current: BootStep | null };
+  setBoot: (step: number, current: BootStep | null) => void;
+  /** How the visitor entered the garage once loading finished (drives the camera's first move). */
+  entry: 'intro' | 'return' | 'skip' | 'override' | null;
   skipIntroRequested: boolean;
   requestSkipIntro: () => void;
 
@@ -181,6 +187,9 @@ export const useExperience = create<ExperienceState>((set) => ({
   auto: { section: 'overview' },
   openAutoSection: (section) => set({ auto: { section } }),
 
+  boot: { step: 0, current: 'engine' },
+  setBoot: (step, current) => set({ boot: { step, current } }),
+  entry: null,
   skipIntroRequested: false,
   requestSkipIntro: () => set({ skipIntroRequested: true }),
 

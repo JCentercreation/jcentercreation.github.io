@@ -23,20 +23,28 @@ export function App() {
   const forceScene = useExperience((s) => s.forceScene);
   const forceFallback = useExperience((s) => s.forceFallback);
   const phase = useExperience((s) => s.phase);
+  // Once the MacBook's first frame has rendered, the loading screen lives on its display.
+  const bootVisible = useExperience((s) => s.boot.step >= 1);
 
   const [engineLoaded, setEngineLoaded] = useState(false);
   const [sceneProgress, setSceneProgress] = useState<number | null>(null);
   const [sceneFailed, setSceneFailed] = useState(false);
 
+  // Called once the garage is genuinely ready (every boot milestone done, scene/boot.ts). The camera has
+  // been at the MacBook close-up throughout; `entry` tells it how to leave (CameraController).
   const onReady = useCallback(() => {
     const s = useExperience.getState();
     if (initialShotOverride && !forceIntro) {
-      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' || initialShotOverride === 'teslaInterior' });
+      useExperience.setState({ shot: initialShotOverride, phase: 'exploring', entry: 'override', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' || initialShotOverride === 'teslaInterior' });
+    } else if (s.skipIntroRequested) {
+      // Skipped while loading: arrive at the overview directly, interactive at once.
+      s.markVisited();
+      useExperience.setState({ shot: 'overview', phase: 'exploring', entry: 'skip', skipIntroRequested: false });
     } else if (s.hasVisited && !forceIntro) {
-      // Returning visitors skip the welcome sequence.
-      useExperience.setState({ shot: 'overview', phase: 'exploring' });
+      // Returning visitors: no welcome sequence, a short move from the MacBook to the overview.
+      useExperience.setState({ shot: 'overview', phase: 'exploring', entry: 'return' });
     } else {
-      useExperience.setState({ shot: 'macbookIntro', phase: 'intro' });
+      useExperience.setState({ shot: 'macbookIntro', phase: 'intro', entry: 'intro' });
     }
   }, []);
 
@@ -63,7 +71,7 @@ export function App() {
       <AutoSheet />
       <InteriorHint />
       {/* On failure the error panel takes the loader's place outright — no cross-fade of two titles. */}
-      {!sceneFailed && <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading'} />}
+      {!sceneFailed && <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading' || bootVisible} />}
     </>
   );
 }

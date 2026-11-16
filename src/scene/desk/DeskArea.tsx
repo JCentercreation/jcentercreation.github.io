@@ -379,7 +379,8 @@ function Chair() {
   );
 }
 
-export function DeskArea() {
+/** `withMacBook={false}`: the MacBook is mounted on its own first while loading (GarageScene). */
+export function DeskArea({ withMacBook = true }: { withMacBook?: boolean }) {
   const shot = useExperience((s) => s.shot);
   return (
     // The desk set is authored in its own frame and placed under the window as one unit.
@@ -393,7 +394,7 @@ export function DeskArea() {
       <DeskLamp />
       <DeskProps />
       <StudioDisplay />
-      <MacBook />
+      {withMacBook && <MacBook />}
       <MagicKeyboard />
       <MagicTrackpad />
       <IPad />

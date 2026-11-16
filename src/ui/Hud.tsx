@@ -7,12 +7,30 @@ import styles from './Hud.module.css';
 
 const PLACES: ShotId[] = ['overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaInterior', 'teslaLaptop'];
 
+const visuallyHidden: React.CSSProperties = { position: 'absolute', width: 1, height: 1, margin: -1, padding: 0, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0 };
+
 /** Persistent, discreet chrome: language selector, return-to-garage, skip intro, keyboard places. */
 export function Hud() {
   const { ui } = useContent();
   const locale = useExperience((s) => s.locale);
   const setLocale = useExperience((s) => s.setLocale);
   const phase = useExperience((s) => s.phase);
+  // While loading, the progress is drawn on the 3D MacBook; the HUD appears once that is visible.
+  const bootVisible = useExperience((s) => s.boot.step >= 1);
+  const bootStep = useExperience((s) => s.boot.current);
+  const skipRequested = useExperience((s) => s.skipIntroRequested);
+  const loading = phase === 'loading';
+  const showSkip = !skipRequested && (phase === 'intro' || (loading && bootVisible));
+  const [slow, setSlow] = useState(false);
+  // If loading on the MacBook takes unusually long, offer the simple version (as the DOM loader did).
+  useEffect(() => {
+    if (!loading || !bootVisible) {
+      setSlow(false);
+      return;
+    }
+    const t = window.setTimeout(() => setSlow(true), 20000);
+    return () => window.clearTimeout(t);
+  }, [loading, bootVisible]);
   const shot = useExperience((s) => s.shot);
   const backToOverview = useExperience((s) => s.backToOverview);
   const [hintVisible, setHintVisible] = useState(false);
@@ -35,8 +53,8 @@ export function Hud() {
     const onKey = (e: KeyboardEvent) => {
       const s = useExperience.getState();
       if (e.key !== 'Escape') return;
-      // During the welcome sequence, Escape skips it.
-      if (s.phase === 'intro') {
+      // During loading (once the MacBook shows it) and the welcome sequence, Escape skips.
+      if (s.phase === 'intro' || (s.phase === 'loading' && s.boot.step >= 1)) {
         s.requestSkipIntro();
         return;
       }
@@ -94,7 +112,11 @@ export function Hud() {
   };
 
   return (
-    <div className={`${styles.hud} ${phase === 'loading' ? styles.hidden : ''}`}>
+    <div className={`${styles.hud} ${loading && !bootVisible ? styles.hidden : ''}`}>
+      {/* The loading progress is drawn on the 3D MacBook; screen readers get the same milestones here. */}
+      <p style={visuallyHidden} role="status" aria-live="polite">
+        {loading && bootVisible ? (bootStep ? `${ui.boot.preparing} ${ui.boot.steps[bootStep]}` : ui.boot.ready) : ''}
+      </p>
       <div className={styles.topRight}>
         <div className={styles.pill} role="group" aria-label={ui.language}>
           {LOCALES.map((l) => (
@@ -127,7 +149,7 @@ export function Hud() {
           ref={skipRef}
           type="button"
           className={styles.back}
-          hidden={phase !== 'intro'}
+          hidden={!showSkip}
           onFocus={() => (skipHadFocus.current = true)}
           // Only a deliberate move elsewhere clears it (hiding the button also blurs it, with no relatedTarget).
           onBlur={(e) => {
@@ -137,6 +159,11 @@ export function Hud() {
         >
           {ui.skipIntro}
         </button>
+        {slow && (
+          <button type="button" className={styles.back} onClick={() => useExperience.getState().setForceFallback('chosen')}>
+            {ui.loadError.continue2d}
+          </button>
+        )}
       </div>
 
       <p className={styles.hint} data-visible={hintVisible && shot === 'overview'} aria-live="polite">

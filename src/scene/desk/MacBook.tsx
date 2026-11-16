@@ -2,13 +2,19 @@ import { useExperience } from '@/app/store';
 import { MACBOOK } from '../layout';
 import { Interactive, useIsHovered } from '../Interactive';
 import { useScreenTexture } from '../screens/screenTextures';
+import { useBootScreenTexture } from '../screens/bootScreen';
 import { LaptopModel } from './LaptopModel';
 import { macbookDeckTexture } from './deckTextures';
 import { MacBookScreen } from './MacBookScreen';
 
 /** MacBook Pro 14" (silver). Click → camera to the screen. */
 export function MacBook() {
-  const screen = useScreenTexture('notes');
+  const notes = useScreenTexture('notes');
+  // While the garage loads, the display shows the real loading progress (screens/bootScreen.ts);
+  // then the welcome note, as before.
+  const boot = useBootScreenTexture();
+  const loading = useExperience((s) => s.phase === 'loading');
+  const screen = loading ? boot : notes;
   const hovered = useIsHovered('macbook');
   const shot = useExperience((s) => s.shot);
   return (

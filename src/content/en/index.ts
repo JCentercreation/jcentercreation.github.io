@@ -7,6 +7,21 @@ const en: LocaleContent = {
     loading: 'Opening the garage',
     loadingHint: 'Loading the workshop…',
     loadingStages: { engine: 'Loading the 3D engine…', scene: 'Preparing the garage…', ready: 'Opening the garage' },
+    boot: {
+      preparing: 'Preparing your space…',
+      ready: 'Ready',
+      stepOf: '{n} of {total}',
+      steps: {
+        engine: 'Starting the 3D engine',
+        room: 'Building the garage',
+        workspace: 'Setting up the workspace',
+        library: 'Arranging the library',
+        car: 'Bringing in the car',
+        storm: 'Letting the storm in',
+        materials: 'Preparing materials',
+        reflections: 'Capturing reflections',
+      },
+    },
     loadError: {
       title: "The garage couldn't open",
       body: 'Something went wrong while starting the 3D scene. You can try again, or read everything in the simple version.',

@@ -10,7 +10,8 @@ import { responsiveFov } from './fov';
 // Review tooling only: `?capture=1` exposes the animation clock so a recorder can step the
 // welcome sequence frame by frame (software-rendered review captures can't run in real time).
 if (new URLSearchParams(window.location.search).has('capture')) {
-  (window as unknown as { __gsap: typeof gsap }).__gsap = gsap;
+  (window as unknown as { __gsap: typeof gsap; __shots: typeof SHOTS }).__gsap = gsap;
+  (window as unknown as { __shots: typeof SHOTS }).__shots = SHOTS;
 }
 
 interface Rig {
@@ -39,6 +40,13 @@ export function CameraController() {
     window.addEventListener('pointermove', onMove);
     return () => window.removeEventListener('pointermove', onMove);
   }, []);
+
+  // From the very first frame the camera sits at the starting shot (the MacBook close-up), so the
+  // loading screen on its display is visible while the rest of the garage loads.
+  if (!rig.current) {
+    const start = SHOTS[useExperience.getState().shot];
+    rig.current = { pos: start.position.clone(), target: start.target.clone(), fov: start.fov, parallax: start.parallax ? 1 : 0 };
+  }
 
   /** Animate the rig to a shot. Resolves when it arrives. */
   const flyTo = (id: ShotId, opts: { duration?: number; ease?: string; delay?: number; onStart?: () => void; onComplete?: () => void } = {}) => {
@@ -86,27 +94,38 @@ export function CameraController() {
     };
 
     return useExperience.subscribe((state, prev) => {
-      // First frame after loading: snap to the starting shot.
+      // Loading finished: the camera starts at the MacBook close-up (set at mount) and leaves it
+      // according to how the visitor entered (App.tsx onReady → state.entry).
       if (prev.phase === 'loading' && state.phase !== 'loading') {
-        const start = SHOTS[state.shot];
-        rig.current = { pos: start.position.clone(), target: start.target.clone(), fov: start.fov, parallax: start.parallax ? 1 : 0 };
-        useExperience.getState().setArrivedShot(state.phase === 'intro' ? null : state.shot);
         if (cameraOverride) {
           rig.current = { pos: new Vector3(...cameraOverride.position), target: new Vector3(...cameraOverride.target), fov: cameraOverride.fov, parallax: 0 };
+          useExperience.getState().setArrivedShot(state.shot);
           return;
         }
-        if (state.phase === 'intro') {
-          // Welcome sequence: hold on the note, then a slow pull-back revealing the garage (~6.8 s total).
-          // Reduced motion: the same hold (to read the note), then a cut instead of a camera flight.
-          const reduced = state.reducedMotion;
+        const reduced = state.reducedMotion;
+        if (state.entry === 'intro') {
+          // First visit: the welcome note replaces the loading screen on the MacBook, a short hold to read
+          // it, then the slow pull-back revealing the garage (~6.7 s incl. the "Ready" confirmation).
+          // Reduced motion: the same hold, then a cut instead of a camera flight.
           flyTo('overview', {
-            delay: reduced ? 3 : 2.4,
+            delay: reduced ? 3 : 1.8,
             duration: reduced ? 0.01 : 4.4,
             ease: 'power2.inOut',
             onStart: () => useExperience.setState({ introRevealing: true }),
             onComplete: finishIntro,
           });
+          return;
         }
+        if (state.entry === 'return') {
+          // Returning visitor: no welcome sequence — a brief, smooth move from the MacBook to the overview.
+          flyTo(state.shot, { duration: reduced ? 0.01 : 1.6, ease: 'power2.inOut' });
+          return;
+        }
+        // Skipped while loading, or a review ?shot= override: arrive directly (no unexpected movement).
+        const start = SHOTS[state.shot];
+        tween.current?.kill();
+        rig.current = { pos: start.position.clone(), target: start.target.clone(), fov: start.fov, parallax: start.parallax ? 1 : 0 };
+        useExperience.getState().setArrivedShot(state.shot);
         return;
       }
       if (state.phase === 'intro' && state.skipIntroRequested && !prev.skipIntroRequested) {
