@@ -140,8 +140,9 @@ function DeskLamp() {
         shadow-camera-near={0.05}
         shadow-camera-far={6}
       />
-      {/* Warm spill so the lamp's surroundings don't fall to black outside the cone. */}
-      <pointLight position={[head[0], head[1] + 0.05, head[2]]} intensity={8} distance={10} decay={2} color="#ffae62" />
+      {/* Warm spill so the lamp's surroundings don't fall to black outside the cone. Its range is kept
+          local (6 m): beyond the desk the warm light fades out instead of tinting the whole garage. */}
+      <pointLight position={[head[0], head[1] + 0.05, head[2]]} intensity={8} distance={6} decay={2} color="#ffae62" />
     </group>
   );
 }

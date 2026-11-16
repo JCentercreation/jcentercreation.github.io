@@ -14,7 +14,10 @@ export const storm = {
 };
 
 // Review tooling only: `?calm=1` suppresses lightning so before/after captures are comparable.
-const calm = new URLSearchParams(window.location.search).has('calm');
+const reviewParams = new URLSearchParams(window.location.search);
+const calm = reviewParams.has('calm');
+// Review tooling only: `?flash=0.8` holds the lightning at a fixed strength (comparable captures).
+const heldFlash = reviewParams.has('flash') ? Math.max(0, Math.min(1, Number(reviewParams.get('flash')) || 0)) : null;
 let nextStrike = calm ? Infinity : 4;
 let pulses: { at: number; strength: number }[] = [];
 
@@ -49,7 +52,7 @@ export function StormController() {
       const decay = gentle ? 1.2 : 0.16;
       f = Math.max(f, p.strength * Math.exp(-age / decay) * (age < 0.02 ? age / 0.02 : 1));
     }
-    storm.flash = f;
+    storm.flash = heldFlash ?? f;
   });
   return null;
 }

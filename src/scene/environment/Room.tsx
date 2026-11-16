@@ -182,7 +182,8 @@ export function Room() {
     <group>
       <mesh geometry={floorGeo} rotation-x={-Math.PI / 2} material={mat.concreteFloor()} receiveShadow />
 
-      <mesh geometry={backWall} position={[0, 0, ROOM.minZ - T]} material={mat.cladding()} receiveShadow />
+      {/* Casts shadows: the storm light (and lightning) only enters through the window and door glass. */}
+      <mesh geometry={backWall} position={[0, 0, ROOM.minZ - T]} material={mat.cladding()} castShadow receiveShadow />
       <mesh geometry={sideGeo} position={[ROOM.minX, PLINTH + (H - PLINTH) / 2, (ROOM.minZ + ROOM.maxZ) / 2]} rotation-y={Math.PI / 2} material={mat.cladding()} receiveShadow />
       <mesh geometry={sideGeo} position={[ROOM.maxX, PLINTH + (H - PLINTH) / 2, (ROOM.minZ + ROOM.maxZ) / 2]} rotation-y={-Math.PI / 2} material={mat.claddingLight()} receiveShadow />
       <mesh geometry={frontGeo} position={[(ROOM.minX + ROOM.maxX) / 2, H / 2, ROOM.maxZ]} rotation-y={Math.PI} material={mat.cladding()} receiveShadow />

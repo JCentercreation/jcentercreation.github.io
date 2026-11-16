@@ -14,6 +14,7 @@ import { concreteFloor, concretePanels, glulam, oakDesk, oakWood, ceilingPlanks,
 import { brushed, concreteDetail, felt, leather, pageEdges, weave } from './surfaces';
 import { rugTexture } from '../decor/rug';
 import { makeNoise } from './noise';
+import { withRoomAO } from './roomAO';
 
 /**
  * Shared material library.
@@ -189,12 +190,12 @@ export const mat = {
 
   // --------------------------------------------------------------- wood (world-scale UVs only)
   /** Horizontal white-oak cladding, 2.4 m tiles, matte oiled. */
-  cladding: () => shared('cladding', () => new MeshStandardMaterial({ ...woodCladding(), normalScale: new Vector2(0.9, 0.9) })),
+  cladding: () => shared('cladding', () => withRoomAO(new MeshStandardMaterial({ ...woodCladding(), normalScale: new Vector2(0.9, 0.9) }))),
   /** The same cladding with a lighter tint (the bookshelf wall). */
   claddingLight: () =>
-    shared('claddingLight', () => new MeshStandardMaterial({ ...woodCladding(), color: '#e8dccb', normalScale: new Vector2(0.9, 0.9) })),
+    shared('claddingLight', () => withRoomAO(new MeshStandardMaterial({ ...woodCladding(), color: '#e8dccb', normalScale: new Vector2(0.9, 0.9) }))),
   /** Tongue-and-groove ceiling planks. */
-  ceiling: () => shared('ceiling', () => new MeshStandardMaterial({ ...ceilingPlanks(), normalScale: new Vector2(0.7, 0.7) })),
+  ceiling: () => shared('ceiling', () => withRoomAO(new MeshStandardMaterial({ ...ceilingPlanks(), normalScale: new Vector2(0.7, 0.7) }))),
   /** Glulam: beams, posts and the window casing (tile 1 m along the grain × 0.4 m across), sealed. */
   glulam: () => shared('glulam', () => new MeshStandardMaterial({ ...glulam(), normalScale: new Vector2(0.55, 0.55) })),
   /** Oiled furniture oak: shelves and the window sill (tile 1 m × 0.5 m). */
@@ -213,11 +214,11 @@ export const mat = {
   concreteFloor: () =>
     shared(
       'concreteFloor',
-      () => withConcreteDetail(new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.35, 0.35), metalness: 0.04 })),
+      () => withRoomAO(withConcreteDetail(new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.35, 0.35), metalness: 0.04 }))),
       { envMapIntensity: 0.8 },
     ),
   /** Board-formed concrete plinth, 2.4 m tiles. */
-  concretePlinth: () => shared('concretePlinth', () => new MeshStandardMaterial({ ...concretePanels(), color: '#b9b6b0' })),
+  concretePlinth: () => shared('concretePlinth', () => withRoomAO(new MeshStandardMaterial({ ...concretePanels(), color: '#b9b6b0' }))),
 
   // --------------------------------------------------------------- glass
   /**
