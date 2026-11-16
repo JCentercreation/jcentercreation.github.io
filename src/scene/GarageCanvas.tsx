@@ -1,7 +1,7 @@
 import { Suspense, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
-import { PCFShadowMap, SRGBColorSpace } from 'three';
+import { HalfFloatType, PCFShadowMap, SRGBColorSpace, WebGLRenderTarget } from 'three';
 import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
 import { GarageScene } from './GarageScene';
@@ -40,9 +40,20 @@ function ReadySignal({ onReady, envResolution }: Pick<Props, 'onReady'> & { envR
     const id = requestAnimationFrame(() => {
       // Seed reflections first, so shaders compile once with the final environment configuration.
       seedEnvironment(gl, scene, envResolution);
+      // Off-screen variants (no tone mapping, linear output) are what the one-off room capture renders
+      // with; the reduced tier draws straight to the screen, so it would otherwise compile them
+      // synchronously during the capture. Compile both sets asynchronously first.
+      const offscreen = new WebGLRenderTarget(1, 1, { type: HalfFloatType });
       gl.compileAsync(scene, camera)
+        .then(() => {
+          gl.setRenderTarget(offscreen);
+          const pending = gl.compileAsync(scene, camera);
+          gl.setRenderTarget(null);
+          return pending;
+        })
         .catch(() => undefined) // a compile warm-up failure must never block the visitor
         .finally(() => {
+          offscreen.dispose();
           if (cancelled) return;
           // Reflections of the real room, captured once while the loader is still up.
           try {
