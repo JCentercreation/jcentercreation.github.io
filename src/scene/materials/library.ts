@@ -81,14 +81,14 @@ function withConcreteDetail(m: MeshStandardMaterial): MeshStandardMaterial {
         float cMacro = dNoise(vDetailWorld.xz * 0.35) * 0.6 + dNoise(vDetailWorld.xz * 1.1 + 7.0) * 0.4;
         // Polished, sealed concrete reads darker than raw concrete: ~25 % below the base tile, with a
         // slightly wider macro tone range so the floor keeps natural variation instead of a flat grey.
-        diffuseColor.rgb *= 0.75 * (0.92 + 0.16 * cMacro) * (0.92 + 0.16 * cDetail.g);`,
+        diffuseColor.rgb *= 0.68 * (0.92 + 0.16 * cMacro) * (0.92 + 0.16 * cDetail.g);`,
       )
       .replace(
         '#include <roughnessmap_fragment>',
         `#include <roughnessmap_fragment>
         // Machine-polished: smoother on average than before, so the room's reflections (lamp glow, car, lit
         // timber) read softly; polish swirls and macro patches keep it varied and clearly concrete, never a mirror.
-        roughnessFactor = clamp(roughnessFactor * (0.6 + 0.4 * cDetail.r) + (cMacro - 0.5) * 0.1, 0.12, 1.0);`,
+        roughnessFactor = clamp(roughnessFactor * (0.5 + 0.38 * cDetail.r) + (cMacro - 0.5) * 0.1, 0.14, 1.0);`,
       );
   };
   m.customProgramCacheKey = () => 'concreteDetail';
@@ -218,8 +218,10 @@ export const mat = {
   concreteFloor: () =>
     shared(
       'concreteFloor',
-      () => withRoomAO(withConcreteDetail(new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.35, 0.35), metalness: 0.04 }))),
-      { envMapIntensity: 0.8 },
+      // Ground flat by polishing: a gentle normal (joints and aggregate still read, no orange-peel sheen) and
+      // a slightly stronger room reflection than before (0.8), kept soft by the roughness above.
+      () => withRoomAO(withConcreteDetail(new MeshStandardMaterial({ ...concreteFloor(), normalScale: new Vector2(0.15, 0.15), metalness: 0.04 }))),
+      { envMapIntensity: 1.1 },
     ),
   /** Board-formed concrete plinth, 2.4 m tiles. */
   concretePlinth: () => shared('concretePlinth', () => withRoomAO(new MeshStandardMaterial({ ...concretePanels(), color: '#b9b6b0' }))),

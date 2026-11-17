@@ -30,7 +30,7 @@ const SKY_Z = -580;
 const exteriorGLSL = /* glsl */ `
 ${noiseGLSL}
 const vec3 MOON_DIR = vec3(0.3163, 0.1861, -0.9302); // normalize(0.34, 0.2, -1)
-const vec3 HORIZON = vec3(0.05, 0.064, 0.088);   // atmospheric glow just above the sea
+const vec3 HORIZON = vec3(0.044, 0.056, 0.078);   // atmospheric glow just above the sea
 const vec3 HAZE = vec3(0.036, 0.047, 0.064);     // distance haze (sea and land fade into it)
 /** Lightning illumination: strongest around the strike (angular distance from the bolt). */
 float boltNear(vec3 dir, float boltX) {
@@ -59,7 +59,7 @@ function Sky() {
           ${exteriorGLSL}
           // One cloud deck at height h above the eye: density and a moon-side edge light.
           vec2 deck(vec3 dir, float h, float scale, vec2 drift, float cover) {
-            float t = h / max(dir.y, 0.012);
+            float t = h / max(dir.y, 0.05);
             vec2 p = (dir.xz * t) * scale + drift;
             float d = fbm(p);
             float dens = smoothstep(cover, cover + 0.28, d);
@@ -72,19 +72,19 @@ function Sky() {
             // Sky behind the clouds: horizon glow fading to a dark zenith, plus a wide moon halo.
             vec3 col = mix(HORIZON, vec3(0.011, 0.015, 0.024), pow(smoothstep(0.0, 0.5, up), 0.55));
             float moon = max(dot(dir, MOON_DIR), 0.0);
-            vec3 moonGlow = vec3(0.07, 0.085, 0.11) * (pow(moon, 18.0) * 0.9 + pow(moon, 4.0) * 0.25);
+            vec3 moonGlow = vec3(0.05, 0.06, 0.08) * (pow(moon, 18.0) * 0.9 + pow(moon, 4.0) * 0.2);
             col += moonGlow;
             // Distance fade of the decks towards the horizon (atmospheric perspective).
-            float far = smoothstep(0.03, 0.0, up);
+            float far = smoothstep(0.1, 0.0, up);
             vec2 hi = deck(dir, 900.0, 0.0011, vec2(uTime * 0.0008, 0.0), 0.5);
             vec2 mid = deck(dir, 420.0, 0.0018, vec2(uTime * 0.0016, 3.7), 0.44);
             vec2 low = deck(dir, 160.0, 0.0042, vec2(uTime * 0.004, 9.1), 0.5);
             // High veil: thin, lighter; storm layer: dark masses with silvered edges; scud: darkest, nearest.
-            col = mix(col, vec3(0.032, 0.04, 0.054) + moonGlow * 0.8, hi.x * 0.45);
-            vec3 midCol = vec3(0.016, 0.02, 0.028) + moonGlow * 0.35 + vec3(0.05, 0.06, 0.075) * (mid.x - mid.y) * (0.35 + pow(moon, 6.0) * 1.6);
+            col = mix(col, vec3(0.024, 0.03, 0.04) + moonGlow * 0.7, hi.x * 0.4);
+            vec3 midCol = vec3(0.013, 0.016, 0.023) + moonGlow * 0.3 + vec3(0.035, 0.042, 0.055) * (mid.x - mid.y) * (0.3 + pow(moon, 6.0) * 1.4);
             col = mix(col, midCol, mid.x * 0.85);
             col = mix(col, vec3(0.009, 0.011, 0.016), low.x * 0.7);
-            col = mix(col, HORIZON, far * 0.75);
+            col = mix(col, HORIZON, far * 0.85);
             // Lightning: the cloud mass glows around the strike, and a little everywhere.
             float dens = max(mid.x, max(low.x * 0.8, hi.x * 0.5));
             col += vec3(0.55, 0.62, 0.85) * uFlash * (0.2 + 0.8 * boltNear(dir, uBoltX)) * (0.25 + 0.9 * dens);
@@ -131,9 +131,9 @@ vec3 seaShade(vec3 world, vec3 n0, float crestH, float uTime, float uFlash, floa
   // Moon glitter: sharp, sparse highlights along the reflection path (restrained, never a mirror).
   vec3 r = reflect(-v, n);
   float m = max(dot(r, MOON_DIR), 0.0);
-  float glint = pow(m, 220.0) * 2.2 + pow(m, 40.0) * 0.12;
-  float sparkle = smoothstep(0.55, 0.85, vnoise(world.xz * 0.9 + uTime * 0.8));
-  col += vec3(0.32, 0.37, 0.46) * glint * (0.3 + sparkle) * (0.35 + 0.65 * rs);
+  float glint = pow(m, 260.0) * 1.1 + pow(m, 40.0) * 0.05;
+  float sparkle = smoothstep(0.62, 0.9, vnoise(world.xz * 0.9 + uTime * 0.8));
+  col += vec3(0.3, 0.35, 0.44) * glint * (0.15 + sparkle) * (0.3 + 0.4 * rs);
   // Crests catch a little light.
   float crest = smoothstep(0.55, 0.8, crestH) * vnoise(world.xz * 2.0);
   col += vec3(0.05, 0.06, 0.07) * crest * (1.0 + uFlash * 4.0);
@@ -396,8 +396,8 @@ function Bolt() {
 }
 
 /** Coastline layers: a darker headland on the left, hazier hills far away to the right. */
-const HEADLAND = { z: -300, height: 13, haze: 0.18, profile: [-700, -260, -70, 25] as [number, number, number, number], seed: 3.1 };
-const FAR_HILLS = { z: -500, height: 16, haze: 0.5, profile: [70, 240, 700, 900] as [number, number, number, number], seed: 8.4 };
+const HEADLAND = { z: -300, height: 22, haze: 0.15, profile: [-700, -260, -60, 40] as [number, number, number, number], seed: 3.1 };
+const FAR_HILLS = { z: -500, height: 26, haze: 0.45, profile: [60, 230, 700, 900] as [number, number, number, number], seed: 8.4 };
 
 export function Outside() {
   const tier = useExperience((s) => s.capabilities.tier);
