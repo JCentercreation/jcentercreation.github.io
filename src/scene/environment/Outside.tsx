@@ -285,8 +285,9 @@ function Coast({ z, height, haze, profile, seed }: { z: number; height: number; 
             float surf = smoothstep(0.9, 0.0, y) * smoothstep(0.45, 0.75, vnoise(vec2(x * 0.4, 2.0)));
             land += vec3(0.05, 0.058, 0.07) * surf;
             vec3 col = mix(land, HAZE, uHaze);
-            // Lightning: the hills are briefly lit, most strongly near the strike.
-            col += vec3(0.35, 0.4, 0.55) * uFlash * (0.15 + 0.85 * boltNear(dir, uBoltX)) * (0.25 + 0.35 * tex) * (1.0 - uHaze * 0.6);
+            // Lightning: distant land is only faintly lit and stays a silhouette against the bright clouds;
+            // the fine texture barely modulates it, so no grain appears during the flash.
+            col += vec3(0.05, 0.057, 0.078) * uFlash * (0.15 + 0.85 * boltNear(dir, uBoltX)) * (0.85 + 0.15 * tex) * (1.0 - uHaze * 0.6);
             gl_FragColor = vec4(col, 1.0);
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
