@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LOCALES, type ShotId } from '@/content';
 import { useExperience } from '@/app/store';
 import { useContent } from '@/app/useContent';
+import { useInputModality } from '@/lib/useInputModality';
 import { Tooltip } from './Tooltip';
 import styles from './Hud.module.css';
 
@@ -12,6 +13,7 @@ const visuallyHidden: React.CSSProperties = { position: 'absolute', width: 1, he
 /** Persistent, discreet chrome: language selector, return-to-garage, skip intro, keyboard places. */
 export function Hud() {
   const { ui } = useContent();
+  const input = useInputModality();
   const locale = useExperience((s) => s.locale);
   const setLocale = useExperience((s) => s.setLocale);
   const phase = useExperience((s) => s.phase);
@@ -59,6 +61,8 @@ export function Hud() {
         return;
       }
       if (s.phase !== 'exploring') return;
+      // A door click's pending move into the car is cancelled by Escape too (the door then closes).
+      s.cancelTeslaEntry();
       // Car: portfolio section → portfolio overview → car interior → garage (door closes).
       if (s.shot === 'teslaLaptop') {
         if (s.auto.section !== 'overview') s.openAutoSection('overview');
@@ -175,7 +179,7 @@ export function Hud() {
       </div>
 
       <p className={styles.hint} data-visible={hintVisible && shot === 'overview'} aria-live="polite">
-        {ui.exploreHint}
+        {ui.exploreHint[input]}
       </p>
 
       {/* Keyboard / screen-reader navigation: invisible until focused. */}

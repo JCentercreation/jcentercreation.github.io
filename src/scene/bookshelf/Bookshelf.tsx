@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import gsap from 'gsap';
-import { bookPose, readingPose } from './bookMotion';
-import { CanvasTexture, Color, TextureLoader, type Group, type InstancedMesh, Matrix4, MeshStandardMaterial, Quaternion, SRGBColorSpace, Euler, Vector3 } from 'three';
+import { bookPose, holdBookCentred, readingPose } from './bookMotion';
+import { CanvasTexture, Color, TextureLoader, type Texture, type Group, type InstancedMesh, Matrix4, MeshStandardMaterial, Quaternion, SRGBColorSpace, Euler, Vector3 } from 'three';
 import { useExperience } from '@/app/store';
 import type { BookRecord } from '@/content';
 import { BOOKSHELF, ROOM } from '../layout';
@@ -192,14 +192,98 @@ function spineTexture(record: BookRecord) {
 }
 
 /** Front cover image (Open Library), or the spine colour if none is supplied. */
+/** Wraps text to lines of at most `max` px (greedy, word by word). */
+function wrapLines(g: CanvasRenderingContext2D, text: string, max: number) {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && g.measureText(next).width > max) {
+      lines.push(line);
+      line = word;
+    } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+/**
+ * Typographic cover, used only when the cover image cannot be loaded (or none is supplied): the book's own
+ * spine colours with its title, subtitle and author, in the style of the spines on the shelf. No image is
+ * fabricated; everything comes from the book record.
+ */
+function typographicCover(record: BookRecord): Texture {
+  const W = 512;
+  const H = 768;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = c.getContext('2d')!;
+  g.fillStyle = record.spine.color;
+  g.fillRect(0, 0, W, H);
+  g.strokeStyle = record.spine.textColor;
+  g.globalAlpha = 0.55;
+  g.lineWidth = 3;
+  g.strokeRect(28, 28, W - 56, H - 56);
+  g.globalAlpha = 1;
+  g.fillStyle = record.spine.textColor;
+  g.textAlign = 'center';
+  g.textBaseline = 'alphabetic';
+  let y = 210;
+  g.font = `700 58px Georgia, 'Times New Roman', serif`;
+  for (const l of wrapLines(g, record.title, W - 120)) {
+    g.fillText(l, W / 2, y);
+    y += 68;
+  }
+  if (record.subtitle) {
+    y += 14;
+    g.globalAlpha = 0.85;
+    g.font = `italic 30px Georgia, 'Times New Roman', serif`;
+    for (const l of wrapLines(g, record.subtitle, W - 140)) {
+      g.fillText(l, W / 2, y);
+      y += 38;
+    }
+    g.globalAlpha = 1;
+  }
+  g.font = `600 30px ${SYSTEM_FONT}`;
+  g.fillText(record.author.toUpperCase(), W / 2, H - 92);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+// Review tooling only (`?capture=1`): which cover each catalogue book shows ('image' or 'typographic').
+const coverState: Record<string, 'image' | 'typographic'> = {};
+if (new URLSearchParams(window.location.search).has('capture')) (window as unknown as { __covers: typeof coverState }).__covers = coverState;
+
+/** The cover image; if it is missing or fails to load, the typographic cover instead (never a black slab). */
 function useCover(record: BookRecord) {
-  return useMemo(() => {
-    if (!record.cover) return null;
-    const t = new TextureLoader().load(`${import.meta.env.BASE_URL}${record.cover}`);
-    t.colorSpace = SRGBColorSpace;
-    t.anisotropy = 8;
-    return t;
+  const [texture, setTexture] = useState<Texture | null>(null);
+  useEffect(() => {
+    let live = true;
+    let current: Texture;
+    const fallback = () => {
+      if (!live) return;
+      current?.dispose();
+      current = typographicCover(record);
+      coverState[record.id] = 'typographic';
+      setTexture(current);
+    };
+    if (!record.cover) {
+      fallback();
+    } else {
+      current = new TextureLoader().load(`${import.meta.env.BASE_URL}${record.cover}`, () => (coverState[record.id] = 'image'), undefined, fallback);
+      current.colorSpace = SRGBColorSpace;
+      current.anisotropy = 8;
+      setTexture(current);
+    }
+    return () => {
+      live = false;
+      current?.dispose();
+    };
   }, [record]);
+  return texture;
 }
 
 // Review tooling only (`?capture=1`): screen positions + displacement of each catalogue book.
@@ -270,7 +354,7 @@ function CatalogueBook({ book }: { book: PlacedBook & { record: BookRecord } }) 
     const hovering = s.hoveredBook === id && !s.selectedBook;
     a.hover += ((hovering ? 1 : 0) - a.hover) * Math.min(1, dt * 9);
     if (a.t > 0) {
-      readingPose(camera, size.width < 900 || size.height > size.width, pose);
+      readingPose(camera, holdBookCentred(size.width, size.height), pose);
       bookPose(a.t, home, book.w, pose, g.position, g.quaternion);
     } else {
       // In its slot; a subtle 2 cm slide towards the room on hover.

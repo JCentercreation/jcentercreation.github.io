@@ -38,7 +38,11 @@ const en: LocaleContent = {
     present: 'Present',
     pendingContent: 'Details coming soon.',
     reducedMotionNotice: 'Reduced motion is on: camera moves are shortened.',
-    exploreHint: 'Click the MacBook, the iPad, the car door or the bookshelf to explore.',
+    exploreHint: {
+      mouse: 'Click the MacBook, the iPad, the car door or the bookshelf to explore.',
+      touch: 'Tap the MacBook, the iPad, the car door or the bookshelf to explore.',
+      keyboard: 'Press Tab to choose a place, then Enter to go there.',
+    },
     placesLabel: 'Places in the garage',
     fallback: {
       title: "The Engineer's Garage",

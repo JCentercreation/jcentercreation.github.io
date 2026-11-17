@@ -38,7 +38,11 @@ const es: LocaleContent = {
     present: 'Actualidad',
     pendingContent: 'Detalles próximamente.',
     reducedMotionNotice: 'Movimiento reducido activado: los movimientos de cámara se acortan.',
-    exploreHint: 'Haz clic en el MacBook, el iPad, la puerta del coche o la estantería para explorar.',
+    exploreHint: {
+      mouse: 'Haz clic en el MacBook, el iPad, la puerta del coche o la estantería para explorar.',
+      touch: 'Toca el MacBook, el iPad, la puerta del coche o la estantería para explorar.',
+      keyboard: 'Pulsa Tab para elegir un lugar y Enter para ir allí.',
+    },
     placesLabel: 'Lugares del garaje',
     fallback: {
       title: 'El Garaje del Ingeniero',

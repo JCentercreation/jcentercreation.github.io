@@ -68,7 +68,8 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
                   co.name
                 )}
               </h3>
-              <p className={styles.meta}>{period(co.period)}</p>
+              {/* Same "role · period" line as the MacBook portfolio (approved roles from the shared content). */}
+              <p className={styles.meta}>{c.apple.companies[co.id]?.role ? `${c.apple.companies[co.id]?.role} · ${period(co.period)}` : period(co.period)}</p>
               <p className={c.apple.companies[co.id]?.description ? undefined : styles.muted}>
                 {c.apple.companies[co.id]?.description ?? c.ui.pendingContent}
               </p>
@@ -149,6 +150,18 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
               </h3>
               {c.macbook.projects[p.id]?.status && <p className={styles.meta}>{c.macbook.projects[p.id]?.status}</p>}
               <p>{c.macbook.projects[p.id]?.description}</p>
+              {/* Projects with several destinations (the Swift courses) list each one, as the MacBook does. */}
+              {p.links && (
+                <ul className={styles.projectLinks} aria-label={c.macbook.labels.links}>
+                  {p.links.map((l) => (
+                    <li key={l.url}>
+                      <ExternalLink href={l.url} newTab={c.macbook.labels.opensInNewTab}>
+                        {l.name}
+                      </ExternalLink>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </article>
           ))}
         </div>

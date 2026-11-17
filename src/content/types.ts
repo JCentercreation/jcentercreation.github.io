@@ -107,7 +107,8 @@ export interface UiStrings {
   pendingContent: string;
   reducedMotionNotice: string;
   /** One-line hint shown once the overview is reached. */
-  exploreHint: string;
+  /** Overview hint, worded for the visitor's current input: mouse, touch or keyboard. */
+  exploreHint: { mouse: string; touch: string; keyboard: string };
   /** Keyboard / screen-reader list of places to visit. */
   placesLabel: string;
   fallback: {

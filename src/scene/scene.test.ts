@@ -183,3 +183,20 @@ describe('MacBook close-up framing', () => {
     expect(landscapeFitFactor(intro.fov, d, MACBOOK_LID_TOP_FROM_CENTRE, 412 / 839, 839)).toBe(1);
   });
 });
+
+describe('held book layout', () => {
+  it('keeps the approved layouts on desktop, tablets and portrait phones', async () => {
+    const { holdBookCentred } = await import('./bookshelf/bookMotion');
+    expect(holdBookCentred(1440, 900)).toBe(false); // desktop: side by side
+    expect(holdBookCentred(1194, 834)).toBe(false); // tablet landscape
+    expect(holdBookCentred(834, 1194)).toBe(true); // tablet portrait: centred, card below
+    expect(holdBookCentred(390, 844)).toBe(true); // phone portrait
+  });
+
+  it('puts the card beside the book on phones held sideways', async () => {
+    const { holdBookCentred } = await import('./bookshelf/bookMotion');
+    expect(holdBookCentred(863, 360)).toBe(false);
+    expect(holdBookCentred(844, 390)).toBe(false);
+    expect(holdBookCentred(932, 430)).toBe(false);
+  });
+});

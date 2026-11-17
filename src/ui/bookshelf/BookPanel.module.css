@@ -153,3 +153,48 @@
     font-size: 19px;
   }
 }
+
+/* Phones held sideways (short landscape): no room below the book, so book left of centre and the card
+   beside it, as on desktop (see holdBookCentred in bookMotion.ts), compact enough to fit the height. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .card {
+    top: 50%;
+    bottom: auto;
+    left: 55%;
+    right: auto;
+    width: min(340px, calc(45vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    padding: 14px 16px;
+    transform: translate(0, -50%) translateX(8px);
+  }
+
+  .card[data-visible='true'] {
+    transform: translate(0, -50%);
+  }
+
+  .card h2 {
+    font-size: 18px;
+  }
+
+  .description {
+    margin-top: 10px;
+  }
+
+  .close {
+    margin-top: 12px;
+  }
+}
+
+/* Touch: "Put the book back" keeps its look with a 44 px tall hit area. */
+@media (pointer: coarse) {
+  .close {
+    position: relative;
+  }
+
+  .close::before {
+    content: '';
+    position: absolute;
+    inset: -5px 0;
+  }
+}

@@ -458,3 +458,26 @@
   align-items: flex-start;
   gap: 8px;
 }
+
+/* Touch: 44 × 44 px hit areas, same look. */
+@media (pointer: coarse) {
+  .closeBtn,
+  .sheet .paneItem {
+    position: relative;
+  }
+
+  .closeBtn::before,
+  .sheet .paneItem::before {
+    content: '';
+    position: absolute;
+  }
+
+  .closeBtn::before {
+    inset: -8px -6px;
+  }
+
+  /* Section tabs: vertical only, inside the tab bar's padding (neighbouring tabs are close). */
+  .sheet .paneItem::before {
+    inset: -4px 0;
+  }
+}

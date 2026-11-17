@@ -15,6 +15,16 @@ export interface ReadingPose {
   quaternion: Quaternion;
 }
 
+/**
+ * Phones and portrait screens hold the book higher and centred, with the info card below it. Short
+ * landscape screens (phones held sideways) have no room below the book, so they use the side-by-side
+ * layout instead: book left of centre, card beside it. Must match the CSS in BookPanel.module.css.
+ */
+export function holdBookCentred(width: number, height: number) {
+  const shortLandscape = width > height && height <= 500;
+  return !shortLandscape && (width < 900 || height > width);
+}
+
 /** Comfortable reading pose relative to the live camera; narrow screens hold the book higher, centred. */
 export function readingPose(camera: Camera, narrow: boolean, out: ReadingPose): ReadingPose {
   const fwd = new Vector3();

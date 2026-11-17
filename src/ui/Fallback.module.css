@@ -135,3 +135,27 @@
   color: var(--accent);
   text-underline-offset: 3px;
 }
+
+@media (pointer: coarse) {
+  .contact a {
+    padding: 12px 0;
+  }
+}
+
+/* Project destinations (e.g. the two Swift courses), in the page's accent colour. */
+.projectLinks {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.projectLinks a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+@media (pointer: coarse) {
+  .projectLinks a {
+    display: inline-block;
+    padding: 11px 0;
+  }
+}

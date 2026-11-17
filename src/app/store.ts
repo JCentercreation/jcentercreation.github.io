@@ -3,8 +3,16 @@ import { LOCALES, type AutoSection, type IPadSection, type InteractiveObjectId, 
 import { safeStorage } from '@/lib/storage';
 import { detectCapabilities, type Capabilities } from '@/lib/capabilities';
 import type { BootStep } from '@/scene/boot';
+import { createDelayedMove } from './delayedMove';
 
 export type FallbackRequest = 'chosen' | 'failed';
+
+/**
+ * The camera move into the car that follows the driver's door opening. Cancelled by any newer
+ * navigation command (another place, Back to the garage, Escape, closing the door), so it can never
+ * pull the camera into the car after the visitor has chosen something else.
+ */
+const teslaEntry = createDelayedMove();
 
 const LANG_KEY = 'garage.lang';
 const VISITED_KEY = 'garage.visited';
@@ -95,6 +103,8 @@ interface ExperienceState {
   /** Door click → door opens → camera moves into the doorway (car interior), as one sequence. */
   openTeslaDoor: () => void;
   closeTeslaDoor: () => void;
+  /** Drops a pending move into the car (the door then closes on its own, see Tesla.tsx). */
+  cancelTeslaEntry: () => void;
 
   /** Automotive portfolio navigation (laptop on the driver seat) — independent of locale. */
   auto: { section: AutoSection };
@@ -147,11 +157,13 @@ export const useExperience = create<ExperienceState>((set) => ({
   shot: 'macbookIntro',
   arrivedShot: null,
   setArrivedShot: (arrivedShot) => set({ arrivedShot }),
-  goTo: (shot) =>
+  goTo: (shot) => {
+    teslaEntry.cancel();
     set((s) =>
       // Leaving the bookshelf always puts a taken book back.
       shot !== 'bookshelf' && s.selectedBook ? { ...goToState(s, shot), selectedBook: null, bookHeld: false } : goToState(s, shot),
-    ),
+    );
+  },
 
   portfolio: { section: 'welcome', project: null, company: null },
   openSection: (section) => set({ portfolio: { section, project: null, company: null } }),
@@ -161,7 +173,10 @@ export const useExperience = create<ExperienceState>((set) => ({
   selectIPadCompany: (company) => set((s) => ({ ipad: { ...s.ipad, company } })),
   toggleCompany: (id) =>
     set((s) => ({ portfolio: { ...s.portfolio, company: s.portfolio.company === id ? null : id } })),
-  backToOverview: () => set({ shot: 'overview', selectedBook: null, bookHeld: false }),
+  backToOverview: () => {
+    teslaEntry.cancel();
+    set({ shot: 'overview', selectedBook: null, bookHeld: false });
+  },
 
   hovered: null,
   hoveredBook: null,
@@ -179,10 +194,18 @@ export const useExperience = create<ExperienceState>((set) => ({
   teslaDoorOpen: holdDoorOpen,
   openTeslaDoor: () => {
     set({ teslaDoorOpen: true });
-    // Start the camera while the door is still swinging so it reads as one continuous move.
-    window.setTimeout(() => set({ shot: 'teslaInterior' }), 550);
+    // Start the camera while the door is still swinging so it reads as one continuous move. Repeated
+    // clicks while it is pending schedule nothing more; a newer navigation command cancels it.
+    teslaEntry.start(() => {
+      const s = useExperience.getState();
+      if (s.teslaDoorOpen && s.phase === 'exploring') set({ shot: 'teslaInterior' });
+    }, 550);
   },
-  closeTeslaDoor: () => set({ teslaDoorOpen: false }),
+  closeTeslaDoor: () => {
+    teslaEntry.cancel();
+    set({ teslaDoorOpen: false });
+  },
+  cancelTeslaEntry: () => teslaEntry.cancel(),
 
   auto: { section: 'overview' },
   openAutoSection: (section) => set({ auto: { section } }),

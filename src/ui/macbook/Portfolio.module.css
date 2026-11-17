@@ -604,3 +604,46 @@
 .screen .note {
   animation: none;
 }
+
+/* Touch: 44 × 44 px hit areas without changing the Notes look. Invisible areas where a control stands alone;
+   vertical-only areas inside the padding of the scrolling section tabs; padding for stacked text links. */
+@media (pointer: coarse) {
+  .red,
+  .toolbarBtn,
+  .back,
+  .sheet .noteItem {
+    position: relative;
+  }
+
+  .red::before,
+  .toolbarBtn::before,
+  .back::before,
+  .sheet .noteItem::before {
+    content: '';
+    position: absolute;
+  }
+
+  /* 13 px traffic light → 44 px (the yellow and green lights next to it are decorative). */
+  .red::before {
+    inset: -16px;
+  }
+
+  /* 32 px tall toolbar buttons; 8 px apart, so each grows by at most 3 px sideways. */
+  .toolbarBtn::before {
+    inset: -6px -3px;
+  }
+
+  /* "← All side projects" is a text button with no padding. */
+  .back::before {
+    inset: -11px -6px;
+  }
+
+  .sheet .noteItem::before {
+    inset: -3px 0;
+  }
+
+  .links a {
+    display: inline-block;
+    padding: 11px 0;
+  }
+}
