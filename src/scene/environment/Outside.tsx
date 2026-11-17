@@ -59,7 +59,7 @@ function Sky() {
           ${exteriorGLSL}
           // One cloud deck at height h above the eye: density and a moon-side edge light.
           vec2 deck(vec3 dir, float h, float scale, vec2 drift, float cover) {
-            float t = h / max(dir.y, 0.05);
+            float t = h / (max(dir.y, 0.0) + 0.04); // continuous down to the horizon (no banding)
             vec2 p = (dir.xz * t) * scale + drift;
             float d = fbm(p);
             float dens = smoothstep(cover, cover + 0.28, d);
@@ -87,7 +87,7 @@ function Sky() {
             col = mix(col, HORIZON, far * 0.85);
             // Lightning: the cloud mass glows around the strike, and a little everywhere.
             float dens = max(mid.x, max(low.x * 0.8, hi.x * 0.5));
-            col += vec3(0.55, 0.62, 0.85) * uFlash * (0.2 + 0.8 * boltNear(dir, uBoltX)) * (0.25 + 0.9 * dens);
+            col += vec3(0.55, 0.62, 0.85) * uFlash * (0.2 + 0.8 * boltNear(dir, uBoltX)) * (0.25 + 0.9 * dens * (1.0 - far));
             gl_FragColor = vec4(col, 1.0);
             #include <tonemapping_fragment>
             #include <colorspace_fragment>
