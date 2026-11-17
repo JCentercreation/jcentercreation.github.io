@@ -79,12 +79,16 @@ function withConcreteDetail(m: MeshStandardMaterial): MeshStandardMaterial {
         `#include <map_fragment>
         vec4 cDetail = texture2D(uDetail, vDetailWorld.xz / 0.6);
         float cMacro = dNoise(vDetailWorld.xz * 0.35) * 0.6 + dNoise(vDetailWorld.xz * 1.1 + 7.0) * 0.4;
-        diffuseColor.rgb *= (0.95 + 0.1 * cMacro) * (0.92 + 0.16 * cDetail.g);`,
+        // Polished, sealed concrete reads darker than raw concrete: ~25 % below the base tile, with a
+        // slightly wider macro tone range so the floor keeps natural variation instead of a flat grey.
+        diffuseColor.rgb *= 0.75 * (0.92 + 0.16 * cMacro) * (0.92 + 0.16 * cDetail.g);`,
       )
       .replace(
         '#include <roughnessmap_fragment>',
         `#include <roughnessmap_fragment>
-        roughnessFactor = clamp(roughnessFactor * (0.78 + 0.44 * cDetail.r) + (cMacro - 0.5) * 0.08, 0.06, 1.0);`,
+        // Machine-polished: smoother on average than before, so the room's reflections (lamp glow, car, lit
+        // timber) read softly; polish swirls and macro patches keep it varied and clearly concrete, never a mirror.
+        roughnessFactor = clamp(roughnessFactor * (0.6 + 0.4 * cDetail.r) + (cMacro - 0.5) * 0.1, 0.12, 1.0);`,
       );
   };
   m.customProgramCacheKey = () => 'concreteDetail';
