@@ -367,6 +367,12 @@ const en: LocaleContent = {
       'emperor-maladies': 'A history of cancer, from its earliest descriptions to modern treatment and research.',
     },
   },
+  contact: {
+    heading: 'Contact',
+    links: { linkedin: 'LinkedIn profile', github: 'GitHub profile' },
+    website: 'Website',
+    websiteOf: '{name} website',
+  },
 };
 
 export default en;

@@ -23,6 +23,9 @@ export interface Period {
 
 // ---------- shared (language-neutral) ----------
 
+/** Keys of the owner's approved public links (`shared/owner.ts`). */
+export type OwnerLinkId = 'linkedin' | 'github' | 'misfitsStudio';
+
 export interface CompanyRecord {
   id: string;
   name: string;
@@ -33,6 +36,8 @@ export interface CompanyRecord {
   period: Period;
   /** Technologies confirmed by the owner. Proper nouns, not translated. */
   technologies: string[];
+  /** The company's own website, as one of the owner's approved links (no URL copied here). */
+  website?: OwnerLinkId;
 }
 
 export interface PositionRecord {
@@ -319,6 +324,17 @@ export interface BooksContent {
   descriptions: Record<string, string | null>;
 }
 
+/** Contact links (MacBook "About me", simple version) and company website links. */
+export interface ContactContent {
+  heading: string;
+  /** Link text for each contact profile (also its accessible name). */
+  links: { linkedin: string; github: string };
+  /** Label for a company's website in its experience details. */
+  website: string;
+  /** Link text for a company's website: "{name}" is replaced by the company name. */
+  websiteOf: string;
+}
+
 export interface LocaleContent {
   ui: UiStrings;
   welcome: WelcomeNote;
@@ -328,4 +344,5 @@ export interface LocaleContent {
   apple: AppleContent;
   automotive: AutomotiveContent;
   books: BooksContent;
+  contact: ContactContent;
 }

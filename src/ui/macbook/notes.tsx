@@ -1,7 +1,8 @@
-import { appleCompanies, projects, type CompanyRecord } from '@/content';
+import { appleCompanies, contactLinks, projects, type CompanyRecord } from '@/content';
 import { useExperience } from '@/app/store';
 import { useContent } from '@/app/useContent';
 import { formatPeriod } from '@/lib/format';
+import { ExternalLink, ownerLink, websiteText } from '../ExternalLink';
 import styles from './Portfolio.module.css';
 
 /** The individual notes (portfolio sections). Pure presentation: data from content, state from the store. */
@@ -29,7 +30,7 @@ export function WelcomeNote() {
 }
 
 export function AboutNote() {
-  const { macbook } = useContent();
+  const { macbook, contact } = useContent();
   return (
     <article>
       <h1>{macbook.about.heading}</h1>
@@ -42,6 +43,16 @@ export function AboutNote() {
       {macbook.about.paragraphs.map((p) => (
         <p key={p}>{p}</p>
       ))}
+      <h2>{contact.heading}</h2>
+      <ul className={styles.links}>
+        {contactLinks.map((id) => (
+          <li key={id}>
+            <ExternalLink href={ownerLink(id)} newTab={macbook.labels.opensInNewTab}>
+              {contact.links[id]}
+            </ExternalLink>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }
@@ -132,6 +143,16 @@ export function ExperienceNote() {
                   <dd>{period}</dd>
                   <dt>{e.description}</dt>
                   <dd className={desc ? undefined : styles.pending}>{desc ?? c.ui.pendingContent}</dd>
+                  {co.website && (
+                    <>
+                      <dt>{c.contact.website}</dt>
+                      <dd>
+                        <ExternalLink href={ownerLink(co.website)} newTab={c.macbook.labels.opensInNewTab}>
+                          {websiteText(c, co)}
+                        </ExternalLink>
+                      </dd>
+                    </>
+                  )}
                 </dl>
               )}
             </li>
@@ -141,6 +162,15 @@ export function ExperienceNote() {
       <section className={styles.callout}>
         <h2>{c.apple.startups.heading}</h2>
         <p>{c.apple.startups.intro}</p>
+        {appleCompanies
+          .filter((co) => co.website)
+          .map((co) => (
+            <p key={co.id}>
+              <ExternalLink href={ownerLink(co.website!)} newTab={c.macbook.labels.opensInNewTab}>
+                {websiteText(c, co)}
+              </ExternalLink>
+            </p>
+          ))}
       </section>
     </article>
   );

@@ -196,3 +196,40 @@ describe('approved automotive career data', () => {
     }
   });
 });
+
+describe('contact links (owner-approved)', () => {
+  it('stores exactly the approved public links, once, in owner.ts', async () => {
+    const { owner, contactLinks } = await import('./index');
+    expect(owner.links).toEqual({
+      linkedin: 'https://www.linkedin.com/in/javiercarrillogallego',
+      github: 'https://github.com/JCentercreation',
+      misfitsStudio: 'https://jcentercreation.github.io/misfitsStudio/',
+    });
+    expect(contactLinks).toEqual(['linkedin', 'github']);
+  });
+
+  it('links the Misfits Studio entry to its website without renaming it', () => {
+    const misfits = appleCompanies.find((c) => c.id === 'misfits');
+    expect(misfits?.name).toBe('Misfits Studio');
+    expect(misfits?.website).toBe('misfitsStudio');
+    // Only Misfits Studio has a website link.
+    expect(appleCompanies.filter((c) => c.website).map((c) => c.id)).toEqual(['misfits']);
+  });
+
+  it('labels the contact links in every locale', () => {
+    for (const locale of LOCALES) {
+      const k = content[locale].contact;
+      expect(k.heading, locale).toBeTruthy();
+      expect(k.links.linkedin, locale).toMatch(/LinkedIn/);
+      expect(k.links.github, locale).toMatch(/GitHub/);
+      expect(k.websiteOf, locale).toContain('{name}');
+    }
+  });
+
+  it('publishes no e-mail address anywhere in the site content', async () => {
+    const all = await import('./index');
+    const text = JSON.stringify([all.content, all.owner, all.appleCompanies, all.automotiveCompanies, all.projects, all.books]);
+    expect(text).not.toMatch(/mailto:/i);
+    expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}/);
+  });
+});

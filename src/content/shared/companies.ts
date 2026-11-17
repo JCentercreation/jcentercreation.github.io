@@ -9,7 +9,7 @@ import type { CompanyRecord, PositionRecord } from '../types';
 
 export const appleCompanies: CompanyRecord[] = [
   { id: 'sabadell', logo: 'logos/sabadell.svg', shortName: 'Sabadell', name: 'Banc Sabadell', period: { start: '2020', end: '2021' }, technologies: [] },
-  { id: 'misfits', shortName: 'Misfits', name: 'Misfits Studio', logo: null, period: { start: '2020', end: null }, technologies: [] },
+  { id: 'misfits', shortName: 'Misfits', name: 'Misfits Studio', logo: null, period: { start: '2020', end: null }, technologies: [], website: 'misfitsStudio' },
   { id: 'inditex', logo: 'logos/inditex.svg', shortName: 'Inditex', name: 'Inditex', period: { start: '2023', end: '2024' }, technologies: [] },
   { id: 'santander', logo: 'logos/santander.svg', shortName: 'Santander', name: 'Banco Santander', period: { start: '2024', end: '2025' }, technologies: [] },
 ];

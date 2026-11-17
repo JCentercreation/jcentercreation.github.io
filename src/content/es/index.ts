@@ -370,6 +370,12 @@ const es: LocaleContent = {
       'emperor-maladies': 'Una historia del cáncer, desde sus primeras descripciones hasta el tratamiento y la investigación actuales.',
     },
   },
+  contact: {
+    heading: 'Contacto',
+    links: { linkedin: 'Perfil de LinkedIn', github: 'Perfil de GitHub' },
+    website: 'Sitio web',
+    websiteOf: 'Sitio web de {name}',
+  },
 };
 
 export default es;

@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { appleCompanies, automotiveCompanies, automotivePositions, books, projects } from '@/content';
+import { appleCompanies, automotiveCompanies, automotivePositions, books, contactLinks, projects } from '@/content';
 import { useExperience } from '@/app/store';
 import { useContent } from '@/app/useContent';
 import { formatPeriod } from '@/lib/format';
+import { ExternalLink, ownerLink } from './ExternalLink';
 import styles from './Fallback.module.css';
 
 /**
@@ -57,7 +58,16 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
         <div className={styles.cards}>
           {appleCompanies.map((co) => (
             <article key={co.id} className={styles.card}>
-              <h3>{co.name}</h3>
+              <h3>
+                {co.website ? (
+                  <ExternalLink href={ownerLink(co.website)} newTab={c.macbook.labels.opensInNewTab} style={{ color: 'inherit' }}>
+                    {co.name}
+                    <span className="visually-hidden"> — {c.contact.website}</span>
+                  </ExternalLink>
+                ) : (
+                  co.name
+                )}
+              </h3>
               <p className={styles.meta}>{period(co.period)}</p>
               <p className={c.apple.companies[co.id]?.description ? undefined : styles.muted}>
                 {c.apple.companies[co.id]?.description ?? c.ui.pendingContent}
@@ -154,6 +164,17 @@ export function Fallback({ canTry3D }: { canTry3D: boolean }) {
             </article>
           ))}
         </div>
+
+        <h2>{c.contact.heading}</h2>
+        <ul className={styles.contact}>
+          {contactLinks.map((id) => (
+            <li key={id}>
+              <ExternalLink href={ownerLink(id)} newTab={c.macbook.labels.opensInNewTab}>
+                {c.contact.links[id]}
+              </ExternalLink>
+            </li>
+          ))}
+        </ul>
       </div>
     </main>
   );
