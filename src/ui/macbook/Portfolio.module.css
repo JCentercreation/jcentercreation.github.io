@@ -642,6 +642,21 @@
     inset: -3px 0;
   }
 
+  /* In the phone sheet the toolbar buttons clip their own overflow (the long label is truncated with an
+     ellipsis), which would clip an invisible hit area too: they get a real 44 px size instead (the 52 px
+     toolbar already has the room). */
+  .sheet .toolbarBtn {
+    min-height: 44px;
+  }
+
+  .sheet .toolbarBtn:last-child {
+    min-width: 44px;
+  }
+
+  .sheet .toolbarBtn::before {
+    content: none;
+  }
+
   .links a {
     display: inline-block;
     padding: 11px 0;

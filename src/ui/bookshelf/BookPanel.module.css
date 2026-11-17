@@ -186,15 +186,9 @@
   }
 }
 
-/* Touch: "Put the book back" keeps its look with a 44 px tall hit area. */
+/* Touch: "Put the book back" is 44 px tall (the card clips invisible hit areas). */
 @media (pointer: coarse) {
   .close {
-    position: relative;
-  }
-
-  .close::before {
-    content: '';
-    position: absolute;
-    inset: -5px 0;
+    min-height: 44px;
   }
 }

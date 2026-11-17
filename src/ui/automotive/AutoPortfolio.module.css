@@ -459,25 +459,19 @@
   gap: 8px;
 }
 
-/* Touch: 44 × 44 px hit areas, same look. */
+/* Touch: 44 px targets. The window and its tab bar clip their contents, so the controls get a real
+   44 px size (the title bar grows from 40 to 46 px to hold the close button) rather than invisible hit areas. */
 @media (pointer: coarse) {
-  .closeBtn,
+  .sheet .titleBar {
+    height: calc(46px + env(safe-area-inset-top));
+  }
+
+  .sheet .closeBtn {
+    width: 44px;
+    height: 44px;
+  }
+
   .sheet .paneItem {
-    position: relative;
-  }
-
-  .closeBtn::before,
-  .sheet .paneItem::before {
-    content: '';
-    position: absolute;
-  }
-
-  .closeBtn::before {
-    inset: -8px -6px;
-  }
-
-  /* Section tabs: vertical only, inside the tab bar's padding (neighbouring tabs are close). */
-  .sheet .paneItem::before {
-    inset: -4px 0;
+    min-height: 44px;
   }
 }

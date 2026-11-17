@@ -210,20 +210,17 @@
   }
 }
 
-/* Touch: the language buttons keep their look; an invisible 44 × 44 px hit area surrounds each one. The two
-   areas meet in the 2 px gap between the buttons instead of overlapping. */
+/* Touch: the language buttons keep their look, 44 px wide, with an invisible hit area that extends their
+   28 px height to 44 px (above and below only, so the two buttons' areas never overlap). */
 @media (pointer: coarse) {
   .langBtn {
     position: relative;
+    min-width: 44px;
   }
 
   .langBtn::before {
     content: '';
     position: absolute;
-    inset: -8px -1px -8px -6px;
-  }
-
-  .langBtn:last-child::before {
-    inset: -8px -6px -8px -1px;
+    inset: -8px 0;
   }
 }
