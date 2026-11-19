@@ -695,3 +695,12 @@
 .screen .detail {
   animation: none;
 }
+
+/* Touch: the 36 px close circle keeps its look; an invisible square around it makes the hit area 44 × 44 px. */
+@media (pointer: coarse) {
+  .close::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+  }
+}

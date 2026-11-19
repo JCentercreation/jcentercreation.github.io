@@ -6,6 +6,7 @@ import { content } from '@/content';
 import { formatPeriod } from '@/lib/format';
 import { SYSTEM_FONT, WIN_FONT, drawLogo, fitText, roundRect, wrapText } from './draw';
 import { getLogo, useLogosVersion } from './logos';
+import { budgetScreenCanvas } from '../materials/textureBudget';
 
 /**
  * PROTOTYPE screen contents, drawn to textures from the content layer.
@@ -20,7 +21,7 @@ function make(w: number, h: number, draw: (g: CanvasRenderingContext2D) => void)
   c.height = h;
   const g = c.getContext('2d')!;
   draw(g);
-  const t = new CanvasTexture(c);
+  const t = new CanvasTexture(budgetScreenCanvas(c));
   t.colorSpace = SRGBColorSpace;
   t.anisotropy = 8;
   return t;

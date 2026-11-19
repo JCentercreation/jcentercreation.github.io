@@ -1,5 +1,13 @@
 import { Bloom, EffectComposer, ToneMapping, Vignette } from '@react-three/postprocessing';
-import { EFFECT_TONE_MAPPING, OPTIONAL_POST, TONE_MAPPING } from './renderConfig';
+import { ToneMappingMode } from 'postprocessing';
+import { OPTIONAL_POST, TONE_MAPPING, type ToneMappingName } from './renderConfig';
+
+/** Post-processing tone-mapping modes (kept here so `postprocessing` only loads with the full tier's effects). */
+const EFFECT_TONE_MAPPING: Record<ToneMappingName, ToneMappingMode> = {
+  aces: ToneMappingMode.ACES_FILMIC,
+  agx: ToneMappingMode.AGX,
+  neutral: ToneMappingMode.NEUTRAL,
+};
 
 /**
  * Full tier only: HDR bloom on emissive sources (lamp bulb, screens, LEDs, lightning) + a gentle

@@ -96,6 +96,8 @@ export interface UiStrings {
   };
   /** Shown if the 3D scene cannot start (WebGL or download failure). */
   loadError: { title: string; body: string; retry: string; continue2d: string };
+  /** The browser took the GPU context away (context loss): restoring, or offering a reload / the simple version. */
+  renderLost: { restoring: string; title: string; body: string; reload: string; continue2d: string };
   /** Accessible label for the welcome caption region during the intro. */
   welcomeLabel: string;
   enter: string;

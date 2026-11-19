@@ -29,6 +29,13 @@ const es: LocaleContent = {
       retry: 'Reintentar',
       continue2d: 'Ir a la versión sencilla',
     },
+    renderLost: {
+      restoring: 'Restaurando la vista 3D…',
+      title: 'Se ha interrumpido la vista 3D',
+      body: 'Tu navegador ha pausado los gráficos en este dispositivo. Puedes recargar el garaje donde estabas o leerlo todo en la versión sencilla.',
+      reload: 'Recargar el garaje 3D',
+      continue2d: 'Ir a la versión sencilla',
+    },
     welcomeLabel: 'Nota de bienvenida',
     enter: 'Entrar',
     backToGarage: 'Volver al garaje',

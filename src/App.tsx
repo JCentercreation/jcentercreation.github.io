@@ -1,11 +1,13 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { forceIntro, holdDoorOpen, initialShotOverride, useExperience } from './app/store';
+import { SHOT_IDS, forceIntro, holdDoorOpen, initialShotOverride, useExperience } from './app/store';
+import { RESUME_KEY, RenderNotice } from './ui/RenderNotice';
+import type { ShotId } from './content';
 import { useDocumentLocale } from './app/useContent';
 import { Loader, type LoadStage } from './ui/Loader';
 import { SceneErrorBoundary } from './ui/SceneErrorBoundary';
 import { IntroCaption } from './ui/IntroCaption';
 import { Hud } from './ui/Hud';
-import { Fallback } from './ui/Fallback';
+import { prefetchScreens } from './ui/screens';
 import { PortfolioSheet } from './ui/macbook/PortfolioSheet';
 import { CareerSheet } from './ui/ipad/CareerSheet';
 import { BookPanel } from './ui/bookshelf/BookPanel';
@@ -14,6 +16,8 @@ import { InteriorHint } from './ui/automotive/InteriorHint';
 
 // three.js + R3F live in their own chunk; nothing 3D is downloaded for the fallback path.
 const GarageCanvas = lazy(() => import('./scene/GarageCanvas'));
+// The simple version is its own small chunk: only visitors who see it download it.
+const Fallback = lazy(() => import('./ui/Fallback').then((m) => ({ default: m.Fallback })));
 
 
 export function App() {
@@ -34,6 +38,19 @@ export function App() {
   // been at the MacBook close-up throughout; `entry` tells it how to leave (CameraController).
   const onReady = useCallback(() => {
     const s = useExperience.getState();
+    // After a visitor-requested reload (RenderNotice), return to the place they were at.
+    let resume: string | null = null;
+    try {
+      resume = sessionStorage.getItem(RESUME_KEY);
+      sessionStorage.removeItem(RESUME_KEY);
+    } catch {
+      // storage unavailable: start as usual
+    }
+    if (resume && SHOT_IDS.includes(resume as ShotId) && resume !== 'macbookIntro') {
+      const shot = resume as ShotId;
+      useExperience.setState({ shot, phase: 'exploring', entry: 'return', teslaDoorOpen: shot === 'teslaInterior' || shot === 'teslaLaptop' });
+      return;
+    }
     if (initialShotOverride && !forceIntro) {
       useExperience.setState({ shot: initialShotOverride, phase: 'exploring', entry: 'override', teslaDoorOpen: holdDoorOpen || initialShotOverride === 'teslaLaptop' || initialShotOverride === 'teslaInterior' });
     } else if (s.skipIntroRequested) {
@@ -50,7 +67,17 @@ export function App() {
 
   const show3D = (tier !== 'fallback' || forceScene) && !forceFallback;
 
-  if (!show3D) return <Fallback canTry3D={webgl2} />;
+  // Once loading is over (the garage is usable), fetch the device screen UIs while the browser is idle.
+  useEffect(() => {
+    if (phase !== 'loading') prefetchScreens();
+  }, [phase]);
+
+  if (!show3D)
+    return (
+      <Suspense fallback={null}>
+        <Fallback canTry3D={webgl2} />
+      </Suspense>
+    );
 
   // Real stages only: engine chunk downloading → scene preparing (with genuine asset progress when available).
   const stage: LoadStage = !engineLoaded ? 'engine' : 'scene';
@@ -70,6 +97,7 @@ export function App() {
       <BookPanel />
       <AutoSheet />
       <InteriorHint />
+      <RenderNotice />
       {/* On failure the error panel takes the loader's place outright — no cross-fade of two titles. */}
       {!sceneFailed && <Loader stage={stage} progress={engineLoaded ? sceneProgress : null} done={phase !== 'loading' || bootVisible} />}
     </>

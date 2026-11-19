@@ -3,6 +3,7 @@ import { CanvasTexture, SRGBColorSpace } from 'three';
 import { KEYBOARD, TRACKPAD } from '../layout';
 import { roundRect } from '../screens/draw';
 import { mat } from '../materials/library';
+import { budgetMaterialCanvas } from '../materials/textureBudget';
 
 /** Magic Keyboard top: white keys on silver. Generated, provisional. */
 function keyboardTexture() {
@@ -33,7 +34,7 @@ function keyboardTexture() {
       g.stroke();
     }
   });
-  const t = new CanvasTexture(c);
+  const t = new CanvasTexture(budgetMaterialCanvas(c));
   t.colorSpace = SRGBColorSpace;
   t.anisotropy = 8;
   return t;

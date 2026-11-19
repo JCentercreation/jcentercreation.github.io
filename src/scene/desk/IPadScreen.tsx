@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
-import { CareerApp } from '@/ui/ipad/CareerApp';
+import { LazyCareerApp } from '@/ui/screens';
 import { IPAD } from '../layout';
 
 /** Career app canvas in CSS px — same aspect as the iPad's display area (265.6 × 199.5 mm). */
@@ -26,7 +26,7 @@ export function IPadScreen() {
       scale={DISPLAY_W / (PX_W * PX_TO_WORLD)}
       zIndexRange={[25, 21]}
     >
-      <CareerApp mode="screen" />
+      <LazyCareerApp mode="screen" />
     </Html>
   );
 }

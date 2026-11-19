@@ -27,7 +27,7 @@ function initialLocale(): Locale {
 
 export type Phase = 'loading' | 'intro' | 'exploring';
 
-const SHOT_IDS: ShotId[] = ['macbookIntro', 'overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaInterior', 'teslaLaptop'];
+export const SHOT_IDS: ShotId[] = ['macbookIntro', 'overview', 'desk', 'macbook', 'ipad', 'bookshelf', 'tesla', 'teslaInterior', 'teslaLaptop'];
 
 /** Review helpers: `?shot=bookshelf` opens a shot directly, `?intro=1` forces the welcome sequence. */
 const params = new URLSearchParams(window.location.search);
@@ -57,6 +57,11 @@ interface ExperienceState {
    */
   forceFallback: FallbackRequest | null;
   setForceFallback: (v: FallbackRequest | null) => void;
+  /**
+   * WebGL context state: 'lost' while the browser has taken the GPU context away (a restore is awaited),
+   * 'failed' if it did not come back in time (the visitor is offered a reload or the simple version).
+   */
+  renderState: 'ok' | 'lost' | 'failed';
   /** True once the intro's pull-back has started (the welcome caption fades out). */
   introRevealing: boolean;
 
@@ -147,6 +152,7 @@ export const useExperience = create<ExperienceState>((set) => ({
   setForceScene: (forceScene) => set({ forceScene, forceFallback: null }),
   forceFallback: null,
   setForceFallback: (forceFallback) => set({ forceFallback }),
+  renderState: 'ok',
   introRevealing: false,
 
   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,

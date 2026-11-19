@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
-import { AutoPortfolio } from '@/ui/automotive/AutoPortfolio';
+import { LazyAutoPortfolio } from '@/ui/screens';
 
 /** Portfolio canvas in CSS px — same aspect as the laptop's display area. */
 export const CAR_LAPTOP = { width: 0.34, depth: 0.235, display: [0.94, 0.88] as const };
@@ -19,7 +19,7 @@ export function CarLaptopScreen() {
   const lidH = CAR_LAPTOP.depth * 0.985;
   return (
     <Html transform position={[0, lidH * 0.505, 0.0015]} scale={(CAR_LAPTOP.width * CAR_LAPTOP.display[0]) / (PX_W * PX_TO_WORLD)} zIndexRange={[25, 21]}>
-      <AutoPortfolio mode="screen" />
+      <LazyAutoPortfolio mode="screen" />
     </Html>
   );
 }

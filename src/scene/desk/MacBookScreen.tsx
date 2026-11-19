@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 import { useExperience } from '@/app/store';
 import { useNarrowViewport } from '@/lib/useViewport';
-import { Portfolio } from '@/ui/macbook/Portfolio';
+import { LazyPortfolio } from '@/ui/screens';
 import { MACBOOK } from '../layout';
 
 /** Portfolio canvas size in CSS px — same aspect as the MacBook's display area. */
@@ -21,7 +21,7 @@ export function MacBookScreen({ lidHeight, displayWidth }: { lidHeight: number; 
   const scale = (MACBOOK.width * displayWidth) / (PX_W * PX_TO_WORLD);
   return (
     <Html transform position={[0, lidHeight * 0.505, 0.0015]} scale={scale} zIndexRange={[25, 21]}>
-      <Portfolio mode="screen" />
+      <LazyPortfolio mode="screen" />
     </Html>
   );
 }

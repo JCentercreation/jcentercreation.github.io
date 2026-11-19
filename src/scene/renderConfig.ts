@@ -1,5 +1,4 @@
 import { ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, ShaderChunk, type ToneMapping } from 'three';
-import { ToneMappingMode } from 'postprocessing';
 
 /**
  * One source of truth for colour pipeline settings, applied identically on both tiers:
@@ -34,11 +33,6 @@ export const RENDERER_TONE_MAPPING: Record<ToneMappingName, ToneMapping> = {
   neutral: NeutralToneMapping,
 };
 
-export const EFFECT_TONE_MAPPING: Record<ToneMappingName, ToneMappingMode> = {
-  aces: ToneMappingMode.ACES_FILMIC,
-  agx: ToneMappingMode.AGX,
-  neutral: ToneMappingMode.NEUTRAL,
-};
 
 /** Room-capture reflection strength (scene.environmentIntensity once the room has been captured). */
 export const ENV_INTENSITY = num('env') ?? 1.0;

@@ -8,6 +8,9 @@ import { GarageScene } from './GarageScene';
 import { BOOT_STEPS, SCENE_STAGES } from './boot';
 import { EXPOSURE, RENDERER_TONE_MAPPING, TONE_MAPPING } from './renderConfig';
 import { captureRoomEnvironment, seedEnvironment } from './environment/roomEnvironment';
+import gsap from 'gsap';
+import { createFrameGuard } from './frameGuard';
+import { markShadowsDirty } from './shadows';
 
 interface Props {
   /** Real asset progress, or null when the loading manager has nothing in flight. */
@@ -16,6 +19,73 @@ interface Props {
 }
 
 const capture = new URLSearchParams(window.location.search).has('capture');
+
+/** How long to wait for the browser to give the GPU context back before offering a reload or the simple version. */
+const RESTORE_TIMEOUT_MS = 10000;
+
+/**
+ * WebGL context loss (the browser reclaimed the GPU: driver reset, memory pressure, background tab on
+ * mobile). three.js keeps the scene and, once the context is restored, re-creates its GL state and
+ * re-uploads geometry and textures from their CPU copies. Only GPU-only results must be rebuilt here: the
+ * captured room reflections and the static shadow maps. Navigation, language and portfolio state are
+ * untouched (nothing reloads). If the context does not come back, RenderNotice offers a reload or the
+ * simple version (never an automatic reload).
+ */
+function ContextRecovery({ envResolution }: { envResolution: number }) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    const el = gl.domElement;
+    let timer = 0;
+    const lost = (e: Event) => {
+      e.preventDefault(); // tells the browser we can restore
+      useExperience.setState({ renderState: 'lost' });
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (useExperience.getState().renderState === 'lost') useExperience.setState({ renderState: 'failed' });
+      }, RESTORE_TIMEOUT_MS);
+    };
+    const restored = () => {
+      window.clearTimeout(timer);
+      requestAnimationFrame(() => {
+        try {
+          const old = scene.environment;
+          seedEnvironment(gl, scene, envResolution);
+          captureRoomEnvironment(gl, scene, envResolution);
+          if (old && old !== scene.environment) old.dispose();
+        } catch (err) {
+          console.warn('Reflections could not be re-captured after a context restore.', err);
+        }
+        markShadowsDirty(4);
+        useExperience.setState({ renderState: 'ok' });
+      });
+    };
+    el.addEventListener('webglcontextlost', lost);
+    el.addEventListener('webglcontextrestored', restored);
+    return () => {
+      window.clearTimeout(timer);
+      el.removeEventListener('webglcontextlost', lost);
+      el.removeEventListener('webglcontextrestored', restored);
+    };
+  }, [gl, scene, envResolution]);
+  return null;
+}
+
+/** Animations finish on time even when rendering collapses (frameGuard.ts). Normal smoothing otherwise. */
+function useFrameGuard() {
+  useEffect(() => {
+    const guard = createFrameGuard((degraded) => (degraded ? gsap.ticker.lagSmoothing(0) : gsap.ticker.lagSmoothing(500, 33)));
+    let last = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      guard.sample(now - last);
+      last = now;
+    };
+    gsap.ticker.add(tick);
+    if (capture) (window as unknown as { __frameGuard: typeof guard }).__frameGuard = guard;
+    return () => gsap.ticker.remove(tick);
+  }, []);
+}
 
 /** Bridges drei's loading manager progress out to the DOM loader. */
 function ProgressReporter({ onProgress }: Pick<Props, 'onProgress'>) {
@@ -108,6 +178,7 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
   // While a full-screen sheet covers the scene (phones), stop rendering 3D entirely.
   const narrow = useNarrowViewport();
   const sheetOpen = useExperience((s) => narrow && (s.shot === 'macbook' || s.shot === 'ipad' || s.shot === 'teslaLaptop') && s.arrivedShot === s.shot);
+  useFrameGuard();
 
   return (
     <Canvas
@@ -131,6 +202,7 @@ export default function GarageCanvas({ onProgress, onReady }: Props) {
       style={{ position: 'fixed', inset: 0 }}
     >
       <ProgressReporter onProgress={onProgress} />
+      <ContextRecovery envResolution={full ? 256 : 128} />
       <Suspense fallback={null}>
         <GarageScene />
         <ReadySignal onReady={onReady} envResolution={full ? 256 : 128} />

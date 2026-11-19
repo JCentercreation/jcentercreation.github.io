@@ -4,6 +4,7 @@ import { useExperience } from '@/app/store';
 import { content, type LocaleContent } from '@/content';
 import { BOOT_STEPS, type BootStep } from '../boot';
 import { roundRect, SYSTEM_FONT } from './draw';
+import { budgetScreenCanvas } from '../materials/textureBudget';
 
 /**
  * The loading screen on the MacBook's display (drawn into the screen texture of the 3D MacBook — not
@@ -65,20 +66,23 @@ export function useBootScreenTexture() {
   const locale = useExperience((s) => s.locale);
   const step = useExperience((s) => s.boot.step);
   const current = useExperience((s) => s.boot.current);
-  const { canvas, texture } = useMemo(() => {
+  const { canvas, display, texture } = useMemo(() => {
+    // Drawn at full size; on phone-sized screens the texture uses a half-size copy (textureBudget.ts).
     const c = document.createElement('canvas');
     c.width = W;
     c.height = H;
-    const t = new CanvasTexture(c);
+    const d = budgetScreenCanvas(c);
+    const t = new CanvasTexture(d);
     t.colorSpace = SRGBColorSpace;
     t.anisotropy = 8;
-    return { canvas: c, texture: t };
+    return { canvas: c, display: d, texture: t };
   }, []);
   // Drawn before the frame renders, so the first visible frame already shows the current state.
   useLayoutEffect(() => {
     draw(canvas.getContext('2d')!, content[locale], step, current);
+    if (display !== canvas) budgetScreenCanvas(canvas, display);
     texture.needsUpdate = true;
-  }, [canvas, texture, locale, step, current]);
+  }, [canvas, display, texture, locale, step, current]);
   useEffect(() => () => texture.dispose(), [texture]);
   return texture;
 }

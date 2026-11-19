@@ -1,10 +1,9 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useExperience } from '@/app/store';
 import { BOOT_STEPS } from './boot';
 import { CameraController } from './camera/CameraController';
 import { ShadowUpdater } from './shadows';
 import { GroundContact } from './environment/GroundContact';
-import { Effects } from './Effects';
 import { Lighting } from './Lighting';
 import { Bookshelf } from './bookshelf/Bookshelf';
 import { RunningShoes } from './decor/RunningShoes';
@@ -18,6 +17,9 @@ import { WindowGlass } from './environment/WindowGlass';
 import { Tesla } from './tesla/Tesla';
 import { Workshop } from './tesla/Workshop';
 import { DESK_OFFSET } from './layout';
+
+/** Full tier only, so the post-processing code is a separate chunk the reduced tiers never download. */
+const Effects = lazy(() => import('./Effects').then((m) => ({ default: m.Effects })));
 
 /** Two animation frames: enough for R3F to render what was just committed. */
 function afterFrames(cb: () => void) {

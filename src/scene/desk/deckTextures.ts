@@ -1,5 +1,6 @@
 import { CanvasTexture, SRGBColorSpace } from 'three';
 import { roundRect } from '../screens/draw';
+import { budgetMaterialCanvas } from '../materials/textureBudget';
 
 let macDeck: CanvasTexture | null = null;
 
@@ -50,7 +51,7 @@ export function macbookDeckTexture() {
   g.strokeStyle = '#a6a8ab';
   g.lineWidth = 3;
   g.stroke();
-  macDeck = new CanvasTexture(c);
+  macDeck = new CanvasTexture(budgetMaterialCanvas(c));
   macDeck.colorSpace = SRGBColorSpace;
   macDeck.anisotropy = 8;
   return macDeck;

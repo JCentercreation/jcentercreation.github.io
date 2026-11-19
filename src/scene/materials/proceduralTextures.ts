@@ -1,5 +1,6 @@
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace, NoColorSpace, type Texture } from 'three';
 import { makeNoise, mulberry32 } from './noise';
+import { budgetMaterialCanvas } from './textureBudget';
 
 /**
  * Procedural PBR texture sets, generated once at load time (no downloads). Each set is an albedo
@@ -27,7 +28,7 @@ function canvas(w: number, h = w) {
 }
 
 function finish(c: HTMLCanvasElement, srgb: boolean): Texture {
-  const t = new CanvasTexture(c);
+  const t = new CanvasTexture(budgetMaterialCanvas(c));
   t.wrapS = t.wrapT = RepeatWrapping;
   t.colorSpace = srgb ? SRGBColorSpace : NoColorSpace;
   t.anisotropy = 8;
