@@ -1,0 +1,85 @@
+.caption {
+  position: fixed;
+  z-index: 19;
+  left: 16px;
+  right: 16px;
+  bottom: max(84px, calc(env(safe-area-inset-bottom) + 72px));
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding: 18px 20px;
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  background: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+  animation: captionIn 700ms 150ms var(--ease-out) forwards;
+}
+
+.caption p {
+  margin: 0 0 10px;
+}
+
+.caption p:first-child {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.caption p:last-child {
+  margin-bottom: 0;
+}
+
+.caption[data-visible='false'] {
+  pointer-events: none;
+}
+
+/* Pull-back: the note stays while the camera eases out of the close-up, then fades (~1.4 s into the move). */
+.caption[data-visible='false'][data-leaving='reveal'] {
+  animation: captionOut 700ms 1400ms var(--ease-out) both;
+}
+
+/* Skip: gone at once. */
+.caption[data-visible='false'][data-leaving='skip'] {
+  animation: none;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+@keyframes captionIn {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes captionOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Phone landscape: little height — compact, beside the Skip button's row. */
+@media (max-height: 480px) {
+  .caption {
+    top: 12px;
+    bottom: auto;
+    right: 120px;
+    max-height: calc(100vh - 80px);
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .caption p:first-child {
+    font-size: 15px;
+  }
+}

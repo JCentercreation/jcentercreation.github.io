@@ -1,0 +1,664 @@
+/* Notes-style portfolio. Light theme, Apple system typography. */
+.app {
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --line: #e3e3e7;
+  --side: #ecebef;
+  --list: #f6f5f8;
+  --accent: #e5b800;
+  --select: #f5d74a;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  overflow: hidden;
+  animation: appear 260ms ease-out both;
+  color-scheme: light;
+}
+
+/* On the MacBook display: a fixed 1280 × 841 canvas, mapped onto the 3D screen. */
+.screen {
+  width: 1280px;
+  height: 841px;
+}
+
+/* Phones / portrait: full-screen sheet above the 3D view. */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  border-radius: 0;
+}
+
+.app button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app :focus-visible {
+  outline: 3px solid #0a84ff;
+  outline-offset: 2px;
+}
+
+/* ---- toolbar ---- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: #f7f6f9;
+  flex: none;
+}
+
+.lights {
+  display: flex;
+  gap: 8px;
+}
+
+.lights > * {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+}
+
+.red {
+  background: #ff5f57;
+}
+
+.red:hover::after {
+  content: '×';
+  display: block;
+  font-size: 12px;
+  line-height: 12px;
+  color: #6b0d08;
+}
+
+.yellow {
+  background: #febc2e;
+}
+
+.green {
+  background: #28c840;
+}
+
+.appName {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.toolbarActions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.toolbarBtn {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px !important;
+}
+
+.toolbarBtn:hover {
+  background: #f0f0f3;
+}
+
+/* ---- three columns ---- */
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 180px 290px 1fr;
+  min-height: 0;
+}
+
+.folders {
+  background: var(--side);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.account {
+  color: var(--muted);
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.folder {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(229, 184, 0, 0.22);
+}
+
+.folder span {
+  color: var(--muted);
+}
+
+.list {
+  outline: none;
+  background: var(--list);
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.noteItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+}
+
+.noteItem strong {
+  font-size: 15px;
+}
+
+.noteItem span {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noteItem:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.noteItem[aria-current='true'] {
+  background: var(--select);
+}
+
+.noteItem[aria-current='true'] span {
+  color: #4a4022;
+}
+
+/* ---- note ---- */
+.note {
+  overflow-y: auto;
+  padding: 36px 56px 48px;
+  animation: noteIn 180ms ease-out both;
+}
+
+.note h1 {
+  margin: 0 0 18px;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.note h2 {
+  margin: 26px 0 10px;
+  font-size: 18px;
+}
+
+.note p {
+  margin: 0 0 14px;
+  max-width: 62ch;
+}
+
+.lead {
+  color: var(--muted);
+}
+
+.bullets,
+.checklist {
+  margin: 0 0 18px;
+  padding-left: 22px;
+}
+
+.bullets li,
+.checklist li {
+  margin-bottom: 6px;
+}
+
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px #fff, 0 0 0 1.5px var(--accent);
+  vertical-align: -1px;
+}
+
+.primary {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.primary:hover {
+  background: #000;
+}
+
+/* timeline */
+.timeline {
+  margin: 8px 0 24px;
+  padding: 14px 16px 30px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  position: relative;
+}
+
+.timeline figcaption {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.timelineRows {
+  display: grid;
+  gap: 6px;
+}
+
+.timelineRow {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: center;
+  font-size: 13px;
+}
+
+.timelineName {
+  color: var(--muted);
+}
+
+.timelineTrack {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: #f1f1f4;
+}
+
+.timelineBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 5px;
+  background: var(--accent);
+}
+
+.timelineYears {
+  position: absolute;
+  left: calc(16px + 84px);
+  right: 16px;
+  bottom: 8px;
+  height: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.timelineYears span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+/* companies */
+.companies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.company {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+}
+
+.company:hover {
+  background: #fafafb;
+}
+
+.companyText {
+  display: flex;
+  flex-direction: column;
+}
+
+.companyText span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.chevron {
+  margin-left: auto;
+  font-size: 22px;
+  color: var(--muted);
+  width: 24px;
+  text-align: center;
+}
+
+.logo {
+  flex: none;
+  width: 96px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logoPending {
+  border: 1.5px dashed #c7c7cc;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.companyDetail {
+  margin: 6px 0 4px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fafafb;
+  font-size: 15px;
+}
+
+.companyDetail dt {
+  font-weight: 600;
+}
+
+.companyDetail dd {
+  margin: 0 0 8px;
+}
+
+.pending {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.callout {
+  margin-top: 22px;
+  padding: 4px 18px 8px;
+  border-left: 4px solid var(--accent);
+  background: #fffbea;
+  border-radius: 0 10px 10px 0;
+}
+
+/* skills */
+.skillGroup h2 {
+  margin-top: 18px;
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chips li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f1f1f4;
+  font-size: 15px;
+}
+
+/* projects */
+.projectGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+}
+
+.projectCard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+}
+
+.projectCard:hover {
+  border-color: #d1d1d6;
+  background: #fafafb;
+}
+
+.projectCard span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.projectCard em {
+  align-self: flex-start;
+  font-style: normal;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff3c4;
+  color: #6b5600;
+}
+
+.back {
+  margin-bottom: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0a64d6 !important;
+  font-size: 15px;
+}
+
+.status span {
+  font-weight: 600;
+}
+
+.links {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.links a,
+.companyDetail a,
+.callout a {
+  color: #0a64d6;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- sheet (phones / portrait) ---- */
+.sheet .body {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
+.sheet .folders {
+  display: none;
+}
+
+.sheet .list {
+  flex-direction: row;
+  overflow-x: auto;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 8px;
+}
+
+.sheet .noteItem {
+  flex: none;
+  padding: 8px 12px;
+}
+
+.sheet .noteItem span {
+  display: none;
+}
+
+.sheet .note {
+  padding: 22px 18px 40px;
+}
+
+.sheet .note h1 {
+  font-size: 28px;
+}
+
+.sheet .toolbar {
+  padding-top: env(safe-area-inset-top);
+  height: calc(52px + env(safe-area-inset-top));
+}
+
+.sheet .appName {
+  display: none;
+}
+
+.sheet .toolbarActions {
+  min-width: 0;
+}
+
+.sheet .toolbarBtn {
+  flex: 0 0 auto;
+}
+
+.sheet .toolbarBtn:not(:last-child) {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The notes list takes focus on open (for arrow keys) — no ring on the container itself. */
+.app .list:focus-visible {
+  outline: none;
+}
+
+/* Same safeguard as the iPad: no entrance animations on the CSS3D-mapped screen. */
+.screen,
+.screen .note {
+  animation: none;
+}
+
+/* Touch: 44 × 44 px hit areas without changing the Notes look. Invisible areas where a control stands alone;
+   vertical-only areas inside the padding of the scrolling section tabs; padding for stacked text links. */
+@media (pointer: coarse) {
+  .red,
+  .toolbarBtn,
+  .back,
+  .sheet .noteItem {
+    position: relative;
+  }
+
+  .red::before,
+  .toolbarBtn::before,
+  .back::before,
+  .sheet .noteItem::before {
+    content: '';
+    position: absolute;
+  }
+
+  /* 13 px traffic light → 44 px (the yellow and green lights next to it are decorative). */
+  .red::before {
+    inset: -16px;
+  }
+
+  /* 32 px tall toolbar buttons; 8 px apart, so each grows by at most 3 px sideways. */
+  .toolbarBtn::before {
+    inset: -6px -3px;
+  }
+
+  /* "← All side projects" is a text button with no padding. */
+  .back::before {
+    inset: -11px -6px;
+  }
+
+  .sheet .noteItem::before {
+    inset: -3px 0;
+  }
+
+  /* In the phone sheet the toolbar buttons clip their own overflow (the long label is truncated with an
+     ellipsis), which would clip an invisible hit area too: they get a real 44 px size instead (the 52 px
+     toolbar already has the room). */
+  .sheet .toolbarBtn {
+    min-height: 44px;
+  }
+
+  .sheet .toolbarBtn:last-child {
+    min-width: 44px;
+  }
+
+  .sheet .toolbarBtn::before {
+    content: none;
+  }
+
+  .links a {
+    display: inline-block;
+    padding: 11px 0;
+  }
+}

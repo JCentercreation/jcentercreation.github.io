@@ -1,0 +1,141 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 90% at 50% 60%, #0d1118 0%, var(--bg) 70%);
+  transition: opacity 900ms var(--ease-out), visibility 0s linear 900ms;
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  /* Don't swallow clicks (e.g. on Skip) while fading out. */
+  pointer-events: none;
+}
+
+.inner {
+  width: min(320px, calc(100vw - 32px));
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.hint {
+  margin: 0 0 22px;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cold), var(--accent));
+  transform-origin: left;
+  transition: transform 400ms var(--ease-out);
+}
+
+.percent {
+  margin-top: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+}
+
+/* A faint lamp glow that "warms up" while loading. */
+.glow {
+  position: absolute;
+  width: 46vmin;
+  height: 46vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 180, 106, 0.16), transparent 65%);
+  filter: blur(8px);
+  animation: breathe 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* Indeterminate: a short highlight sweeping the track — no invented percentage. */
+.indeterminate .bar {
+  width: 32%;
+  transform: none;
+  animation: sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indeterminate .bar {
+    width: 100%;
+    opacity: 0.5;
+    animation: none;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.slow {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.slow button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

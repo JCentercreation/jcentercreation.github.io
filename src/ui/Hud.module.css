@@ -1,0 +1,226 @@
+.hud {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  transition: opacity 600ms var(--ease-out);
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.topRight {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  display: flex;
+  gap: 8px;
+}
+
+.bottomLeft {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+}
+
+.pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.langBtn {
+  min-width: 36px;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 200ms, color 200ms;
+}
+
+.langBtn[aria-pressed='true'] {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--fg);
+}
+
+.back {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px 0 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out);
+}
+
+.back[hidden] {
+  display: none;
+}
+
+.back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.bottomRight {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  right: max(16px, env(safe-area-inset-right));
+  left: max(16px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Slow loading: a short explanation above the simple-version option (loading itself continues). */
+.slowNote {
+  max-width: 340px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  margin: 0;
+  max-width: min(560px, calc(100vw - 32px));
+  transform: translate(-50%, 8px);
+  padding: 9px 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--fg-muted);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+}
+
+.hint[data-visible='true'] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(12, 14, 18, 0.86);
+  border: 1px solid var(--surface-border);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.tooltip[data-visible='true'] {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .tooltip {
+    display: none;
+  }
+}
+
+.places {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100vw - 160px);
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
+.places:has(:focus-visible) {
+  clip-path: none;
+  pointer-events: auto;
+}
+
+.places button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.places button[aria-current='true'] {
+  border-color: var(--accent);
+}
+
+/* Comfortable touch targets for Skip / Back on touch screens. */
+@media (pointer: coarse) {
+  .back {
+    min-height: 44px;
+    padding: 0 16px 0 12px;
+    font-size: 14px;
+  }
+}
+
+/* Touch: the language buttons keep their look, 44 px wide, with an invisible hit area that extends their
+   28 px height to 44 px (above and below only, so the two buttons' areas never overlap). */
+@media (pointer: coarse) {
+  .langBtn {
+    position: relative;
+    min-width: 44px;
+  }
+
+  .langBtn::before {
+    content: '';
+    position: absolute;
+    inset: -8px 0;
+  }
+}
