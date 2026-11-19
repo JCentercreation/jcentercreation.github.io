@@ -703,4 +703,11 @@
     position: absolute;
     inset: -4px;
   }
+
+  /* On the 3D iPad screen (tablets in landscape) the whole UI is drawn at roughly half scale, so the hit
+     area needs about 80 CSS px to stay 44 px on screen. The close button sits alone in the top-right corner,
+     clear of the header and sections. */
+  .screen .close::before {
+    inset: -22px;
+  }
 }
